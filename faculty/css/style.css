@@ -11,3 +11,26 @@ html, body {
 .module-nav {
     margin: 24px 0;
 }
+
+#refresh-data {
+    margin-right: 24px;
+    width: 125px;
+}
+
+#refresh-data .fas {
+    margin-right: 6px;
+}
+
+.refresh-data-row .fas {
+    margin-left: 6px;
+}
+
+.refresh-data-row {
+    display: flex;
+    flex-direction: row;
+}
+
+#refresh-data .progress {
+    background-color: #ccc;
+    flex: 1;
+}

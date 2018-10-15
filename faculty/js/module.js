@@ -19,6 +19,54 @@ const Module = {
     </div>`
 };
 
-const ModuleDemographics = { template: "<div>Demographics stuff here</div>" };
+const ModuleDemographics = {
+    data() {
+        return {
+            grades: [],
+            degrees: [],
+            years: []
+        };
+    },
+    created() {
+        this.fetchData();
+    },
+    methods: {
+        fetchData() {
+            var vue = this;
+            fetch("/backend/faculty/demographics/"+this.$route.params.module)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(json) {
+                vue.grades = json.grades;
+                vue.degrees = json.degrees;
+                vue.years = json.years;
+            })
+        }
+    }, 
+    watch: {
+        '$route' (to, from) {
+            this.fetchData();
+        }
+    }, 
+    template: `<div>
+    <div class='row'>
+        <div class='col'>
+        <year-chart :data="years"></year-chart>
+        </div>
+        <div class='col'>
+        </div>
+    </div>
+    <div class='row'>
+        <div class='col'>
+        </div>
+        <div class='col'>
+        </div>
+    </div>
+    </div>`
+};
+
 const ModuleAcademics = { template: "<div>Academics stuff here</div>" };
 const ModuleEnrolment = { template: "<div>Enrolment stuff here</div>" };
+
+// 
