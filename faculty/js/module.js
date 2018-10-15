@@ -170,6 +170,53 @@ const ModuleDemographics = {
 };
 
 const ModuleAcademics = { template: "<div>Academics stuff here</div>" };
-const ModuleEnrolment = { template: "<div>Enrolment stuff here</div>" };
 
-//
+const ModuleEnrolment = { 
+    data() {
+        return {
+            enrolment: []
+        };
+    },
+    mounted() {
+        this.fetchData();
+    }, 
+    methods: {
+        fetchData: function() {
+            var vue = this;
+            fetch("/backend/faculty/enrolment/" + this.$route.params.module)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    vue.enrolment = json;
+                });
+        }
+    }, 
+    template: `
+    <transition name='fade'>
+    <table class='table table-hover' v-if='enrolment.length > 0'>
+        <thead class='thead-light'>
+            <tr>
+                <th>Token</th>
+                <th>Degree</th>
+                <th>Admit Term</th>
+                <th>CAP</th>
+                <th>Attendance Rate</th>
+                <th>Webcast Rate</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for='row in enrolment'>
+                <td>{{row.token_json}}</td>
+                <td>{{row.degrees}}</td>
+                <td>{{row.admit_term}}</td>
+                <td>{{row.CAP}}</td>
+                <td>{{row.attendance}}%</td>
+                <td>{{row.webcast}}%</td>
+                <td><a :href='"mailto:"+row.token_json+"@u.nus.edu?subject=["+$route.params.module+"] "' class='btn btn-info'><i class='fas fa-envelope'></i></a></td>
+            </tr>
+        </tbody>
+    </table>
+    </transition>`
+ };
