@@ -1,6 +1,6 @@
 const Module = {
     template: `
-    <div>
+    <div class='module-page'>
         <h1>{{$route.params.module}}</h1>
         <ul class=" module-nav nav nav-pills nav-fill">
             <li class='nav-item'>
@@ -23,44 +23,147 @@ const ModuleDemographics = {
     data() {
         return {
             grades: [],
-            degrees: [],
-            years: []
+            degrees: [], 
+            yearsChart: null,
+            pastGradesChart: null,
+            currGradesChart: null
         };
     },
-    created() {
+    mounted() {
         this.fetchData();
+
+        this.yearsChart = new Chart(document.getElementById("yearsChart"), {
+            type: "pie",
+            data: {
+                labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
+                datasets: [
+                    {
+                        label: "No. of students",
+                        data: [0, 0, 0, 0],
+                        backgroundColor: [
+                            "rgba(255, 99, 132, 0.6)",
+                            "rgba(54, 162, 235, 0.6)",
+                            "rgba(255, 206, 86, 0.6)",
+                            "rgba(75, 192, 192, 0.6)"
+                        ]
+                    }
+                ]
+            },
+            options: {
+                cutoutPercentage: 50,
+                animation: {
+                    animateScale: true
+                }
+            }
+        });
+
+        this.currGradesChart = new Chart(document.getElementById("currGradesChart"), {
+            type: "bar",
+            data: {
+                labels: ['First', 'Second Upper', 'Second Lower', 'Third', 'Pass', 'Fail'],
+                datasets: [
+                    {
+                        label: "No. of students",
+                        data: [0, 0, 0, 0, 0, 0],
+                        backgroundColor: "rgba(100, 155, 255, 0.6)"
+                    }
+                ]
+            }, 
+            options: {
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 10
+                    }
+                }
+            }
+        });
+
+        this.pastGradesChart = new Chart(document.getElementById("pastGradesChart"), {
+            type: "bar",
+            data: {
+                labels: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"],
+                datasets: [
+                    {
+                        label: "No. of students",
+                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: "rgba(100, 155, 255, 0.6)"
+                    }
+                ]
+            }
+        });
+
     },
     methods: {
         fetchData() {
             var vue = this;
-            fetch("/backend/faculty/demographics/"+this.$route.params.module)
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(json) {
-                vue.grades = json.grades;
-                vue.degrees = json.degrees;
-                vue.years = json.years;
-            })
+            fetch("/backend/faculty/demographics/" + this.$route.params.module)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    vue.grades = json.grades;
+                    vue.degrees = json.degrees;
+
+                    // Update years 
+                    vue.yearsChart.data.datasets[0].data = json.years;
+                    vue.yearsChart.update();
+
+                    // Update current grades
+                    for (let i = 0; i < json.curr_grades.length; i++) {
+                        vue.currGradesChart.data.datasets[0].data[i] = json.curr_grades[i][1];
+                    }
+                    vue.currGradesChart.update();
+                    
+                    // Update past grades
+                    for (let i = 0; i < json.grades.length; i++) {
+                        vue.pastGradesChart.data.datasets[0].data[i] = json.grades[i][1];
+                    }
+                    vue.pastGradesChart.update();
+                });
         }
-    }, 
+    },
     watch: {
-        '$route' (to, from) {
+        $route(to, from) {
             this.fetchData();
         }
-    }, 
+    },
     template: `<div>
     <div class='row'>
-        <div class='col'>
-        <year-chart :data="years"></year-chart>
+        <div class='demographic-chart card'>
+            <h2>Years of incoming students</h2>
+            <p>Your current students are made up of:</p>
+            <canvas id="yearsChart" width="100" height="70"></canvas>
         </div>
-        <div class='col'>
+        <div class='demographic-chart card'>
+            <h2>Grades of incoming students</h2>
+            <p>Your current students have the following grades:</p>
+            <canvas id="currGradesChart" width="100" height="70"></canvas>
         </div>
     </div>
     <div class='row'>
-        <div class='col'>
+        <div class='demographic-chart card'>
+            <h2>Historical grades</h2>
+            <p>The students who took this class in previous semesters got the following grades:</p>
+            <canvas id="pastGradesChart" width="100" height="70"></canvas>
         </div>
-        <div class='col'>
+        <div class='demographic-chart card'>
+            <h2>Degrees</h2>
+            <p>Your current students are currently pursuing:</p>
+            <table class='table table-sm table-hover'>
+                <thead class='thead-light'>
+                    <tr>
+                        <th>Degree Name</th>
+                        <th>No.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for='degree in degrees'>
+                        <td>{{degree[0]}}</td>
+                        <td>{{degree[1]}}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
     </div>`
@@ -69,4 +172,4 @@ const ModuleDemographics = {
 const ModuleAcademics = { template: "<div>Academics stuff here</div>" };
 const ModuleEnrolment = { template: "<div>Enrolment stuff here</div>" };
 
-// 
+//

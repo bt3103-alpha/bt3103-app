@@ -12,6 +12,10 @@ html, body {
     margin: 24px 0;
 }
 
+
+
+/* Refresh data formatting */
+
 #refresh-data {
     margin-right: 24px;
     width: 125px;
@@ -33,4 +37,14 @@ html, body {
 #refresh-data .progress {
     background-color: #ccc;
     flex: 1;
+}
+
+/* Module page */
+
+.module-page .demographic-chart {
+    padding: 24px;
+    margin: 8px;
+    box-sizing: border-box;
+
+    width: calc(50% - 16px);
 }
