@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>View Module | Ultimods</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/vue"></script>
+    <script src='js/search.js'></script>
+
+
+    <script src="https://gojs.net/latest/release/go.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700' rel='stylesheet' type='text/css'>
+
+
+    <script src="js/view-module.js"></script>
+
+</head>
+
+<body>
+    <div id='app'>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="main.html">Ultimods</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="main.html">Schedule</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="view-module.html">View Modules</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="grad.html">Graduation Progress</a>
+                    </li>
+                </ul>
+                <div>
+                    Welcome back, {{name}}!
+                    <a href='profile.html' class='nav-icon'>
+                        <i class='fas fa-cog'></i>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        <div class='container'>
+            <p>Search:</p>
+            <input type='text' onkeyup='searchModules()' id='module_search' class='form-control' placeholder="e.g. BT1101, Mining Web Data">
+            <div id='search_results' class='search_results'></div>
+        </div>
+        <div v-if="module_code" class='container'>
+            <h1>{{module_code}}</h1>
+            <div class='row'>
+                <div class='col-9'>
+                    <div id='moduleInfo'>
+                        <h2>Module Description</h2>
+                        <p>
+                            Module description for {{module_code}} here. Lorem ipsum dolor sit, amet consectetur
+                            adipisicing elit. Nulla amet vel illum voluptatum. Reprehenderit expedita inventore
+                            accusamus molestiae error illo officiis, deleniti eveniet. Sapiente esse expedita incidunt
+                            pariatur eum ad.
+                        </p>
+                        <p>
+                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quo eveniet aspernatur neque illo
+                            veniam placeat nemo sapiente obcaecati hic, eaque rem molestiae, sunt fugit labore. Cum
+                            commodi hic doloremque voluptas!
+                        </p>
+                        <h2>Prerequisites</h2>
+                        <div class="row">
+                            <p>
+                                <div style="float:left; margin-right:50px; margin-top: 15px">
+                                    <div class='module module-missing'>
+                                        <a href='view-module.html' class='view-module'>BT2101</a>
+                                        <span>Data Management and Visualisation</span>
+                                    </div>
+                                </div>
+                                <div style="float: right; margin-right: 50px">
+                                    <div class='module module-cleared'>
+                                        <a href='view-module.html' class="view-module">BT1101</a>
+                                        <span>Introduction to Business Analytics</span>
+                                    </div>
+                                    <div class='module module-cleared'>
+                                        <a href='view-module.html' class="view-module">CS1010S</a>
+                                        <span>Programming Methodology</span>
+                                    </div>
+                                </div>
+                            </p>
+                        </div>
+                        <!-- <div class='row'>
+                            <div id="sample">
+                                <div id="prereqTree" style="background-color: white; border: solid 1px black; width: 100%; height: 550px"></div>
+                                <p><button id="zoomToFit">Zoom to Fit</button> <button id="centerRoot">Center on root</button></p>
+                            </div>
+                        </div> -->
+                        <h2>Tags</h2>
+                        <button v-for="modtag in this.tag_arr" type='button' title="Similar modules: BT1101" data-toggle='tooltip' class='btn' style='margin-right: 6px;'>{{modtag}}</button>
+                    </div>
+                </div>
+                <div class='col-3'>
+                    <button type='button' class='btn btn-primary' data-toggle='modal' data-target='#timetableModal'
+                        style='margin: 0 6px 6px 0'>
+                        <i class='fas fa-plus'></i>&nbsp;&nbsp;
+                        Add Module to Schedule
+                    </button>
+                    <button type='button' class='btn btn-primary' data-toggle='modal' data-target='#timetableModal'>
+                        <i class='fas fa-plus'></i>&nbsp;&nbsp;
+                        Add Module &amp; Missing Prereqs to Schedule
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="timetableModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add to Schedule</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <table class='table modules'>
+                            <thead>
+                                <tr>
+                                    <th>Y1S1</th>
+                                    <th>Y1S2</th>
+                                    <th>Y2S1</th>
+                                    <th>Y2S2</th>
+                                    <th>Y3S1</th>
+                                    <th>Y3S2</th>
+                                    <th>Y4S1</th>
+                                    <th>Y4S2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class='module'>
+                                            BT1101
+                                        </div>
+                                        <div class='module'>
+                                            CS1010S
+                                        </div>
+                                        <div class='module'>
+                                            MKT1003X
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class='module'>
+                                            BT2101
+                                        </div>
+                                        <div class='module'>
+                                            EC1301
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>16 MCs</td>
+                                    <td>8 MCs</td>
+                                    <td>0 MCs</td>
+                                    <td>0 MCs</td>
+                                    <td>0 MCs</td>
+                                    <td>0 MCs</td>
+                                    <td>0 MCs</td>
+                                    <td>0 MCs</td>
+                                </tr>
+                                <tr>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                    <td><button type='button' class='btn btn-warning'><i class='fas fa-plus'></i>&nbsp;&nbsp;Add</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" data-dismiss='modal'>Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+        });
+    </script>
+</body>
+
+</html>

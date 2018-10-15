@@ -1,0 +1,345 @@
+html,
+body {
+    min-height: 100vh;
+}
+
+#app > div {
+    margin-top: 24px;
+}
+
+.nav-item {
+    margin-left: 24px;
+}
+
+.nav-item.active {
+    font-weight: 500;
+}
+
+.nav-icon {
+    color: #aaa;
+    padding: 8px;
+    transition: color 0.2s;
+}
+
+.nav-icon:hover {
+    color: #555;
+}
+
+.schedule-semester {
+    background-color: #efefef;
+    min-height: 25px;
+    float: left;
+    margin: 4px 0;
+}
+
+.draggable,
+.schedule-semester {
+    border-radius: 4px;
+}
+
+.module,
+.schedule-semester {
+    width: 100%;
+    max-width: 200px;
+}
+
+.module + .module {
+    margin-top: 6px;
+}
+
+.draggable {
+    cursor: move;
+    box-shadow: 1px 1px 4px -2px rgba(0, 0, 0, 0.9);
+}
+
+.draggable:hover {
+    box-shadow: inset 0 0 100px 100px rgba(255, 255, 255, 0.1), 0px 0px 10px -2px rgba(0, 0, 0, 0.8);
+}
+
+.module-link {
+    background-color: #dbdbdb;
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: black;
+    font-size: 14px;
+    line-height: 24px;
+}
+
+.module {
+    background-color: #ccc;
+    padding: 4px 8px;
+    position: relative;
+}
+
+.module-schedule {
+    text-align: left;
+}
+
+.module-header {
+    display: flex;
+}
+
+.module .module-name {
+    font-weight: 500;
+    flex: 1;
+}
+
+.module .module-delete {
+    opacity: 0.3;
+    font-size: 12px;
+    transition: opacity 0.2s;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.module .module-delete:hover {
+    opacity: 0.9;
+}
+
+.module .module-info {
+    font-size: 0.8em;
+}
+
+.module-add {
+    display: flex;
+    align-items: center;
+}
+
+.module-general {
+    font-style: italic;
+    /* font-weight: bold; */
+}
+
+.module-core {
+    background-color: #abd4a5;
+}
+
+.module-pe {
+    background-color: rgb(154, 190, 226);
+}
+
+.module-ue {
+    background-color: rgb(218, 164, 194);
+}
+
+.module-missing {
+    background-color: #f89e9e;
+}
+
+.module-cleared {
+    background-color: #97ec8a ;
+}
+
+.module-grade {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.4);
+    right: 0;
+    top: 0;
+    height: 100%;
+    /* width: 50px; */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.module-grade > select {
+    margin: 0 6px;
+}
+
+.module-grade > span {
+    font-weight: 500;
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.module a {
+    color: rgba(0, 0, 0, 0.6);
+    transition: opacity 0.2s;
+}
+
+.view-module-icon {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.module a:hover .view-module-icon {
+    opacity: 1;
+}
+
+.select-module:hover {
+    text-decoration: none;
+}
+
+.filler {
+    flex: 1;
+}
+
+.module a:hover {
+    opacity: 0.7;
+}
+
+.module .module-add {
+    cursor: pointer;
+    width: 20px;
+}
+
+.module .module-add:hover {
+    color: orange;
+}
+
+.modules {
+    table-layout: fixed;
+}
+
+.modules th,
+.modules td {
+    padding: 8px 6px;
+    text-align: center;
+}
+
+.tags {
+    background-color: #d0dcec;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+table.google-visualization-orgchart-table {
+    border-collapse: inherit;
+}
+
+/* Headers */
+
+h1 {
+    margin-bottom: 32px;
+}
+
+h2 {
+    margin-bottom: 24px;
+}
+
+h3 {
+    margin-top: 18px;
+    margin-bottom: 12px;
+    font-size: 24px;
+}
+
+.suggestion-search {
+    margin-top: 24px;
+}
+
+#elective-selection {
+    max-width: 500px;
+}
+
+#elective-selection > .card-header {
+    display: flex;
+    align-items: center;
+}
+
+#elective-selection .card-title {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 0;
+}
+
+#elective-selection-close {
+    padding: 4px;
+    cursor: pointer;
+    color: grey;
+    transition: opacity 0.2s;
+}
+
+#elective-selection-close:hover {
+    opacity: 0.6;
+}
+
+/* Search Box stuff */
+
+.search_results {
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+    background-color: white;
+    z-index: 100;
+    position: absolute;
+}
+
+.search_results > a {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    color: #333;
+}
+
+.search_results > a:hover {
+    background-color: #eee;
+    text-decoration: none;
+}
+
+/* Graduation Progress */
+
+.grad_modules_taken {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.grad_modules_taken > li {
+    float: left;
+    margin-right: 12px;
+}
+
+/* Animations */
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.2s;
+}
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.slideRight-enter-active,
+.slideRight-leave-active {
+    transition: all 0.2s;
+}
+.slideRight-enter,
+.slideRight-leave-to {
+    transform: scaleX(0);
+    transform-origin: center right;
+}
+
+/* Text colouring */
+.colour-red {
+    color: red;
+}
+
+.colour-green {
+    color: rgb(41, 184, 41);
+}
+
+.colour-orange {
+    color: orange;
+}
