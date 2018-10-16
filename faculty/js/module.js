@@ -50,42 +50,12 @@ function donutChart(id, labels = []) {
     });
 }
 
-function barChart(id, colour, labels = []) {
-    return new Chart(document.getElementById(id), {
-        type: "bar", 
-        data: {
-            labels: labels, 
-            datasets: [
-                {
-                    label: "No. of students",
-                    data: [],
-                    backgroundColor: colour
-                }
-            ]
-        },
-        options: {
-            layout: {
-                padding: {
-                    left: 10,
-                    right: 10,
-                }
-            }, 
-            scales: {
-                yAxes: [{
-                    ticks: { beginAtZero: true }
-                }]
-            }
-        }
-    })
-}
-
 const ModuleDemographics = {
     data() {
         return {
             grades: [],
             degrees: [], 
             yearsChart: null,
-            pastGradesChart: null,
             currGradesChart: null,
             facultiesChart: null,
             academicLoadChart: null,
@@ -96,7 +66,6 @@ const ModuleDemographics = {
 
         this.yearsChart = donutChart("yearsChart", ["Year 1", "Year 2", "Year 3", "Year 4"]);
         this.currGradesChart = barChart("currGradesChart", "rgba(100, 155, 255, 0.6)", ['First', 'Second Upper', 'Second Lower', 'Third', 'Pass', 'Fail']);
-        this.pastGradesChart = barChart("pastGradesChart", "rgba(100, 155, 255, 0.6)", ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]);
         this.facultiesChart = barChart("facultiesChart", "rgba(100, 155, 255, 0.6)");
         this.academicCareerChart = donutChart("academicCareerChart");
         this.academicLoadChart = donutChart("academicLoadChart");
@@ -134,10 +103,6 @@ const ModuleDemographics = {
 
                     // Update academic careers
                     vue.updateChart(vue.academicLoadChart, json.academic_load);
-                    
-                    // Update past grades
-                    vue.pastGradesChart.data.datasets[0].data = json.grades;
-                    vue.pastGradesChart.update();
                 });
         }
     },
@@ -152,11 +117,6 @@ const ModuleDemographics = {
             <h2>Years of incoming students</h2>
             <p>Your current students are made up of:</p>
             <canvas id="yearsChart" width="100" height="70"></canvas>
-        </div>
-        <div class='demographic-chart card'>
-            <h2>Grades of incoming students</h2>
-            <p>Your current students have the following grades:</p>
-            <canvas id="currGradesChart" width="100" height="70"></canvas>
         </div>
         <div class='demographic-chart card'>
             <h2>Faculties of incoming students</h2>
@@ -176,10 +136,10 @@ const ModuleDemographics = {
             <canvas id="academicCareerChart" width="100" height="70"></canvas>
         </div>
         <div class='demographic-chart card'>
-            <h2>Historical grades</h2>
-            <p>The students who took this class in previous semesters got the following grades:</p>
-            <canvas id="pastGradesChart" width="100" height="70"></canvas>
-        </div>
+            <h2>Grades of incoming students</h2>
+            <p>Your current students have the following grades:</p>
+            <canvas id="currGradesChart" width="100" height="70"></canvas>
+        </div>  
         <div class='demographic-chart card'>
             <h2>Degrees</h2>
             <p>Your current students are currently pursuing:</p>
@@ -202,7 +162,73 @@ const ModuleDemographics = {
     </div>`
 };
 
-const ModuleAcademics = { template: "<div class='container'>Academics stuff here</div>" };
+const ModuleAcademics = { 
+    props: ['show_extra_data'], 
+    data() {
+        return {
+            attendanceCapChart: null, 
+            webcastCapChart: null,
+            pastGradesChart: null,
+        }; 
+    }, 
+    mounted() {
+        if (this.show_extra_data){
+            this.buildCharts();
+        }
+    }, 
+    watch: {
+        show_extra_data(newVar, oldVar) {
+            if (newVar) {
+                // Redisplay charts
+                setTimeout(this.buildCharts, 100);
+            }
+        } 
+    }, 
+    methods: {
+        buildCharts: function() {
+            this.pastGradesChart = barChart("pastGradesChart", "rgba(100, 155, 255, 0.6)", ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]);
+            this.attendanceCapChart = scatterChart('attendanceCapChart', "rgba(54, 162, 235, 0.6)");
+            this.webcastCapChart = scatterChart('webcastCapChart', "rgba(255, 99, 132, 0.6)");
+            this.fetchData();
+        }, 
+        fetchData: function() {
+            var vue = this;
+            fetch('/backend/faculty/academics/' + this.$route.params.module)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    vue.attendanceCapChart.data.datasets[0].data = json.attendance_cap;
+                    vue.attendanceCapChart.update();
+                    vue.webcastCapChart.data.datasets[0].data = json.webcast_cap;
+                    vue.webcastCapChart.update();
+                    
+                    // Update past grades
+                    vue.pastGradesChart.data.datasets[0].data = json.grades;
+                    vue.pastGradesChart.update();
+                })
+        }
+    }, 
+    template: `<div class='container-fluid'>
+        <div class='chart-rows'>
+            <div class='demographic-chart card'>
+                <h2>Historical grades</h2>
+                <p>The students who took this class in previous semesters got the following grades:</p>
+                <canvas id="pastGradesChart" width="100" height="70"></canvas>
+            </div>
+            <div class='demographic-chart card' v-if='show_extra_data'>
+                <h2>Attendance vs CAP</h2>
+                <p>Your current students are:</p>
+                <canvas id="attendanceCapChart" width="100" height="70"></canvas>
+            </div>
+            <div class='demographic-chart card' v-if='show_extra_data'>
+                <h2>Webcast vs CAP</h2>
+                <p>Your current students are:</p>
+                <canvas id="webcastCapChart" width="100" height="70"></canvas>
+            </div>
+        </div>
+    </div>`
+};
 
 const ModuleEnrolment = { 
     props: ['show_extra_data'], 

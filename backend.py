@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from io import StringIO
 import asyncio
+import re
 
 backend = Blueprint('backend', __name__)
 
@@ -11,12 +12,18 @@ module_enrolment = None
 program_enrolment = None
 mockedup_data = None
 student_attention = None
+student_attention_cap = None
 cap = None
+module_names = {}
 fetchProgress = 0
 
 grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
           "B-": 3.0, "C+": 2.5, "C": 2.0, "D+": 1.5, "D": 1.0, "F": 0}
 
+def fetchPrereqs(module_code):
+    j = requests.get("https://api.nusmods.com/2018-2019/modules/"+module_code+"/index.json").json()
+    prereqs = j.get("Prerequisite", "")
+    return re.findall(r'[A-Z]{2,3}[0-9]{4}[A-Z]?', prereqs)
 
 async def fetchGoogleSheet(url_num, sheet_name):
     '''
@@ -84,7 +91,7 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function. 
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, cap
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, cap, student_attention_cap
 
     print("Fetching data")
     fetchProgress = 0
@@ -93,10 +100,10 @@ async def fetchData():
     module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
     fetchProgress = 20
 
-    cap = module_enrolment[['module_credits', 'original_letter_grade', 'token']].copy()
-    cap['grade'] = cap['original_letter_grade'].apply(getScore)
+    cap = module_enrolment[['module_credits', 'final_grade', 'token']].copy()
+    cap['grade'] = cap['final_grade'].apply(getScore)
     cap['module_credits'] = cap['module_credits'].apply(lambda x: 4 if x == 0 else x)
-    cap = cap.dropna().drop('original_letter_grade', axis=1)
+    cap = cap.dropna().drop('final_grade', axis=1)
     cap['score'] = cap['grade'] * cap['module_credits']
     cap = cap.groupby('token').sum()
     
@@ -110,6 +117,9 @@ async def fetchData():
     
     student_attention = await fetchGoogleSheet(3, 'Sheet1')
     fetchProgress = 75
+    
+    student_attention_cap = student_attention.join(cap, on='token', how='inner')
+    
     mockedup_data = await fetchFirebase(
         "https://bt3103-mockup.firebaseio.com/.json")
     fetchProgress = 100
@@ -157,14 +167,6 @@ def moduleDemographics(module_code):
     module_current = module_subset[module_subset.term == max(module_subset.term)]
     #program_current = program_enrolment[program_enrolment.term == max(program_enrolment.term)]
     program_current = module_current[['token']].join(program_enrolment.set_index('Token'), on='token', how='inner')
-
-    # Fetch a count of past grades
-    # We need to do it this way to make sure it's in order 
-    # (and only grades we're interested in)
-    subset_grades = module_subset.original_letter_grade.value_counts()
-    results["grades"] = []
-    for grade in grades.keys():
-        results["grades"].append(int(subset_grades.get(grade, 0)))
 
     # Fetch program information about current students
     results["degrees"] = countsAsLists(program_current.degree_descr)
@@ -218,3 +220,36 @@ def moduleEnrolment(module_code):
     df['CAP'] = df['CAP'].apply(lambda x: format(x, '.2f'))
 
     return jsonify(df.fillna(0).to_dict('records'))
+
+@backend.route('/backend/faculty/academics/<module_code>')
+def moduleAcademics(module_code):
+    module_subset = module_enrolment[module_enrolment.module_code == module_code]
+    
+    attn_cap = module_subset[['token']].join(student_attention_cap.set_index('token'), on='token').dropna()
+    
+    results = {}
+    
+    # Fetch a count of past grades
+    # We need to do it this way to make sure it's in order 
+    # (and only grades we're interested in)
+    subset_grades = module_subset.final_grade.value_counts()
+    results["grades"] = []
+    for grade in grades.keys():
+        results["grades"].append(int(subset_grades.get(grade, 0)))
+    
+    results['attendance_cap'] = []
+    results['webcast_cap'] = []
+    
+    for i in range(attn_cap.shape[0]):
+        student = attn_cap.iloc[i]
+        results['attendance_cap'].append({
+                'x': float(student['attendance']), 
+                'y': float(student['CAP'])
+        })
+        results['webcast_cap'].append({
+                'x': float(student['webcast']),
+                'y': float(student['CAP'])
+        })
+    
+    return jsonify(results)
+
