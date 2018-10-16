@@ -1,23 +1,83 @@
 const Module = {
+    props: ['show_extra_data'], 
     template: `
     <div class='module-page'>
-        <h1>{{$route.params.module}}</h1>
-        <ul class=" module-nav nav nav-pills nav-fill">
-            <li class='nav-item'>
-                <router-link class='nav-link' to='demographics'>Demographics</router-link>
-            </li>
-            <li class='nav-item'>
-                <router-link class='nav-link' to='academics'>Academics</router-link>
-            </li>
-            <li class='nav-item'>
-                <router-link class='nav-link' to='enrolment'>Student Enrolment</router-link>
-            </li>
-        </ul>
+        <div class='container'>
+            <h1>{{$route.params.module}}</h1>
+            <ul class=" module-nav nav nav-pills nav-fill">
+                <li class='nav-item'>
+                    <router-link class='nav-link' to='demographics'>Demographics</router-link>
+                </li>
+                <li class='nav-item'>
+                    <router-link class='nav-link' to='academics'>Academics</router-link>
+                </li>
+                <li class='nav-item'>
+                    <router-link class='nav-link' to='enrolment'>Student Enrolment</router-link>
+                </li>
+            </ul>
+        </div>
         <transition name='fade'>
-            <router-view class='child-view'></router-view>
+            <router-view class='child-view' :show_extra_data='show_extra_data'></router-view>
         </transition>
     </div>`
 };
+
+function donutChart(id, labels = []) {
+    return new Chart(document.getElementById(id), {
+        type: "pie",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "No. of students",
+                    data: [],
+                    backgroundColor: [
+                        "rgba(54, 162, 235, 0.6)",
+                        "rgba(255, 99, 132, 0.6)",
+                        "rgba(75, 192, 192, 0.6)", 
+                        "rgba(255, 206, 86, 0.6)",
+                    ]
+                }
+            ]
+        },
+        options: {
+            cutoutPercentage: 50,
+            rotation: 0.5 * Math.PI, 
+            animation: {
+                animateScale: true
+            }
+        }
+    });
+}
+
+function barChart(id, colour, labels = []) {
+    return new Chart(document.getElementById(id), {
+        type: "bar", 
+        data: {
+            labels: labels, 
+            datasets: [
+                {
+                    label: "No. of students",
+                    data: [],
+                    backgroundColor: colour
+                }
+            ]
+        },
+        options: {
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                }
+            }, 
+            scales: {
+                yAxes: [{
+                    ticks: { beginAtZero: true }
+                }]
+            }
+        }
+    })
+}
 
 const ModuleDemographics = {
     data() {
@@ -26,75 +86,28 @@ const ModuleDemographics = {
             degrees: [], 
             yearsChart: null,
             pastGradesChart: null,
-            currGradesChart: null
+            currGradesChart: null,
+            facultiesChart: null,
+            academicLoadChart: null,
         };
     },
     mounted() {
         this.fetchData();
 
-        this.yearsChart = new Chart(document.getElementById("yearsChart"), {
-            type: "pie",
-            data: {
-                labels: ["Year 1", "Year 2", "Year 3", "Year 4"],
-                datasets: [
-                    {
-                        label: "No. of students",
-                        data: [0, 0, 0, 0],
-                        backgroundColor: [
-                            "rgba(255, 99, 132, 0.6)",
-                            "rgba(54, 162, 235, 0.6)",
-                            "rgba(255, 206, 86, 0.6)",
-                            "rgba(75, 192, 192, 0.6)"
-                        ]
-                    }
-                ]
-            },
-            options: {
-                cutoutPercentage: 50,
-                animation: {
-                    animateScale: true
-                }
-            }
-        });
-
-        this.currGradesChart = new Chart(document.getElementById("currGradesChart"), {
-            type: "bar",
-            data: {
-                labels: ['First', 'Second Upper', 'Second Lower', 'Third', 'Pass', 'Fail'],
-                datasets: [
-                    {
-                        label: "No. of students",
-                        data: [0, 0, 0, 0, 0, 0],
-                        backgroundColor: "rgba(100, 155, 255, 0.6)"
-                    }
-                ]
-            }, 
-            options: {
-                layout: {
-                    padding: {
-                        left: 10,
-                        right: 10
-                    }
-                }
-            }
-        });
-
-        this.pastGradesChart = new Chart(document.getElementById("pastGradesChart"), {
-            type: "bar",
-            data: {
-                labels: ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"],
-                datasets: [
-                    {
-                        label: "No. of students",
-                        data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                        backgroundColor: "rgba(100, 155, 255, 0.6)"
-                    }
-                ]
-            }
-        });
+        this.yearsChart = donutChart("yearsChart", ["Year 1", "Year 2", "Year 3", "Year 4"]);
+        this.currGradesChart = barChart("currGradesChart", "rgba(100, 155, 255, 0.6)", ['First', 'Second Upper', 'Second Lower', 'Third', 'Pass', 'Fail']);
+        this.pastGradesChart = barChart("pastGradesChart", "rgba(100, 155, 255, 0.6)", ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]);
+        this.facultiesChart = barChart("facultiesChart", "rgba(100, 155, 255, 0.6)");
+        this.academicCareerChart = donutChart("academicCareerChart");
+        this.academicLoadChart = donutChart("academicLoadChart");
 
     },
     methods: {
+        updateChart(chart, data) {
+            chart.data.labels = data.labels;
+            chart.data.datasets[0].data = data.counts;
+            chart.update();
+        }, 
         fetchData() {
             var vue = this;
             fetch("/backend/faculty/demographics/" + this.$route.params.module)
@@ -110,15 +123,20 @@ const ModuleDemographics = {
                     vue.yearsChart.update();
 
                     // Update current grades
-                    for (let i = 0; i < json.curr_grades.length; i++) {
-                        vue.currGradesChart.data.datasets[0].data[i] = json.curr_grades[i][1];
-                    }
+                    vue.currGradesChart.data.datasets[0].data = json.curr_grades;
                     vue.currGradesChart.update();
+
+                    // Update faculties
+                    vue.updateChart(vue.facultiesChart, json.faculty);
+
+                    // Update academic careers
+                    vue.updateChart(vue.academicCareerChart, json.academic_career);
+
+                    // Update academic careers
+                    vue.updateChart(vue.academicLoadChart, json.academic_load);
                     
                     // Update past grades
-                    for (let i = 0; i < json.grades.length; i++) {
-                        vue.pastGradesChart.data.datasets[0].data[i] = json.grades[i][1];
-                    }
+                    vue.pastGradesChart.data.datasets[0].data = json.grades;
                     vue.pastGradesChart.update();
                 });
         }
@@ -128,8 +146,8 @@ const ModuleDemographics = {
             this.fetchData();
         }
     },
-    template: `<div>
-    <div class='row'>
+    template: `<div class='container-fluid'>
+    <div class='chart-rows'>
         <div class='demographic-chart card'>
             <h2>Years of incoming students</h2>
             <p>Your current students are made up of:</p>
@@ -140,8 +158,23 @@ const ModuleDemographics = {
             <p>Your current students have the following grades:</p>
             <canvas id="currGradesChart" width="100" height="70"></canvas>
         </div>
+        <div class='demographic-chart card'>
+            <h2>Faculties of incoming students</h2>
+            <p>Your current students belong to the following faculties:</p>
+            <canvas id="facultiesChart" width="100" height="70"></canvas>
+        </div>
+        <div class='demographic-chart card'>
+            <h2>Academic load of incoming students</h2>
+            <p>Your current students are:</p>
+            <canvas id="academicLoadChart" width="100" height="70"></canvas>
+        </div>
     </div>
-    <div class='row'>
+    <div class='chart-rows'>
+        <div class='demographic-chart card'>
+            <h2>Academic careers of incoming students</h2>
+            <p>Your current students are:</p>
+            <canvas id="academicCareerChart" width="100" height="70"></canvas>
+        </div>
         <div class='demographic-chart card'>
             <h2>Historical grades</h2>
             <p>The students who took this class in previous semesters got the following grades:</p>
@@ -169,9 +202,10 @@ const ModuleDemographics = {
     </div>`
 };
 
-const ModuleAcademics = { template: "<div>Academics stuff here</div>" };
+const ModuleAcademics = { template: "<div class='container'>Academics stuff here</div>" };
 
 const ModuleEnrolment = { 
+    props: ['show_extra_data'], 
     data() {
         return {
             enrolment: []
@@ -193,30 +227,34 @@ const ModuleEnrolment = {
         }
     }, 
     template: `
-    <transition name='fade'>
-    <table class='table table-hover' v-if='enrolment.length > 0'>
-        <thead class='thead-light'>
-            <tr>
-                <th>Token</th>
-                <th>Degree</th>
-                <th>Admit Term</th>
-                <th>CAP</th>
-                <th>Attendance Rate</th>
-                <th>Webcast Rate</th>
-                <th>&nbsp;</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for='row in enrolment'>
-                <td>{{row.token_json}}</td>
-                <td>{{row.degrees}}</td>
-                <td>{{row.admit_term}}</td>
-                <td>{{row.CAP}}</td>
-                <td>{{row.attendance}}%</td>
-                <td>{{row.webcast}}%</td>
-                <td><a :href='"mailto:"+row.token_json+"@u.nus.edu?subject=["+$route.params.module+"] "' class='btn btn-info'><i class='fas fa-envelope'></i></a></td>
-            </tr>
-        </tbody>
-    </table>
-    </transition>`
+    <div class='container-fluid'><transition name='fade'>
+        <table class='table table-hover' v-if='enrolment.length > 0'>
+            <thead class='thead-light'>
+                <tr>
+                    <th>Token</th>
+                    <th>Faculty</th>
+                    <th>Degree</th>
+                    <th>Acad Career</th>
+                    <th>Admit Term</th>
+                    <th>CAP</th>
+                    <th v-if='show_extra_data'>Attendance Rate</th>
+                    <th v-if='show_extra_data'>Webcast Rate</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for='row in enrolment'>
+                    <td>{{row.token}}</td>
+                    <td>{{row.faculty_descr}}</td>
+                    <td>{{row.degree_descr}}</td>
+                    <td>{{row.academic_load_descr}} {{row.academic_career}}</td>
+                    <td>{{row.admit_term_descr}}</td>
+                    <td>{{row.CAP}}</td>
+                    <td v-if='show_extra_data'>{{row.attendance}}%</td>
+                    <td v-if='show_extra_data'>{{row.webcast}}%</td>
+                    <td><a :href='"mailto:"+row.token+"@u.nus.edu?subject=["+$route.params.module+"] "' class='btn btn-info'><i class='fas fa-envelope'></i></a></td>
+                </tr>
+            </tbody>
+        </table>
+    </transition></div>`
  };

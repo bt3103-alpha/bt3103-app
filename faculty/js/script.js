@@ -47,7 +47,8 @@ window.onload = function() {
         data: {
             name: "Chris",
             modules: ["MA1505", "GER1000", "MA1506"],
-            fetching_data: false
+            fetching_data: false,
+            show_extra_data: true
         },
         methods: {
             fetch_data: function() {

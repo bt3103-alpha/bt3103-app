@@ -48,6 +48,16 @@
                         <router-link :to='"/"+module' class='nav-link'>{{module}}</router-link>
                     </li>
                 </ul>
+                <div id='show-extra-data'>
+                    <button v-if='show_extra_data' class='btn btn-outline-success btn-sm' @click='show_extra_data=false'>
+                        <i class='fas fa-check'></i>
+                        Showing extra data
+                    </button>
+                    <button v-else class='btn btn-outline-warning btn-sm'  @click='show_extra_data=true'>
+                        <i class='fas fa-times'></i>
+                        Hiding extra data
+                    </button>
+                </div>
                 <div id='refresh-data'>
                     <button v-if='!fetching_data' @click='fetch_data()' class='btn btn-outline-primary btn-sm'><i class='fas fa-sync-alt'></i> Refresh Data</button>
                     <div class='refresh-data-row' v-else>
@@ -62,11 +72,9 @@
                 </div>
             </div>
         </nav>
-        <div class='container'>
-            <transition name='fade'>
-                <router-view class='child-view'></router-view>
-            </transition>
-        </div>
+        <transition name='fade'>
+            <router-view class='child-view' :show_extra_data='show_extra_data'></router-view>
+        </transition>
     </div>
 </body>
 

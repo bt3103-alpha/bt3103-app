@@ -14,14 +14,18 @@ html, body {
 
 
 
-/* Refresh data formatting */
+/* Navbar buttons */
 
 #refresh-data {
     margin-right: 24px;
     width: 125px;
 }
 
-#refresh-data .fas {
+#show-extra-data {
+    margin-right: 6px;
+}
+
+#refresh-data .fas, #show-extra-data .fas {
     margin-right: 6px;
 }
 
@@ -46,5 +50,13 @@ html, body {
     margin: 8px;
     box-sizing: border-box;
 
-    width: calc(50% - 16px);
+    width: calc(25% - 16px);
+}
+
+.module-page .chart-rows {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* align-items: center; */
 }
