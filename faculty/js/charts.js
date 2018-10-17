@@ -28,7 +28,7 @@ function barChart(id, colour, labels = []) {
     })
 }
 
-function scatterChart(id, colour) {
+function scatterChart(id, colour, xLabel, yLabel) {
     return new Chart(document.getElementById(id), {
         type: 'scatter',
         data: {
@@ -42,11 +42,19 @@ function scatterChart(id, colour) {
             scales: {
                 xAxes: [{
                     type: 'linear',
-                    position: 'bottom'
+                    position: 'bottom',
+                    scaleLabel: {
+                        display: true,
+                        labelString: xLabel
+                    }
                 }], 
                 yAxes: [{
                     type: 'linear',
-                    position: 'left'
+                    position: 'left',
+                    scaleLabel: {
+                        display: true,
+                        labelString: yLabel
+                    }
                 }]
             }
         }

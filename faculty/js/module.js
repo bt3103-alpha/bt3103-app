@@ -187,8 +187,8 @@ const ModuleAcademics = {
     methods: {
         buildCharts: function() {
             this.pastGradesChart = barChart("pastGradesChart", "rgba(100, 155, 255, 0.6)", ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]);
-            this.attendanceCapChart = scatterChart('attendanceCapChart', "rgba(54, 162, 235, 0.6)");
-            this.webcastCapChart = scatterChart('webcastCapChart', "rgba(255, 99, 132, 0.6)");
+            this.attendanceCapChart = scatterChart('attendanceCapChart', "rgba(54, 162, 235, 0.6)", 'Attendance Rate', 'CAP');
+            this.webcastCapChart = scatterChart('webcastCapChart', "rgba(255, 99, 132, 0.6)", 'Webcast Watch Rate', 'CAP');
             this.fetchData();
         }, 
         fetchData: function() {
