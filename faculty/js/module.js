@@ -119,10 +119,10 @@ const ModuleDemographics = {
             <canvas id="yearsChart" width="100" height="70"></canvas>
         </div>
         <div class='demographic-chart card'>
-            <h2>Faculties of incoming students</h2>
-            <p>Your current students belong to the following faculties:</p>
-            <canvas id="facultiesChart" width="100" height="70"></canvas>
-        </div>
+            <h2>Academic careers of incoming students</h2>
+            <p>Your current students are:</p>
+            <canvas id="academicCareerChart" width="100" height="70"></canvas>
+        </div> 
         <div class='demographic-chart card'>
             <h2>Academic load of incoming students</h2>
             <p>Your current students are:</p>
@@ -131,15 +131,15 @@ const ModuleDemographics = {
     </div>
     <div class='chart-rows'>
         <div class='demographic-chart card'>
-            <h2>Academic careers of incoming students</h2>
-            <p>Your current students are:</p>
-            <canvas id="academicCareerChart" width="100" height="70"></canvas>
+            <h2>Faculties of incoming students</h2>
+            <p>Your current students belong to the following faculties:</p>
+            <canvas id="facultiesChart" width="100" height="70"></canvas>
         </div>
         <div class='demographic-chart card'>
             <h2>Grades of incoming students</h2>
             <p>Your current students have the following grades:</p>
             <canvas id="currGradesChart" width="100" height="70"></canvas>
-        </div>  
+        </div> 
         <div class='demographic-chart card'>
             <h2>Degrees</h2>
             <p>Your current students are currently pursuing:</p>
