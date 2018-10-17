@@ -165,8 +165,8 @@ def moduleDemographics(module_code):
     module_subset = module_enrolment[module_enrolment.module_code == module_code]
     
     module_current = module_subset[module_subset.term == max(module_subset.term)]
-    #program_current = program_enrolment[program_enrolment.term == max(program_enrolment.term)]
-    program_current = module_current[['token']].join(program_enrolment.set_index('Token'), on='token', how='inner')
+    program_current = program_enrolment[program_enrolment.term == max(program_enrolment.term)]
+    program_current = module_current[['token']].join(program_current.set_index('Token'), on='token', how='inner')
 
     # Fetch program information about current students
     results["degrees"] = countsAsLists(program_current.degree_descr)
@@ -210,6 +210,7 @@ def moduleDemographics(module_code):
 def moduleEnrolment(module_code):
     module_subset = module_enrolment[module_enrolment.module_code == module_code]
     module_current = module_subset[module_subset.term == max(module_subset.term)]
+    program_current = program_enrolment[program_enrolment.term == max(program_enrolment.term)]
     program_current = module_current[['token']].join(program_enrolment.set_index('Token'), on='token', how='inner')
 
     df = program_current.join(student_attention.set_index('token'), on='token')
