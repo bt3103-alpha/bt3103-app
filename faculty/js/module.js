@@ -143,8 +143,6 @@ const ModuleDemographics = {
             <p>Your current students are:</p>
             <canvas id="academicLoadChart" width="100" height="70"></canvas>
         </div>
-    </div>
-    <div class='chart-rows'>
         <div class='demographic-chart card'>
             <h2>Faculties of incoming students</h2>
             <p>Your current students belong to the following faculties:</p>
@@ -189,16 +187,12 @@ const ModuleAcademics = {
         };
     },
     mounted() {
-        if (this.show_extra_data) {
-            this.buildCharts();
-        }
+        this.buildCharts();
     },
     watch: {
         show_extra_data(newVar, oldVar) {
-            if (newVar) {
-                // Redisplay charts
-                setTimeout(this.buildCharts, 100);
-            }
+            // Redisplay charts
+            setTimeout(this.buildCharts, 100);
         }
     },
     methods: {
@@ -208,18 +202,21 @@ const ModuleAcademics = {
                 "rgba(100, 155, 255, 0.6)",
                 ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]
             );
-            this.attendanceCapChart = scatterChart(
-                "attendanceCapChart",
-                "rgba(54, 162, 235, 0.6)",
-                "Attendance Rate",
-                "CAP"
-            );
-            this.webcastCapChart = scatterChart(
-                "webcastCapChart",
-                "rgba(255, 99, 132, 0.6)",
-                "Webcast Watch Rate",
-                "CAP"
-            );
+
+            if (this.show_extra_data) {
+                this.attendanceCapChart = scatterChart(
+                    "attendanceCapChart",
+                    "rgba(54, 162, 235, 0.6)",
+                    "Attendance Rate",
+                    "CAP"
+                );
+                this.webcastCapChart = scatterChart(
+                    "webcastCapChart",
+                    "rgba(255, 99, 132, 0.6)",
+                    "Webcast Watch Rate",
+                    "CAP"
+                );
+            }
             this.fetchData();
         },
         fetchData: function() {
@@ -229,45 +226,49 @@ const ModuleAcademics = {
                     return response.json();
                 })
                 .then(function(json) {
-                    vue.attendanceCapChart.data.datasets[0].data =
-                        json.attendance_cap;
-                    vue.attendanceCapChart.update();
-                    vue.webcastCapChart.data.datasets[0].data =
-                        json.webcast_cap;
-                    vue.webcastCapChart.update();
-
                     // Update past grades
                     vue.pastGradesChart.data.datasets[0].data = json.grades;
                     vue.pastGradesChart.update();
 
-                    // We set a timeout so that the DOM 
-                    // has time to update
-                    vue.prereqs = json.prereqs;
-                    setTimeout(function() {
-                        for (var i = 0; i < json.prereqs.length; i++) {
-                            vue.prereqCharts[i] = barChart(
-                                "prereqGradesChart" +
-                                    json.prereqs[i].module_code,
-                                "rgba(75, 192, 192, 0.6)",
-                                [
-                                    "A+",
-                                    "A",
-                                    "A-",
-                                    "B+",
-                                    "B",
-                                    "B-",
-                                    "C+",
-                                    "C",
-                                    "D+",
-                                    "D",
-                                    "F"
-                                ]
-                            );
-                            vue.prereqCharts[i].data.datasets[0].data =
-                                json.prereqs[i].grades;
-                            vue.prereqCharts[i].update();
-                        }
-                    }, 200);
+                    if (vue.show_extra_data) {
+                        vue.attendanceCapChart.data.datasets[0].data =
+                            json.attendance_cap;
+                        vue.attendanceCapChart.update();
+                        vue.webcastCapChart.data.datasets[0].data =
+                            json.webcast_cap;
+                        vue.webcastCapChart.update();
+
+                        // Show prereq grades
+                        vue.prereqs = json.prereqs;
+
+                        // We set a timeout so that the DOM
+                        // has time to update
+                        setTimeout(function() {
+                            for (var i = 0; i < json.prereqs.length; i++) {
+                                vue.prereqCharts[i] = barChart(
+                                    "prereqGradesChart" +
+                                        json.prereqs[i].module_code,
+                                    "rgba(75, 192, 192, 0.6)",
+                                    [
+                                        "A+",
+                                        "A",
+                                        "A-",
+                                        "B+",
+                                        "B",
+                                        "B-",
+                                        "C+",
+                                        "C",
+                                        "D+",
+                                        "D",
+                                        "F"
+                                    ]
+                                );
+                                vue.prereqCharts[i].data.datasets[0].data =
+                                    json.prereqs[i].grades;
+                                vue.prereqCharts[i].update();
+                            }
+                        }, 200);
+                    }
                 });
         }
     },
@@ -280,18 +281,25 @@ const ModuleAcademics = {
             </div>
             <div class='demographic-chart card' v-if='show_extra_data'>
                 <h2>Attendance vs CAP</h2>
+                <div>
+                    <span class='badge badge-warning'>Uses mocked up data</span>
+                </div>
                 <p>Your current students are:</p>
                 <canvas id="attendanceCapChart" width="100" height="70"></canvas>
             </div>
             <div class='demographic-chart card' v-if='show_extra_data'>
                 <h2>Webcast vs CAP</h2>
+                <div>
+                    <span class='badge badge-warning'>Uses mocked up data</span>
+                </div>
                 <p>Your current students are:</p>
                 <canvas id="webcastCapChart" width="100" height="70"></canvas>
             </div>
-        </div>
-        <div class='chart-rows'>
-            <div class='demographic-chart card' v-for='prereq in prereqs'>
+            <div class='demographic-chart card' v-if='show_extra_data' v-for='prereq in prereqs'>
                 <h2>Grades for {{prereq.module_code}}</h2>
+                <div>
+                    <span class='badge badge-success'>Uses third-party data</span>
+                </div>
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
             </div>
         </div>
@@ -331,8 +339,8 @@ const ModuleEnrolment = {
                     <th>Acad Career</th>
                     <th>Admit Term</th>
                     <th>CAP</th>
-                    <th v-if='show_extra_data'>Attendance Rate</th>
-                    <th v-if='show_extra_data'>Webcast Rate</th>
+                    <th v-if='show_extra_data'>Attendance Rate <span class='badge badge-warning'>Mocked up data</span></th>
+                    <th v-if='show_extra_data'>Webcast Rate <span class='badge badge-warning'>Mocked up data</span></th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
