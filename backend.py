@@ -7,6 +7,7 @@ import asyncio
 import re
 
 backend = Blueprint('backend', __name__)
+url_path = "/bt3103-app"
 
 module_enrolment = None
 program_enrolment = None
@@ -160,7 +161,7 @@ async def fetchData():
     print("Done fetching data")
 
 
-@backend.route('/backend/fetch_data')
+@backend.route(url_path+'/backend/fetch_data')
 def callFetchData():
     '''
     Endpoint to start fetching data
@@ -175,7 +176,7 @@ def callFetchData():
     return "{'ok': true}"
 
 
-@backend.route('/backend/fetch_data/status')
+@backend.route(url_path+'/backend/fetch_data/status')
 def fetchDataStatus():
     '''
     Fetches the current status of data fetching (as an integer from 0 to 100)
@@ -261,7 +262,7 @@ def program_past_terms(module_code):
     return program_subset
 
 
-@backend.route('/backend/faculty/demographics/<module_code>')
+@backend.route(url_path+'/backend/faculty/demographics/<module_code>')
 def moduleDemographics(module_code):
     '''
     Fetches all demographic data to be displayed for a given module_code. 
@@ -312,7 +313,7 @@ def moduleDemographics(module_code):
     return jsonify(results)
 
 
-@backend.route('/backend/faculty/enrolment/<module_code>')
+@backend.route(url_path+'/backend/faculty/enrolment/<module_code>')
 def moduleEnrolment(module_code):
     program_current = program_current_term(module_code).fillna(0)
 
@@ -341,7 +342,7 @@ def getModuleGrades(module_code, program_subset=None):
     return result
 
 
-@backend.route('/backend/faculty/academics/<module_code>')
+@backend.route(url_path+'/backend/faculty/academics/<module_code>')
 def moduleAcademics(module_code):
     program_current = program_current_term(module_code)
     program_past = program_past_terms(module_code)[['attendance', 'CAP', 'webcast']].dropna()

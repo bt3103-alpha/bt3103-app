@@ -3,15 +3,17 @@ from backend import backend, callFetchData
 
 app = Flask(__name__)
 
-@app.route("/")
+url_path = "/bt3103-app"
+
+@app.route(url_path+"/")
 def index():
     return render_template("welcome.html")
 
-@app.route("/faculty/<path:path>")
+@app.route(url_path+"/faculty/<path:path>")
 def facultyIndex(path):
     return send_from_directory('faculty', path)
 
-@app.route("/student/<path:path>")
+@app.route(url_path+"/student/<path:path>")
 def studentIndex(path):
     return send_from_directory('student', path)
 
