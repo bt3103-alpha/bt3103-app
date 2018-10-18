@@ -90,7 +90,7 @@ const ModuleDemographics = {
         },
         fetchData() {
             var vue = this;
-            fetch("/backend/faculty/demographics/" + this.$route.params.module)
+            fetch("/bt3103-app/backend/faculty/demographics/" + this.$route.params.module)
                 .then(function(response) {
                     return response.json();
                 })
@@ -225,7 +225,7 @@ const ModuleAcademics = {
         },
         fetchData: function() {
             var vue = this;
-            fetch("/backend/faculty/academics/" + this.$route.params.module)
+            fetch("/bt3103-app/backend/faculty/academics/" + this.$route.params.module)
                 .then(function(response) {
                     return response.json();
                 })
@@ -352,7 +352,7 @@ const ModuleEnrolment = {
     methods: {
         fetchData: function() {
             var vue = this;
-            fetch("/backend/faculty/enrolment/" + this.$route.params.module)
+            fetch("/bt3103-app/backend/faculty/enrolment/" + this.$route.params.module)
                 .then(function(response) {
                     return response.json();
                 })

@@ -17,7 +17,7 @@ const routes = [
 ];
 
 function checkRefreshStatus() {
-    fetch("/backend/fetch_data/status")
+    fetch("/bt3103-app/backend/fetch_data/status")
         .then(function(response) {
             return response.json();
         })
@@ -53,7 +53,7 @@ window.onload = function() {
         methods: {
             fetch_data: function() {
                 this.fetching_data = true;
-                fetch("/backend/fetch_data");
+                fetch("/bt3103-app/backend/fetch_data");
                 poll_status = setInterval(checkRefreshStatus, 500);
             }
         }
