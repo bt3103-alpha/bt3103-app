@@ -139,12 +139,13 @@ async def fetchData():
 
     # Each row = 1 student in 1 semester
     program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
+    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
     fetchProgress = 50
 
     student_attention = await fetchGoogleSheet(3, 'Sheet1')
     fetchProgress = 75
 
-    program_enrolment = program_enrolment.join(cap, on='Token').join(student_attention.set_index('token'), on='Token')
+    program_enrolment = program_enrolment.join(cap, on='token').join(student_attention.set_index('token'), on='token')
 
     # student_attention_cap = student_attention.join(
     #     cap, on='token', how='inner')
@@ -231,7 +232,7 @@ def program_current_term(module_code):
     program_current = program_enrolment[program_enrolment.term == max(
         program_enrolment.term)]
     program_current = module_current[['token']].join(
-        program_current.set_index('Token'), on='token', how='inner')
+        program_current.set_index('token'), on='token', how='inner')
     return program_current
 
 @backend.route('/backend/faculty/demographics/<module_code>')
@@ -297,8 +298,13 @@ def moduleEnrolment(module_code):
     return jsonify(program_current.to_dict('records'))
 
 
-def getModuleGrades(module_code):
+def getModuleGrades(module_code, program_subset = None):
     module_subset = module_all_terms(module_code)
+
+    # Filter to a specific subset of tokens, if specified
+    if program_subset is not None:
+        module_subset = module_subset.join(program_subset.set_index("token"), on='token', how='inner')
+
     subset_grades = module_subset.final_grade.value_counts()
     result = []
     for grade in grades.keys():
@@ -329,14 +335,19 @@ def moduleAcademics(module_code):
             'y': float(student['CAP'])
         })
 
+    # Fetch grades for prereqs
     prereqs = fetchPrereqs(module_code)
     results['prereqs'] = []
     for prereq in prereqs:
         prereq_data = {
             'module_code': prereq,
-            'grades': getModuleGrades(prereq)
+            'grades': getModuleGrades(prereq, program_current[['token']])
         }
+        
+        # Only append if we have found students who took this prereq
         if sum(prereq_data['grades']) > 0:
             results['prereqs'].append(prereq_data)
+    
+    
 
     return jsonify(results)
