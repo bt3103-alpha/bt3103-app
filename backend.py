@@ -116,14 +116,24 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function. 
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention #, cap, student_attention_cap
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention  # , cap, student_attention_cap
 
     print("Fetching data")
     fetchProgress = 0
 
     # Each row = 1 student taking 1 module
     module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
-    fetchProgress = 20
+    fetchProgress = 25
+
+    # Each row = 1 student in 1 semester
+    program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
+    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
+    fetchProgress = 50
+
+    # Generated data on webcasts and attendance
+    student_attention = await fetchGoogleSheet(3, 'Sheet1')
+
+    fetchProgress = 75
 
     cap = module_enrolment[['module_credits', 'final_grade', 'token']].copy()
     cap['grade'] = cap['final_grade'].apply(getScore)
@@ -135,17 +145,11 @@ async def fetchData():
 
     cap['CAP'] = cap['score'] / cap['module_credits']
     cap = cap[['CAP']]
-    fetchProgress = 30
+    
+    fetchProgress = 85
 
-    # Each row = 1 student in 1 semester
-    program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
-    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
-    fetchProgress = 50
-
-    student_attention = await fetchGoogleSheet(3, 'Sheet1')
-    fetchProgress = 75
-
-    program_enrolment = program_enrolment.join(cap, on='token').join(student_attention.set_index('token'), on='token')
+    program_enrolment = program_enrolment.join(cap, on='token').join(
+        student_attention.set_index('token'), on='token')
 
     # student_attention_cap = student_attention.join(
     #     cap, on='token', how='inner')
@@ -224,6 +228,15 @@ def module_current_term(module_code):
     module_subset = module_all_terms(module_code)
     return module_subset[module_subset.term == max(module_subset.term)]
 
+
+def module_past_terms(module_code):
+    '''
+    Returns the previous semesters' module_enrolments for a given module_code
+    '''
+    module_subset = module_all_terms(module_code)
+    return module_subset[module_subset.term != max(module_subset.term)]
+
+
 def program_current_term(module_code):
     '''
     Returns the program_enrolment for students currently taking a particular module
@@ -235,6 +248,19 @@ def program_current_term(module_code):
         program_current.set_index('token'), on='token', how='inner')
     return program_current
 
+
+def program_past_terms(module_code):
+    '''
+    Returns the program_enrolment for students who previously took the module
+    '''
+    module_subset = module_all_terms(module_code)
+    program_subset = program_enrolment[program_enrolment.term != max(
+        program_enrolment.term)]
+    program_subset = module_subset[['token']].join(
+        program_subset.set_index('token'), on='token', how='inner')
+    return program_subset
+
+
 @backend.route('/backend/faculty/demographics/<module_code>')
 def moduleDemographics(module_code):
     '''
@@ -245,7 +271,6 @@ def moduleDemographics(module_code):
     '''
     results = {}
 
-    module_current = module_current_term(module_code)
     program_current = program_current_term(module_code)
 
     # Fetch program information about current students
@@ -291,19 +316,23 @@ def moduleDemographics(module_code):
 def moduleEnrolment(module_code):
     program_current = program_current_term(module_code).fillna(0)
 
-    program_current['attendance'] = program_current['attendance'].apply(lambda x: format(x, '.2f'))
-    program_current['webcast'] = program_current['webcast'].apply(lambda x: format(x, '.2f'))
-    program_current['CAP'] = program_current['CAP'].apply(lambda x: format(x, '.2f'))
+    program_current['attendance'] = program_current['attendance'].apply(
+        lambda x: format(x, '.2f'))
+    program_current['webcast'] = program_current['webcast'].apply(
+        lambda x: format(x, '.2f'))
+    program_current['CAP'] = program_current['CAP'].apply(
+        lambda x: format(x, '.2f'))
 
     return jsonify(program_current.to_dict('records'))
 
 
-def getModuleGrades(module_code, program_subset = None):
+def getModuleGrades(module_code, program_subset=None):
     module_subset = module_all_terms(module_code)
 
     # Filter to a specific subset of tokens, if specified
     if program_subset is not None:
-        module_subset = module_subset.join(program_subset.set_index("token"), on='token', how='inner')
+        module_subset = module_subset.join(
+            program_subset.set_index("token"), on='token', how='inner')
 
     subset_grades = module_subset.final_grade.value_counts()
     result = []
@@ -315,6 +344,9 @@ def getModuleGrades(module_code, program_subset = None):
 @backend.route('/backend/faculty/academics/<module_code>')
 def moduleAcademics(module_code):
     program_current = program_current_term(module_code)
+    program_past = program_past_terms(module_code)[['attendance', 'CAP', 'webcast']].dropna()
+    module_current = module_current_term(module_code)
+    module_past = module_past_terms(module_code)
 
     results = {}
 
@@ -324,8 +356,8 @@ def moduleAcademics(module_code):
     results['attendance_cap'] = []
     results['webcast_cap'] = []
 
-    for i in range(program_current.shape[0]):
-        student = program_current.iloc[i]
+    for i in range(program_past.shape[0]):
+        student = program_past.iloc[i]
         results['attendance_cap'].append({
             'x': float(student['attendance']),
             'y': float(student['CAP'])
@@ -343,11 +375,55 @@ def moduleAcademics(module_code):
             'module_code': prereq,
             'grades': getModuleGrades(prereq, program_current[['token']])
         }
-        
+
         # Only append if we have found students who took this prereq
         if sum(prereq_data['grades']) > 0:
             results['prereqs'].append(prereq_data)
-    
-    
+
+    # Some statistical analysis!
+
+    module_influence_scores = {}
+
+    for i in range(module_past.shape[0]):
+        student = module_past.iloc[i]
+        marks = student['final_marks'] - module_past['final_marks'].mean()
+        if marks == 0:
+            continue
+        # For each student, we go through what modules they've taken, and assign the module their score
+        modules_taken = module_enrolment[module_enrolment['token']
+                                         == student['token']]
+        for j in range(modules_taken.shape[0]):
+            module = modules_taken.iloc[j]['module_code']
+            if module == module_code:
+                continue
+            if module not in module_influence_scores:
+                module_influence_scores[module] = []
+            module_influence_scores[module].append(marks)
+
+    for key, value in module_influence_scores.items():
+        module_influence_scores[key] = np.mean(value)
+
+    # Now for all prospective students, we look at what modules they have taken and calculate a score
+    student_scores = []
+    for i in range(module_current.shape[0]):
+        student = module_current.iloc[i]
+        scores = []
+        influencing_modules = []
+        # Iterate through all modules this student has taken
+        # If they are in the list, add to his 'score'
+        modules_taken = module_enrolment[module_enrolment['token']
+                                         == student['token']]
+        for j in range(modules_taken.shape[0]):
+            module = modules_taken.iloc[j]['module_code']
+            if module in module_influence_scores:
+                scores.append(module_influence_scores[module])
+                influencing_modules.append({'code': module, 'score': format(module_influence_scores[module], ".2f")})
+        if len(scores) == 0:
+            score = 0
+        else:
+            score = np.mean(scores)
+        student_scores.append([student['token'], score, influencing_modules])
+
+    results['pred_scores'] = sorted(student_scores, key = lambda x: x[1])
 
     return jsonify(results)

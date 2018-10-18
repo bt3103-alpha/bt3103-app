@@ -13,6 +13,10 @@ html, body {
 }
 
 
+.hide {
+    display: none !important;
+}
+
 
 /* Navbar buttons */
 
@@ -45,12 +49,18 @@ html, body {
 
 /* Module page */
 
-.module-page .demographic-chart {
+.module-page .demographic-chart, .module-page .wide-chart {
     padding: 24px;
     margin: 8px;
     box-sizing: border-box;
+}
 
+.module-page .demographic-chart {
     width: calc(33.33% - 16px);
+}
+
+.module-page .wide-chart {
+    width: calc(50% - 16px);
 }
 
 .module-page .chart-rows {

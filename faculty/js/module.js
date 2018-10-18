@@ -182,28 +182,32 @@ const ModuleAcademics = {
             attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
+            predicted_scores: [],
             prereqs: [],
-            prereqCharts: {}
+            prereqCharts: {},
+            display: false // whether we should display the charts
         };
     },
     mounted() {
         this.buildCharts();
     },
-    watch: {
-        show_extra_data(newVar, oldVar) {
-            // Redisplay charts
-            setTimeout(this.buildCharts, 100);
-        }
-    },
+    // watch: {
+    //     show_extra_data(newVar, oldVar) {
+    //         // Redisplay charts
+    //         setTimeout(this.buildCharts, 100);
+    //     }
+    // },
     methods: {
         buildCharts: function() {
+            this.display = false;
+
             this.pastGradesChart = barChart(
                 "pastGradesChart",
                 "rgba(100, 155, 255, 0.6)",
                 ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]
             );
 
-            if (this.show_extra_data) {
+            // if (this.show_extra_data) {
                 this.attendanceCapChart = scatterChart(
                     "attendanceCapChart",
                     "rgba(54, 162, 235, 0.6)",
@@ -216,7 +220,7 @@ const ModuleAcademics = {
                     "Webcast Watch Rate",
                     "CAP"
                 );
-            }
+            // }
             this.fetchData();
         },
         fetchData: function() {
@@ -230,7 +234,10 @@ const ModuleAcademics = {
                     vue.pastGradesChart.data.datasets[0].data = json.grades;
                     vue.pastGradesChart.update();
 
-                    if (vue.show_extra_data) {
+                    // Show predicted problem students
+                    vue.predicted_scores = json.pred_scores;
+
+                    // if (vue.show_extra_data) {
                         vue.attendanceCapChart.data.datasets[0].data =
                             json.attendance_cap;
                         vue.attendanceCapChart.update();
@@ -268,18 +275,23 @@ const ModuleAcademics = {
                                 vue.prereqCharts[i].update();
                             }
                         }, 200);
-                    }
+                    // }
+
+                    vue.display = true;
                 });
         }
     },
     template: `<div class='container-fluid'>
-        <div class='chart-rows'>
+        <div v-if='!display' style='text-align: center; margin-top: 48px; opacity: 0.5'>
+            <i class='fas fa-spinner fa-pulse fa-lg'></i>
+        </div>
+        <div v-bind:class='["chart-rows", display ? "" : "hide"]'>
             <div class='demographic-chart card'>
                 <h2>Historical grades</h2>
                 <p>The students who took this class in previous semesters got the following grades:</p>
                 <canvas id="pastGradesChart" width="100" height="70"></canvas>
             </div>
-            <div class='demographic-chart card' v-if='show_extra_data'>
+            <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
                 <h2>Attendance vs CAP</h2>
                 <div>
                     <span class='badge badge-warning'>Uses mocked up data</span>
@@ -287,7 +299,7 @@ const ModuleAcademics = {
                 <p>Your current students are:</p>
                 <canvas id="attendanceCapChart" width="100" height="70"></canvas>
             </div>
-            <div class='demographic-chart card' v-if='show_extra_data'>
+            <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
                 <h2>Webcast vs CAP</h2>
                 <div>
                     <span class='badge badge-warning'>Uses mocked up data</span>
@@ -295,12 +307,33 @@ const ModuleAcademics = {
                 <p>Your current students are:</p>
                 <canvas id="webcastCapChart" width="100" height="70"></canvas>
             </div>
-            <div class='demographic-chart card' v-if='show_extra_data' v-for='prereq in prereqs'>
+            <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]' v-for='prereq in prereqs'>
                 <h2>Grades for {{prereq.module_code}}</h2>
                 <div>
                     <span class='badge badge-success'>Uses third-party data</span>
                 </div>
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
+            </div>
+            <div class='wide-chart card'>
+                <h2>Predicted Problematic Students</h2>
+                <table class='table table-sm table-hover'>
+                    <thead>
+                        <tr>
+                            <th>Student Token</th>
+                            <th>Score</th>
+                            <th>Influencing Modules</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for='student in predicted_scores'>
+                            <td>{{student[0]}}</td>
+                            <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
+                            <td>
+                                <span class='badge badge-light' v-for='module in student[2]' style='margin-right: 3px;'>{{module.code}} ({{module.score}})</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>`
