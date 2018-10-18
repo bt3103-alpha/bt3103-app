@@ -1,5 +1,5 @@
 const Module = {
-    props: ['show_extra_data'], 
+    props: ["show_extra_data"],
     template: `
     <div class='module-page'>
         <div class='container'>
@@ -34,15 +34,15 @@ function donutChart(id, labels = []) {
                     backgroundColor: [
                         "rgba(54, 162, 235, 0.6)",
                         "rgba(255, 99, 132, 0.6)",
-                        "rgba(75, 192, 192, 0.6)", 
-                        "rgba(255, 206, 86, 0.6)",
+                        "rgba(75, 192, 192, 0.6)",
+                        "rgba(255, 206, 86, 0.6)"
                     ]
                 }
             ]
         },
         options: {
             cutoutPercentage: 50,
-            rotation: 0.5 * Math.PI, 
+            rotation: 0.5 * Math.PI,
             animation: {
                 animateScale: true
             }
@@ -54,29 +54,40 @@ const ModuleDemographics = {
     data() {
         return {
             grades: [],
-            degrees: [], 
+            degrees: [],
             yearsChart: null,
             currGradesChart: null,
             facultiesChart: null,
-            academicLoadChart: null,
+            academicLoadChart: null
         };
     },
     mounted() {
         this.fetchData();
 
-        this.yearsChart = donutChart("yearsChart", ["Year 1", "Year 2", "Year 3", "Year 4"]);
-        this.currGradesChart = barChart("currGradesChart", "rgba(100, 155, 255, 0.6)", ['First', 'Second Upper', 'Second Lower', 'Third', 'Pass', 'Fail']);
-        this.facultiesChart = barChart("facultiesChart", "rgba(100, 155, 255, 0.6)");
+        this.yearsChart = donutChart("yearsChart", [
+            "Year 1",
+            "Year 2",
+            "Year 3",
+            "Year 4"
+        ]);
+        this.currGradesChart = barChart(
+            "currGradesChart",
+            "rgba(100, 155, 255, 0.6)",
+            ["First", "Second Upper", "Second Lower", "Third", "Pass", "Fail"]
+        );
+        this.facultiesChart = barChart(
+            "facultiesChart",
+            "rgba(100, 155, 255, 0.6)"
+        );
         this.academicCareerChart = donutChart("academicCareerChart");
         this.academicLoadChart = donutChart("academicLoadChart");
-
     },
     methods: {
         updateChart(chart, data) {
             chart.data.labels = data.labels;
             chart.data.datasets[0].data = data.counts;
             chart.update();
-        }, 
+        },
         fetchData() {
             var vue = this;
             fetch("/backend/faculty/demographics/" + this.$route.params.module)
@@ -87,19 +98,23 @@ const ModuleDemographics = {
                     vue.grades = json.grades;
                     vue.degrees = json.degrees;
 
-                    // Update years 
+                    // Update years
                     vue.yearsChart.data.datasets[0].data = json.years;
                     vue.yearsChart.update();
 
                     // Update current grades
-                    vue.currGradesChart.data.datasets[0].data = json.curr_grades;
+                    vue.currGradesChart.data.datasets[0].data =
+                        json.curr_grades;
                     vue.currGradesChart.update();
 
                     // Update faculties
                     vue.updateChart(vue.facultiesChart, json.faculty);
 
                     // Update academic careers
-                    vue.updateChart(vue.academicCareerChart, json.academic_career);
+                    vue.updateChart(
+                        vue.academicCareerChart,
+                        json.academic_career
+                    );
 
                     // Update academic careers
                     vue.updateChart(vue.academicLoadChart, json.academic_load);
@@ -162,53 +177,100 @@ const ModuleDemographics = {
     </div>`
 };
 
-const ModuleAcademics = { 
-    props: ['show_extra_data'], 
+const ModuleAcademics = {
+    props: ["show_extra_data"],
     data() {
         return {
-            attendanceCapChart: null, 
+            attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
-        }; 
-    }, 
+            prereqs: [],
+            prereqCharts: {}
+        };
+    },
     mounted() {
-        if (this.show_extra_data){
+        if (this.show_extra_data) {
             this.buildCharts();
         }
-    }, 
+    },
     watch: {
         show_extra_data(newVar, oldVar) {
             if (newVar) {
                 // Redisplay charts
                 setTimeout(this.buildCharts, 100);
             }
-        } 
-    }, 
+        }
+    },
     methods: {
         buildCharts: function() {
-            this.pastGradesChart = barChart("pastGradesChart", "rgba(100, 155, 255, 0.6)", ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]);
-            this.attendanceCapChart = scatterChart('attendanceCapChart', "rgba(54, 162, 235, 0.6)", 'Attendance Rate', 'CAP');
-            this.webcastCapChart = scatterChart('webcastCapChart', "rgba(255, 99, 132, 0.6)", 'Webcast Watch Rate', 'CAP');
+            this.pastGradesChart = barChart(
+                "pastGradesChart",
+                "rgba(100, 155, 255, 0.6)",
+                ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]
+            );
+            this.attendanceCapChart = scatterChart(
+                "attendanceCapChart",
+                "rgba(54, 162, 235, 0.6)",
+                "Attendance Rate",
+                "CAP"
+            );
+            this.webcastCapChart = scatterChart(
+                "webcastCapChart",
+                "rgba(255, 99, 132, 0.6)",
+                "Webcast Watch Rate",
+                "CAP"
+            );
             this.fetchData();
-        }, 
+        },
         fetchData: function() {
             var vue = this;
-            fetch('/backend/faculty/academics/' + this.$route.params.module)
+            fetch("/backend/faculty/academics/" + this.$route.params.module)
                 .then(function(response) {
                     return response.json();
                 })
                 .then(function(json) {
-                    vue.attendanceCapChart.data.datasets[0].data = json.attendance_cap;
+                    vue.attendanceCapChart.data.datasets[0].data =
+                        json.attendance_cap;
                     vue.attendanceCapChart.update();
-                    vue.webcastCapChart.data.datasets[0].data = json.webcast_cap;
+                    vue.webcastCapChart.data.datasets[0].data =
+                        json.webcast_cap;
                     vue.webcastCapChart.update();
-                    
+
                     // Update past grades
                     vue.pastGradesChart.data.datasets[0].data = json.grades;
                     vue.pastGradesChart.update();
-                })
+
+                    // We set a timeout so that the DOM 
+                    // has time to update
+                    vue.prereqs = json.prereqs;
+                    setTimeout(function() {
+                        for (var i = 0; i < json.prereqs.length; i++) {
+                            vue.prereqCharts[i] = barChart(
+                                "prereqGradesChart" +
+                                    json.prereqs[i].module_code,
+                                "rgba(75, 192, 192, 0.6)",
+                                [
+                                    "A+",
+                                    "A",
+                                    "A-",
+                                    "B+",
+                                    "B",
+                                    "B-",
+                                    "C+",
+                                    "C",
+                                    "D+",
+                                    "D",
+                                    "F"
+                                ]
+                            );
+                            vue.prereqCharts[i].data.datasets[0].data =
+                                json.prereqs[i].grades;
+                            vue.prereqCharts[i].update();
+                        }
+                    }, 200);
+                });
         }
-    }, 
+    },
     template: `<div class='container-fluid'>
         <div class='chart-rows'>
             <div class='demographic-chart card'>
@@ -227,11 +289,17 @@ const ModuleAcademics = {
                 <canvas id="webcastCapChart" width="100" height="70"></canvas>
             </div>
         </div>
+        <div class='chart-rows'>
+            <div class='demographic-chart card' v-for='prereq in prereqs'>
+                <h2>Grades for {{prereq.module_code}}</h2>
+                <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
+            </div>
+        </div>
     </div>`
 };
 
-const ModuleEnrolment = { 
-    props: ['show_extra_data'], 
+const ModuleEnrolment = {
+    props: ["show_extra_data"],
     data() {
         return {
             enrolment: []
@@ -239,7 +307,7 @@ const ModuleEnrolment = {
     },
     mounted() {
         this.fetchData();
-    }, 
+    },
     methods: {
         fetchData: function() {
             var vue = this;
@@ -251,7 +319,7 @@ const ModuleEnrolment = {
                     vue.enrolment = json;
                 });
         }
-    }, 
+    },
     template: `
     <div class='container-fluid'><transition name='fade'>
         <table class='table table-hover' v-if='enrolment.length > 0'>
@@ -283,4 +351,4 @@ const ModuleEnrolment = {
             </tbody>
         </table>
     </transition></div>`
- };
+};
