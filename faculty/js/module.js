@@ -1,9 +1,39 @@
+async function getModuleInfo(module_code) {
+    return fetch('/bt3103-app/backend/module_description/' + module_code)
+        .then((resp) => {
+            return resp.json()
+        })
+}
+
 const Module = {
     props: ["show_extra_data"],
+    data() {
+        return {
+            module_name: ''
+        }
+    }, 
+    created() {
+        this.updateModuleInfo();
+    }, 
+    watch: {
+        $route(to, from) {
+            this.updateModuleInfo();
+        }
+    },
+    methods: {
+        updateModuleInfo: function() {
+            const vue = this;
+            getModuleInfo(this.$route.params.module)
+                .then((resp)=>{
+                    vue.module_name = resp.title;
+                })
+        }
+    }, 
     template: `
     <div class='module-page'>
         <div class='container'>
             <h1>{{$route.params.module}}</h1>
+            <p v-if='show_extra_data && module_name != ""' class='lead'>{{module_name}} &nbsp; <span class='badge badge-success'>Third-party data</span></p>
             <ul class=" module-nav nav nav-pills nav-fill">
                 <li class='nav-item'>
                     <router-link class='nav-link' to='demographics'>Demographics</router-link>
