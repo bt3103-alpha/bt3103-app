@@ -184,34 +184,39 @@ def fetchDataStatus():
     return jsonify({"progress": fetchProgress})
 
 
-def countsAsDict(x):
+def countsAsDict(df, column_name):
     '''
     Takes in a column, does a value count, and returns a dict
 
-    E.g. {"A": 1, "B": 2}
+    E.g. {'labels': ['A', 'B'], 'counts': [2, 4], 'tokens': ['Token1', 'Token2']}
 
     Parameters:
     x - Pandas Series 
     '''
-    counts = x.value_counts()
+    counts = df[column_name].value_counts()
     labels = [str(x) for x in counts.index]
     counts = [int(x) for x in counts]
-    return {'labels': labels, 'counts': counts}
+    students = []
+    for label in labels:
+        tokens = df[df[column_name] == label]['token']
+        students.append(list(tokens))
+    return {'labels': labels, 'counts': counts, 'students': students}
 
 
-def countsAsLists(x):
+def countsAsLists(df, column_name):
     '''
     Takes in a column, does a value count, returns as nested lists
 
-    E.g. [["A", 1], ["B", 2]]
+    E.g. [["A", 1, ['Token1', 'Token2']], ["B", 2, ['Token3']]]
 
     Parameters: 
     x - Pandas Series
     '''
-    counts = x.value_counts()
+    counts = df[column_name].value_counts()
     result = []
     for key, value in counts.items():
-        result.append([key, value])
+        tokens = df[df[column_name] == key]['token']
+        result.append([key, value, list(tokens)])
     return result
 
 
@@ -275,11 +280,10 @@ def moduleDemographics(module_code):
     program_current = program_current_term(module_code)
 
     # Fetch program information about current students
-    results["degrees"] = countsAsLists(program_current.degree_descr)
-    results["academic_career"] = countsAsDict(program_current.academic_career)
-    results["faculty"] = countsAsDict(program_current.faculty_descr)
-    results["academic_load"] = countsAsDict(
-        program_current.academic_load_descr)
+    results["degrees"] = countsAsLists(program_current, 'degree_descr')
+    results["academic_career"] = countsAsDict(program_current, 'academic_career')
+    results["faculty"] = countsAsDict(program_current, 'faculty_descr')
+    results["academic_load"] = countsAsDict(program_current, 'academic_load_descr')
 
     # Count of years of current students
     results["years"] = [0, 0, 0, 0]
@@ -336,10 +340,12 @@ def getModuleGrades(module_code, program_subset=None):
             program_subset.set_index("token"), on='token', how='inner')
 
     subset_grades = module_subset.final_grade.value_counts()
-    result = []
+    counts = []
+    students = []
     for grade in grades.keys():
-        result.append(int(subset_grades.get(grade, 0)))
-    return result
+        counts.append(int(subset_grades.get(grade, 0)))
+        students.append(list(module_subset[module_subset.final_grade == grade]['token']))
+    return {"counts": counts, "students": students}
 
 
 @backend.route(url_path+'/backend/faculty/academics/<module_code>')
@@ -378,7 +384,7 @@ def moduleAcademics(module_code):
         }
 
         # Only append if we have found students who took this prereq
-        if sum(prereq_data['grades']) > 0:
+        if sum(prereq_data['grades']['counts']) > 0:
             results['prereqs'].append(prereq_data)
 
     # Some statistical analysis!

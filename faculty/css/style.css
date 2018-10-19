@@ -70,3 +70,20 @@ html, body {
     justify-content: center;
     /* align-items: center; */
 }
+
+/* Charts / tooltip */
+
+#chartjs-tooltip {
+    transition: all 0.3s;
+    transition-property: opacity, left, top;
+    background-color: rgba(0,0,0,0.75);
+    color: white;
+    border-radius: 5px;
+    padding: 4px 6px;
+    font-size: 12px;
+}
+
+#chartjs-tooltip ul {
+    margin-bottom: 0;
+    padding-left: 18px;
+}

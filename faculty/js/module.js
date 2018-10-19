@@ -86,6 +86,7 @@ const ModuleDemographics = {
         updateChart(chart, data) {
             chart.data.labels = data.labels;
             chart.data.datasets[0].data = data.counts;
+            chart.data.datasets[0].tooltips = data.students;
             chart.update();
         },
         fetchData() {
@@ -103,8 +104,8 @@ const ModuleDemographics = {
                     vue.yearsChart.update();
 
                     // Update current grades
-                    vue.currGradesChart.data.datasets[0].data =
-                        json.curr_grades;
+                    vue.currGradesChart.data.datasets[0].data = json.curr_grades;
+                    vue.currGradesChart.data.datasets[0].tooltips = json.curr_grades_students;
                     vue.currGradesChart.update();
 
                     // Update faculties
@@ -207,20 +208,18 @@ const ModuleAcademics = {
                 ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]
             );
 
-            // if (this.show_extra_data) {
-                this.attendanceCapChart = scatterChart(
-                    "attendanceCapChart",
-                    "rgba(54, 162, 235, 0.6)",
-                    "Attendance Rate",
-                    "CAP"
-                );
-                this.webcastCapChart = scatterChart(
-                    "webcastCapChart",
-                    "rgba(255, 99, 132, 0.6)",
-                    "Webcast Watch Rate",
-                    "CAP"
-                );
-            // }
+            this.attendanceCapChart = scatterChart(
+                "attendanceCapChart",
+                "rgba(54, 162, 235, 0.6)",
+                "Attendance Rate",
+                "CAP"
+            );
+            this.webcastCapChart = scatterChart(
+                "webcastCapChart",
+                "rgba(255, 99, 132, 0.6)",
+                "Webcast Watch Rate",
+                "CAP"
+            );
             this.fetchData();
         },
         fetchData: function() {
@@ -231,7 +230,8 @@ const ModuleAcademics = {
                 })
                 .then(function(json) {
                     // Update past grades
-                    vue.pastGradesChart.data.datasets[0].data = json.grades;
+                    vue.pastGradesChart.data.datasets[0].data = json.grades.counts;
+                    vue.pastGradesChart.data.datasets[0].tooltips = json.grades.students;
                     vue.pastGradesChart.update();
 
                     // Show predicted problem students
@@ -316,6 +316,9 @@ const ModuleAcademics = {
             </div>
             <div class='wide-chart card'>
                 <h2>Predicted Problematic Students</h2>
+                <p>A statistical model was run to predict which students may fare better or worse than the average. 
+                This is based on historical data, by comparing past students' grades and which modules they have 
+                taken, to what incoming students have also taken before. </p>
                 <table class='table table-sm table-hover'>
                     <thead>
                         <tr>
