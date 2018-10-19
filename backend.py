@@ -346,13 +346,23 @@ def moduleEnrolment(module_code):
     return jsonify(program_current.to_dict('records'))
 
 
-def getModuleGrades(module_code, program_subset=None):
-    module_subset = module_all_terms(module_code)
+def getModuleGrades(module_code = None, program_subset=None):
+    '''
+    Returns grades. Can filter by module_code and/or a list of tokens
+
+    Parameters:
+    module_code - optional string, return only grades with this module_code
+    program_subset - optional Pandas DataFrame, return only grades belonging to those who are in this dataframe
+    '''
+    if module_code is not None:
+        module_subset = module_all_terms(module_code)
+    else:
+        module_subset = module_enrolment
 
     # Filter to a specific subset of tokens, if specified
     if program_subset is not None:
         module_subset = module_subset.join(
-            program_subset.set_index("token"), on='token', how='inner')
+            program_subset[['token']].set_index("token"), on='token', how='inner')
 
     subset_grades = module_subset.final_grade.value_counts()
     counts = []
@@ -373,7 +383,7 @@ def moduleAcademics(module_code):
     results = {}
 
     # Fetch a count of past grades
-    results['grades'] = getModuleGrades(module_code)
+    results['grades'] = getModuleGrades(program_subset=program_current)
 
     results['attendance_cap'] = []
     results['webcast_cap'] = []

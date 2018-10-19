@@ -317,8 +317,8 @@ const ModuleAcademics = {
         </div>
         <div v-bind:class='["chart-rows", display ? "" : "hide"]'>
             <div class='demographic-chart card'>
-                <h2>Historical grades</h2>
-                <p>The students who took this class in previous semesters got the following grades:</p>
+                <h2>Past grades</h2>
+                <p>Your current students got the following grades in their previous modules:</p>
                 <canvas id="pastGradesChart" width="100" height="70"></canvas>
             </div>
             <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
