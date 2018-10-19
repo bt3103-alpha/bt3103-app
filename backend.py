@@ -15,6 +15,7 @@ mockedup_data = None
 student_attention = None
 student_attention_cap = None
 cap = None
+module_descriptions = None
 module_names = {}
 fetchProgress = 0
 
@@ -78,6 +79,11 @@ async def fetchFirebase(url):
     return pd.DataFrame.from_records(r.json())
 
 
+async def fetchFirebaseJSON(url):
+    r = requests.get(url)
+    return pd.DataFrame.from_dict(r.json(), orient='index')
+
+
 def getScore(x):
     '''
     Returns the numeric grade of a grade.
@@ -117,7 +123,7 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function. 
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention  # , cap, student_attention_cap
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions
 
     print("Fetching data")
     fetchProgress = 0
@@ -152,11 +158,10 @@ async def fetchData():
     program_enrolment = program_enrolment.join(cap, on='token').join(
         student_attention.set_index('token'), on='token')
 
-    # student_attention_cap = student_attention.join(
-    #     cap, on='token', how='inner')
+    fetchProgress = 90
 
-    # mockedup_data = await fetchFirebase(
-    #     "https://bt3103-mockup.firebaseio.com/.json")
+    module_descriptions = await fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+    
     fetchProgress = 100
     print("Done fetching data")
 
@@ -183,6 +188,9 @@ def fetchDataStatus():
     '''
     return jsonify({"progress": fetchProgress})
 
+@backend.route(url_path+'/backend/module_description/<module_code>')
+def fetchModuleDescription(module_code):
+    return jsonify(module_descriptions.loc[module_code].to_json())
 
 def countsAsDict(df, column_name):
     '''
