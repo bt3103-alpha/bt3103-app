@@ -31,4 +31,4 @@ def add_header(r):
 
 # callFetchData()
 app.register_blueprint(backend)
-app.run(debug=True)
+app.run(debug=True, threaded=True)
