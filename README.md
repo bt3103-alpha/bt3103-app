@@ -38,6 +38,8 @@ pip install flask, pandas, numpy
 python server.py
 ```
 
+5. You can then visit the page at http://localhost:5000/bt3103-app/
+
 ## Making Changes
 
 After you make any changes, you will need to upload them back to Github (so that we can all use them).
