@@ -59,6 +59,9 @@ async def fetchGoogleSheet(url_num, sheet_name):
     elif url_num == 2:
         # Part 2
         url = "1lFR0Og8mFUzJNZkzC1Lr9Z7KHaG_X8bV--VfV-FH64Y"
+    elif url_num ==3:
+        # Vienna's mock up for main page (including module code, num of stu, num of webcasts watch halfway, unviewed forum, tut attendance)
+        url = "16Sw9yRsyMrFZDXGKNQe3gG34Sj3Y_8jqOzjCXszJQB8"
     else:
         # Sam's mockup
         url = "15YQSuRO3TohlqFiF8v3oxFNpr9VoBxgOs6ihhUMCigU"
