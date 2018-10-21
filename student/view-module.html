@@ -67,21 +67,13 @@
             <div id='search_results' class='search_results'></div>
         </div>
         <div v-if="module_code" class='container'>
-            <h1>{{module_code}}</h1>
+            <h1>{{module_code}} {{module_name}}</h1>
             <div class='row'>
                 <div class='col-9'>
                     <div id='moduleInfo'>
                         <h2>Module Description</h2>
                         <p>
-                            Module description for {{module_code}} here. Lorem ipsum dolor sit, amet consectetur
-                            adipisicing elit. Nulla amet vel illum voluptatum. Reprehenderit expedita inventore
-                            accusamus molestiae error illo officiis, deleniti eveniet. Sapiente esse expedita incidunt
-                            pariatur eum ad.
-                        </p>
-                        <p>
-                            Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quo eveniet aspernatur neque illo
-                            veniam placeat nemo sapiente obcaecati hic, eaque rem molestiae, sunt fugit labore. Cum
-                            commodi hic doloremque voluptas!
+                            {{module_description}}
                         </p>
                         <h2>Prerequisites</h2>
                         <div class="row">

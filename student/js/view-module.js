@@ -19,7 +19,9 @@ window.onload = function() {
         el: "#app",
         data: {
             module_code: "",
+            module_name: "",
             name: "",
+            module_description: "",
             prereq_arr: [],
             completed: [],
             completed_dict: {},
@@ -28,9 +30,6 @@ window.onload = function() {
         created() {
             let url = new URL(window.location.href);
             this.module_code = url.searchParams.get("name");
-            if (this.module_code != null) {
-                this.module_name = search_codes[this.module_code.toLowerCase()].name;
-            }
 
             // Fetch name
             fetch("https://bt3103-alpha-student.firebaseio.com/profile.json")
@@ -39,6 +38,23 @@ window.onload = function() {
                 })
                 .then(json => {
                     this.name = json.name;
+                });
+
+            // fetch module details and module name
+            fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+                .then(response => {
+                    return response.json();
+                })
+                .then(json => {
+                    if (this.module_code != null && json[this.module_code] != null) {
+                      console.log(json[this.module_code]);
+                      this.module_description = json[this.module_code].description;
+                    }
+
+                    // have to park it here because async property, need wait for search_codes obj to finish query
+                    if (this.module_code != null) {
+                        this.module_name = search_codes[this.module_code.toLowerCase()].name;
+                    }
                 });
 
             // Get prereq and tags
