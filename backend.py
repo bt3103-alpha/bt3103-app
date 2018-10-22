@@ -296,16 +296,15 @@ def mainOverview(module_code):
     Parameters:
     module_code - string
     '''
-    results = {}
-    index = 0
-    row = main_mockup[main_mockup['modules'] == module_code]
+    #results = {}
+    #print(main_mockup.head())
+    row = main_mockup[main_mockup['module_code'] == module_code].to_dict('records')[0]
 
-    results[module_code] = (row['number of students'],
-    row['number of webcasts unfinished'], 
-    row['unviewed forum'],
-    row['tutorial attendance'])
-
-    return jsonify(results)
+    #results[module_code] = [row['number of students'],
+    #row['number of webcasts unfinished'], 
+    #row['unviewed forum'],
+    #row['tutorial attendance']]
+    return jsonify(row)
 
 
 
