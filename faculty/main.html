@@ -74,8 +74,9 @@
             </div>
         </nav>
         <transition name='fade'>
-            <router-view class='child-view' :show_extra_data='show_extra_data'></router-view>
+            <router-view class='child-view' :show_extra_data='show_extra_data' :modules='modules'></router-view>
         </transition>
+
     </div>
 </body>
 

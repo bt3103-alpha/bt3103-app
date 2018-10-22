@@ -270,10 +270,10 @@ def program_current_term(module_code):
     Returns the program_enrolment for students currently taking a particular module
     '''
     module_current = module_current_term(module_code)
-    program_current = program_enrolment[program_enrolment.term == max(
-        program_enrolment.term)]
+    # program_current = program_enrolment[program_enrolment.term == max(
+        # program_enrolment.term)]
     program_current = module_current[['token']].join(
-        program_current.set_index('token'), on='token', how='inner')
+        program_enrolment.set_index('token'), on='token', how='inner')
     return program_current
 
 
@@ -296,16 +296,15 @@ def mainOverview(module_code):
     Parameters:
     module_code - string
     '''
-    results = {}
-    index = 0
-    row = main_mockup[main_mockup['modules'] == module_code]
+    #results = {}
+    #print(main_mockup.head())
+    row = main_mockup[main_mockup['module_code'] == module_code].to_dict('records')[0]
 
-    results[module_code] = (row['number of students'],
-    row['number of webcasts unfinished'], 
-    row['unviewed forum'],
-    row['tutorial attendance'])
-
-    return jsonify(results)
+    #results[module_code] = [row['number of students'],
+    #row['number of webcasts unfinished'], 
+    #row['unviewed forum'],
+    #row['tutorial attendance']]
+    return jsonify(row)
 
 
 
