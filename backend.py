@@ -487,3 +487,13 @@ def moduleAcademics(module_code):
     results['pred_scores'] = sorted(student_scores, key = lambda x: x[1])
 
     return jsonify(results)
+
+@backend.route(url_path+'/backend/student/view-module/<module_code>')
+def getPrereqs(module_code):
+    prereqs = fetchPrereqs(module_code)
+    # name parent children
+    final_list = {'name': module_code, 'parent': None, 'children': []}
+    for prereq in prereqs:
+        toAdd = {'name': prereq, 'parent': module_code}
+        final_list['children'].append(toAdd)
+    return jsonify(final_list)
