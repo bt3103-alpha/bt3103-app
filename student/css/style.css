@@ -198,6 +198,32 @@ body {
     text-align: center;
 }
 
+.node {
+    cursor: pointer;
+}
+
+.node circle {
+  fill: lightgreen;
+  stroke: black;
+  stroke-width: 3px;
+}
+
+.node circle_missing {
+    fill: lightcoral;
+    stroke: black;
+    stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 2px;
+}
+
 .tags {
     background-color: #d0dcec;
 }
