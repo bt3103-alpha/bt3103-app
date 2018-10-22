@@ -270,10 +270,10 @@ def program_current_term(module_code):
     Returns the program_enrolment for students currently taking a particular module
     '''
     module_current = module_current_term(module_code)
-    program_current = program_enrolment[program_enrolment.term == max(
-        program_enrolment.term)]
+    # program_current = program_enrolment[program_enrolment.term == max(
+        # program_enrolment.term)]
     program_current = module_current[['token']].join(
-        program_current.set_index('token'), on='token', how='inner')
+        program_enrolment.set_index('token'), on='token', how='inner')
     return program_current
 
 
