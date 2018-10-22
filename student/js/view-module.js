@@ -26,7 +26,9 @@ window.onload = function() {
         el: "#app",
         data: {
             module_code: "",
+            module_name: "",
             name: "",
+            module_description: "",
             prereq_arr: [],
             completed: [],
             completed_dict: {},

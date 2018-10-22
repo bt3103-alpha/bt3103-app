@@ -12,6 +12,7 @@ url_path = "/bt3103-app"
 module_enrolment = None
 program_enrolment = None
 mockedup_data = None
+main_mockup = None
 student_attention = None
 student_attention_cap = None
 cap = None
@@ -126,7 +127,7 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function. 
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup
 
     print("Fetching data")
     fetchProgress = 0
@@ -141,7 +142,10 @@ async def fetchData():
     fetchProgress = 50
 
     # Generated data on webcasts and attendance
-    student_attention = await fetchGoogleSheet(3, 'Sheet1')
+    student_attention = await fetchGoogleSheet(4, 'Sheet1')
+
+    # Generated data on webcasts/tutorial attendance/forum
+    main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
 
     fetchProgress = 75
 
@@ -283,6 +287,27 @@ def program_past_terms(module_code):
     program_subset = module_subset[['token']].join(
         program_subset.set_index('token'), on='token', how='inner')
     return program_subset
+
+@backend.route(url_path+'/backend/faculty/main/<module_code>')
+def mainOverview(module_code):
+    '''
+    Fetches all relevant details to display on main page for a given module_code
+
+    Parameters:
+    module_code - string
+    '''
+    results = {}
+    index = 0
+    row = main_mockup[main_mockup['modules'] == module_code]
+
+    results[module_code] = (row['number of students'],
+    row['number of webcasts unfinished'], 
+    row['unviewed forum'],
+    row['tutorial attendance'])
+
+    return jsonify(results)
+
+
 
 
 @backend.route(url_path+'/backend/faculty/demographics/<module_code>')
