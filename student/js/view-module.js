@@ -48,15 +48,6 @@ window.onload = function () {
             let url = new URL(window.location.href);
             this.module_code = url.searchParams.get("name");
 
-            if (this.module_code != null) {
-                const vue = this;
-                getModuleInfo(this.module_code)
-                    .then((resp) => {
-                        vue.module_name = resp.title;
-                    })
-                // this.module_name = search_codes[this.module_code.toLowerCase()].name;
-            }
-
             // Fetch name
             fetch("https://bt3103-alpha-student.firebaseio.com/profile.json")
                 .then(response => {
@@ -66,6 +57,24 @@ window.onload = function () {
                     this.name = json.name;
                 });
             getPrereqs(this.module_code)
+
+            // fetch module details and module name
+            fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+                .then(response => {
+                    return response.json();
+                })
+                .then(json => {
+                    if (this.module_code != null && json[this.module_code] != null) {
+                        console.log(json[this.module_code]);
+                        this.module_description = json[this.module_code].description;
+                    }
+
+                    // have to park it here because async property, need wait for search_codes obj to finish query
+                    if (this.module_code != null) {
+                        this.module_name = search_codes[this.module_code.toLowerCase()].name;
+                    }
+                });
+
         },
     });
 }
