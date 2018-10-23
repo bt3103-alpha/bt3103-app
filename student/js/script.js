@@ -11,11 +11,14 @@ const reset_schedule = [
     [
         { name: "BT1101", type: "module-core", mc: 4, grade: "A" },
         { name: "CS1010S", type: "module-core", mc: 4 },
-        { name: "MKT1003X", type: "module-core", mc: 4 }
+        { name: "MKT1003X", type: "module-core", mc: 4 },
+        { name: "RE2102", type: "module-ue", mc: 4},
+        { name: "GEK1517", type: "module-ue", mc: 4}
     ],
     [
         { name: "BT2101", type: "module-core", mc: 4 },
-        { name: "EC1301", type: "module-core", mc: 4 }
+        { name: "EC1301", type: "module-core", mc: 4 },
+        { name: "PF2103", type: "module-ue", mc: 4}
     ],
     [
         { name: "IS4240", type: "module-pe", mc: 4 },

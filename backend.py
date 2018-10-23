@@ -17,8 +17,10 @@ student_attention = None
 student_attention_cap = None
 cap = None
 module_descriptions = None
+association_rules = None
 module_names = {}
 fetchProgress = 0
+
 
 grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
           "B-": 3.0, "C+": 2.5, "C": 2.0, "D+": 1.5, "D": 1.0, "F": 0}
@@ -127,7 +129,7 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function. 
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules
 
     print("Fetching data")
     fetchProgress = 0
@@ -149,6 +151,8 @@ async def fetchData():
     # Generated data on webcasts/tutorial attendance/forum
     main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
 
+    # market basket analysis mockup
+    association_rules = await fetchGoogleSheet(4, 'Sheet4' )
     fetchProgress = 75
     print(fetchProgress)
 

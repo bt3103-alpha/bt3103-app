@@ -71,15 +71,15 @@
             <div class='row'>
                 <div class='col-9'>
                     <div id='moduleInfo'>
-                        <h1>Module Description</h1>
+                        <h2>Module Description</h2>
                         <p>
                             {{module_description}}
                         </p>
     
                         <h2>Tags</h2>
-                        <button v-for="modtag in this.tag_arr" type='button' title="Similar modules: BT1101" data-toggle='tooltip' class='btn' style='margin-right: 6px;'>{{modtag}}</button>
+                        <button v-for="modtag in this.tag_arr" type='button' class='btn' style='margin-right: 6px;'>{{modtag}}</button>
                     
-                        <h3>Module Prerequisites</h3>
+                        <h2>Module Prerequisites</h2>
                     </div>
                 </div>
                 <div class='col-3'>

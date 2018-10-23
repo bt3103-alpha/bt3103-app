@@ -1,6 +1,7 @@
 async function getModuleInfo(module_code) {
     return fetch('/bt3103-app/backend/module_description/' + module_code)
         .then((resp) => {
+            console.log(resp)
             return resp.json()
         })
 }
@@ -12,6 +13,13 @@ async function getPrereqs(module_code) {
         })
         .then((treeData) => {
             treeStuff(treeData)
+        })
+}
+
+async function getTags(module_code) {
+    return fetch('/bt3103-app/backend/module_description/' + module_code)
+        .then((resp) => {
+            return resp.json()
         })
 }
 
@@ -39,9 +47,9 @@ window.onload = function () {
             module_name: "",
             name: "",
             module_description: "",
-            prereq_arr: [],
-            completed: [],
-            completed_dict: {},
+            //prereq_arr: [],
+            //completed: [],
+            //completed_dict: {},
             tag_arr: []
         },
         created() {
@@ -65,17 +73,20 @@ window.onload = function () {
                 })
                 .then(json => {
                     if (this.module_code != null && json[this.module_code] != null) {
-                        console.log(json[this.module_code]);
+                        const vue = this;
                         this.module_description = json[this.module_code].description;
+                        getTags(this.module_code)
+                            .then(resp => {
+                                vue.tag_arr = resp.tags;
+                            })
                     }
 
                     // have to park it here because async property, need wait for search_codes obj to finish query
                     if (this.module_code != null) {
                         this.module_name = search_codes[this.module_code.toLowerCase()].name;
                     }
-                });
-
-        },
+                })
+            }
     });
 }
 
