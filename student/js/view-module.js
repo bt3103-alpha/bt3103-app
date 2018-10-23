@@ -74,6 +74,9 @@ window.onload = function () {
                         this.module_name = search_codes[this.module_code.toLowerCase()].name;
                     }
                 });
+            wordcloud(goodSkill,"#goodCloud");
+            wordcloud(badSkill,"#badCloud");
+
 
         },
     });
@@ -206,4 +209,97 @@ function treeStuff(treeData) {
         }
         update(d);
     }
-}  
+}
+
+var goodSkill = [
+{ text: 'Good Text 1', size: 40 },
+{ text: 'Good Text 2', size: 15 },
+{ text: 'Good Text 3', size: 25 },
+{ text: 'Good Text 4', size: 25 },
+{ text: 'Good Text 5', size: 30 },
+{ text: 'Good Text 6', size: 30 },
+{ text: 'Good Text 7', size: 15 },
+{ text: 'Good Text 8', size: 10 },
+{ text: 'Good Text 9', size: 50 },
+{ text: 'Good Text 10', size: 40 },
+{ text: 'Good Text 11', size: 64 },
+{ text: 'Good Text 12', size: 20 },
+{ text: 'Good Text 13', size: 30 }
+];
+
+var badSkill = [
+{ text: 'Bad Text 1', size: 40 },
+{ text: 'Bad Text 2', size: 15 },
+{ text: 'Bad Text 3', size: 25 },
+{ text: 'Bad Text 4', size: 25 },
+{ text: 'Bad Text 5', size: 30 },
+{ text: 'Bad Text 6', size: 30 },
+{ text: 'Bad Text 7', size: 15 },
+{ text: 'Bad Text 8', size: 10 },
+{ text: 'Bad Text 9', size: 50 },
+{ text: 'Bad Text 10', size: 40 },
+{ text: 'Bad Text 11', size: 64 },
+{ text: 'Bad Text 12', size: 20 },
+{ text: 'Bad Text 13', size: 30 }
+];
+
+// student feeback wordcloud
+function wordcloud(listword, id) {
+  var width = 400;
+  var height = 200;
+  var fill = d3.scale.linear()
+  .domain([0, 5])
+  .range(['#9999ff', '#000099']);
+
+  d3.layout.cloud()
+    .size([width, height])
+    .words(listword)
+    .rotate(function() {
+      return ~~(Math.random() * 2) * 90;
+    })
+    .font("Impact")
+    .fontSize(function(d) {
+      return d.size;
+    })
+    .on("end", drawSkillCloud)
+    .start();
+
+  // Finally implement `drawSkillCloud`, which performs the D3 drawing:
+  // apply D3.js drawing API
+  function drawSkillCloud(words) {
+      d3.select(id).append("svg")
+          .attr("width", width)
+          .attr("height", height)
+          .append("g")
+          .attr("transform", "translate(" + ~~(width / 2) + "," + ~~(height / 2) + ")")
+          .selectAll("text")
+          .data(words)
+          .enter().append("text")
+          .style("font-size", function(d) {
+              return d.size + "px";
+          })
+          .style("-webkit-touch-callout", "none")
+          .style("-webkit-user-select", "none")
+          .style("-khtml-user-select", "none")
+          .style("-moz-user-select", "none")
+          .style("-ms-user-select", "none")
+          .style("user-select", "none")
+          .style("cursor", "default")
+          .style("font-family", "Impact")
+          .style("fill", function(d, i) {
+              return fill(i);
+          })
+          .attr("text-anchor", "middle")
+          .attr("transform", function(d) {
+              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+          })
+          .text(function(d) {
+              return d.text;
+          });
+  }
+  // set the viewbox to content bounding box (zooming in on the content, effectively trimming whitespace)
+      var svg = document.getElementsByTagName("svg")[0];
+      var bbox = svg.getBBox();
+      var viewBox = [bbox.x, bbox.y, bbox.width, bbox.height].join(" ");
+      svg.setAttribute("viewBox", viewBox);
+}
