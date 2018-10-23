@@ -301,7 +301,11 @@ const ModuleAcademics = {
                                     ]
                                 );
                                 vue.prereqCharts[i].data.datasets[0].data =
-                                    json.prereqs[i].grades;
+                                    json.prereqs[i].grades.counts;
+                                    
+                                vue.prereqCharts[i].data.datasets[0].tooltips =
+                                json.prereqs[i].grades.students;
+
                                 vue.prereqCharts[i].update();
                             }
                         }, 200);
