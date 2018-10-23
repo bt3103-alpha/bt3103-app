@@ -22,12 +22,15 @@
     <script src="https://unpkg.com/vue"></script>
     <script src='js/search.js'></script>
 
-
     <script src="https://gojs.net/latest/release/go.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
     <link href='https://fonts.googleapis.com/css?family=Droid+Serif:400,700' rel='stylesheet' type='text/css'>
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
+    <!-- wordcloud library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+    <script src="https://cdn.rawgit.com/jasondavies/d3-cloud/v1.2.1/build/d3.layout.cloud.js"></script>
+
     <script src="js/view-module.js"></script>
 
 </head>
@@ -75,11 +78,78 @@
                         <p>
                             {{module_description}}
                         </p>
-    
+
                         <h2>Tags</h2>
-                        <button v-for="modtag in this.tag_arr" type='button' class='btn' style='margin-right: 6px;'>{{modtag}}</button>
-                    
+                        <button v-for="modtag in this.tag_arr" type='button' class='btn' style='margin-right: 6px;'>{{modtag}}</button>                
+        
                         <h2>Module Prerequisites</h2>
+
+                        <h2>Student Reviews</h2>
+
+                        <div class="progbar">
+                          <span class="progbar-heading">I rate this module as </span>
+                          <span class="fa fa-star checked"></span>
+                          <span class="fa fa-star checked"></span>
+                          <span class="fa fa-star-half-o checked"></span>
+                          <span class="fa fa-star checked"></span>
+                          <span class="fa fa-star-o checked"></span>
+                          <p>4.1 average based on 254 reviews.</p>
+                          <hr style="border:3px solid #f1f1f1">
+
+                          <div class="row">
+                            <div class="progbar-side">
+                              <div style="margin-left: 20px">5 <span class="fa fa-star"></span></div>
+                            </div>
+                            <div class="progbar-middle progress">
+                                <div class="progress-bar" role="progressbar" style="background-color: #ff9800; width: 25%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="progbar-side progbar-right">150</div>
+
+                            <div class="progbar-side">
+                              <div style="margin-left: 20px">4 <span class="fa fa-star"></span></div>
+                              </div>
+                            <div class="progbar-middle progress">
+                                <div class="progress-bar" role="progressbar" style= "background-color: #ff9800; width: 45%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="progbar-side progbar-right">63</div>
+
+                            <div class="progbar-side">
+                              <div style="margin-left: 20px">3 <span class="fa fa-star"></span></div>
+                              </div>
+                            <div class="progbar-middle progress">
+                                <div class="progress-bar" role="progressbar" style="background-color: #ff9800; width: 15%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="progbar-side progbar-right">63</div>
+
+                            <div class="progbar-side">
+                              <div style="margin-left: 20px">2 <span class="fa fa-star"></span></div>
+                            </div>
+                            <div class="progbar-middle progress">
+                                <div class="progress-bar" role="progressbar" style="background-color: #ff9800; width: 85%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="progbar-side progbar-right">63</div>
+
+                            <div class="progbar-side">
+                              <div style="margin-left: 20px">1 <span class="fa fa-star"></span></div>
+                            </div>
+                            <div class="progbar-middle progress">
+                                <div class="progress-bar" role="progressbar" style="background-color: #ff9800; width: 45%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="progbar-side progbar-right">63</div>
+                          </div> <!-- row -->
+                        </div> <!-- progbar-->
+                        <br><br>
+                        <div class='row'>
+                          <div>
+                            <span class="progbar-heading">What I like about this module </span>
+                            <div id="goodCloud"></div>
+                          </div>
+                          <div>
+                            <span class="progbar-heading">What I did not like about this module </span>
+                            <div id="badCloud"></div>
+                          </div>
+                        </div>
+
                     </div>
                 </div>
                 <div class='col-3'>

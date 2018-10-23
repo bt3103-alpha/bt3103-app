@@ -369,3 +369,40 @@ h3 {
 .colour-orange {
     color: orange;
 }
+
+/* Progress bar */
+.progbar{
+  width:50%;
+}
+
+.progbar-heading{
+  margin-bottom: 12px;
+  margin-right: 10px;
+  font-size: 24px;
+}
+
+.fa {
+    font-size: 20px;
+}
+
+.checked {
+    color: orange;
+}
+
+/* Three column layout */
+.progbar-side {
+    float: left;
+    width: 15%;
+    margin-top: 10px;
+}
+
+.progbar-middle {
+    float: left;
+    width: 70%;
+    margin-top: 10px;
+}
+
+/* Place text to the right */
+.progbar-right {
+    text-align: right;
+}
