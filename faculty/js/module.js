@@ -215,12 +215,14 @@ const ModuleAcademics = {
             pastGradesChart: null,
             predicted_scores: [],
             prereqs: [],
+            prereqsTags:[],
             prereqCharts: {},
             display: false // whether we should display the charts
         };
     },
     mounted() {
         this.buildCharts();
+        this.UpdatePrereqsTags();
     },
     // watch: {
     //     show_extra_data(newVar, oldVar) {
@@ -229,6 +231,7 @@ const ModuleAcademics = {
     //     }
     // },
     methods: {
+
         buildCharts: function() {
             this.display = false;
 
@@ -301,20 +304,32 @@ const ModuleAcademics = {
                                     ]
                                 );
                                 vue.prereqCharts[i].data.datasets[0].data =
-                                    json.prereqs[i].grades.counts;
-                                    
-                                vue.prereqCharts[i].data.datasets[0].tooltips =
-                                json.prereqs[i].grades.students;
-
+                                    json.prereqs[i].grades;
                                 vue.prereqCharts[i].update();
                             }
                         }, 200);
                     // }
 
+
                     vue.display = true;
                 });
+        },
+        UpdatePrereqsTags: function () {
+            const vue = this;
+            console.log(1)
+            console.log(this.prereqs.length)
+            for (var i = 0; i < vue.prereqs.length; i++) {
+                console.log(JSON.stringify(this))
+                getModuleInfo(this.prereqs[i].module_code).then((resp) => {
+                    console.log(2)
+                    vue.prereqsTags.push(resp);
+                    console.log(this);
+                    console.log(vue.prereqsTags[vue.prereqs[i].module_code])
+                })
+            }
         }
     },
+    
     template: `<div class='container-fluid'>
         <div v-if='!display' style='text-align: center; margin-top: 48px; opacity: 0.5'>
             <i class='fas fa-spinner fa-pulse fa-lg'></i>
