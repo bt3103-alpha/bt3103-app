@@ -69,6 +69,41 @@ html, body {
     justify-content: center;
     /* align-items: center; */
 }
+.module-page .overview-module-code {
+    font-size: 24px;
+    letter-spacing: 6px;
+    color: #777;
+    text-align: center;
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.overview-module-code::after {
+    content: "";
+    position: absolute;
+    width: 50px;
+    height: 6px;
+    background-color: #C81173;
+    top: 48px;
+    left: calc(50% - 25px);
+}
+
+.module-rows .col-3 {
+    text-align: center;
+}
+
+.module-rows i {
+    margin-top: 12px;
+}
+
+.module-page .overview-fonts{
+    font-size: 14px;
+    text-align:center;
+}
+.module-page .overview-numfonts{
+    font-size: 30px;
+    text-align:center;
+}
 
 /* Charts / tooltip */
 
