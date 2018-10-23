@@ -222,7 +222,6 @@ const ModuleAcademics = {
     },
     mounted() {
         this.buildCharts();
-        this.UpdatePrereqsTags();
     },
     // watch: {
     //     show_extra_data(newVar, oldVar) {
@@ -270,61 +269,61 @@ const ModuleAcademics = {
                     // Show predicted problem students
                     vue.predicted_scores = json.pred_scores;
 
-                    // if (vue.show_extra_data) {
-                        vue.attendanceCapChart.data.datasets[0].data =
-                            json.attendance_cap;
-                        vue.attendanceCapChart.update();
-                        vue.webcastCapChart.data.datasets[0].data =
-                            json.webcast_cap;
-                        vue.webcastCapChart.update();
+                    vue.attendanceCapChart.data.datasets[0].data =
+                        json.attendance_cap;
+                    vue.attendanceCapChart.update();
+                    vue.webcastCapChart.data.datasets[0].data =
+                        json.webcast_cap;
+                    vue.webcastCapChart.update();
 
-                        // Show prereq grades
-                        vue.prereqs = json.prereqs;
+                    // Show prereq grades
+                    vue.prereqs = json.prereqs;
 
-                        // We set a timeout so that the DOM
-                        // has time to update
-                        setTimeout(function() {
-                            for (var i = 0; i < json.prereqs.length; i++) {
-                                vue.prereqCharts[i] = barChart(
-                                    "prereqGradesChart" +
-                                        json.prereqs[i].module_code,
-                                    "rgba(75, 192, 192, 0.6)",
-                                    [
-                                        "A+",
-                                        "A",
-                                        "A-",
-                                        "B+",
-                                        "B",
-                                        "B-",
-                                        "C+",
-                                        "C",
-                                        "D+",
-                                        "D",
-                                        "F"
-                                    ]
-                                );
-                                vue.prereqCharts[i].data.datasets[0].data =
-                                    json.prereqs[i].grades;
-                                vue.prereqCharts[i].update();
-                            }
-                        }, 200);
-                    // }
+                    // We set a timeout so that the DOM
+                    // has time to update
+                    setTimeout(function() {
+                        for (var i = 0; i < json.prereqs.length; i++) {
+                            vue.prereqCharts[i] = barChart(
+                                "prereqGradesChart" +
+                                    json.prereqs[i].module_code,
+                                "rgba(75, 192, 192, 0.6)",
+                                [
+                                    "A+",
+                                    "A",
+                                    "A-",
+                                    "B+",
+                                    "B",
+                                    "B-",
+                                    "C+",
+                                    "C",
+                                    "D+",
+                                    "D",
+                                    "F"
+                                ]
+                            );
+
+                            vue.prereqCharts[i].data.datasets[0].data =
+                                json.prereqs[i].grades;
+                            vue.prereqCharts[i].update();
+                        }
+
+                        vue.updatePrereqsTags();
+                    }, 200);
 
 
                     vue.display = true;
                 });
         },
-        UpdatePrereqsTags: function () {
+
+        updatePrereqsTags: function () {
             const vue = this;
-            console.log(1)
-            console.log(this.prereqs.length)
             for (var i = 0; i < vue.prereqs.length; i++) {
-                console.log(JSON.stringify(this))
-                getModuleInfo(this.prereqs[i].module_code).then((resp) => {
-                    console.log(2)
+                const index = i;
+                getModuleInfo(this.prereqs[index].module_code).then((resp) => {
                     vue.prereqsTags.push(resp);
-                    console.log(this);
-                    console.log(vue.prereqsTags[vue.prereqs[i].module_code])
+                    console.log(resp);
+                    console.log(vue.prereqsTags)
+                    console.log(vue.prereqsTags[vue.prereqs[index].module_code])
                 })
             }
         }
