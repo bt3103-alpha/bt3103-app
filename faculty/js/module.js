@@ -215,6 +215,7 @@ const ModuleAcademics = {
             pastGradesChart: null,
             predicted_scores: [],
             prereqs: [],
+            prereqsTags:[],
             prereqCharts: {},
             display: false // whether we should display the charts
         };
@@ -229,6 +230,7 @@ const ModuleAcademics = {
     //     }
     // },
     methods: {
+
         buildCharts: function() {
             this.display = false;
 
@@ -267,54 +269,66 @@ const ModuleAcademics = {
                     // Show predicted problem students
                     vue.predicted_scores = json.pred_scores;
 
-                    // if (vue.show_extra_data) {
-                        vue.attendanceCapChart.data.datasets[0].data =
-                            json.attendance_cap;
-                        vue.attendanceCapChart.update();
-                        vue.webcastCapChart.data.datasets[0].data =
-                            json.webcast_cap;
-                        vue.webcastCapChart.update();
+                    vue.attendanceCapChart.data.datasets[0].data =
+                        json.attendance_cap;
+                    vue.attendanceCapChart.update();
+                    vue.webcastCapChart.data.datasets[0].data =
+                        json.webcast_cap;
+                    vue.webcastCapChart.update();
 
-                        // Show prereq grades
-                        vue.prereqs = json.prereqs;
+                    // Show prereq grades
+                    vue.prereqs = json.prereqs;
 
-                        // We set a timeout so that the DOM
-                        // has time to update
-                        setTimeout(function() {
-                            for (var i = 0; i < json.prereqs.length; i++) {
-                                vue.prereqCharts[i] = barChart(
-                                    "prereqGradesChart" +
-                                        json.prereqs[i].module_code,
-                                    "rgba(75, 192, 192, 0.6)",
-                                    [
-                                        "A+",
-                                        "A",
-                                        "A-",
-                                        "B+",
-                                        "B",
-                                        "B-",
-                                        "C+",
-                                        "C",
-                                        "D+",
-                                        "D",
-                                        "F"
-                                    ]
-                                );
-                                vue.prereqCharts[i].data.datasets[0].data =
-                                    json.prereqs[i].grades.counts;
-                                    
-                                vue.prereqCharts[i].data.datasets[0].tooltips =
-                                json.prereqs[i].grades.students;
+                    // We set a timeout so that the DOM
+                    // has time to update
+                    setTimeout(function() {
+                        for (var i = 0; i < json.prereqs.length; i++) {
+                            vue.prereqCharts[i] = barChart(
+                                "prereqGradesChart" +
+                                    json.prereqs[i].module_code,
+                                "rgba(75, 192, 192, 0.6)",
+                                [
+                                    "A+",
+                                    "A",
+                                    "A-",
+                                    "B+",
+                                    "B",
+                                    "B-",
+                                    "C+",
+                                    "C",
+                                    "D+",
+                                    "D",
+                                    "F"
+                                ]
+                            );
 
-                                vue.prereqCharts[i].update();
-                            }
-                        }, 200);
-                    // }
+                            vue.prereqCharts[i].data.datasets[0].data =
+                                json.prereqs[i].grades;
+                            vue.prereqCharts[i].update();
+                        }
+
+                        vue.updatePrereqsTags();
+                    }, 200);
+
 
                     vue.display = true;
                 });
+        },
+
+        updatePrereqsTags: function () {
+            const vue = this;
+            for (var i = 0; i < vue.prereqs.length; i++) {
+                const index = i;
+                getModuleInfo(this.prereqs[index].module_code).then((resp) => {
+                    vue.prereqsTags.push(resp);
+                    console.log(resp);
+                    console.log(vue.prereqsTags)
+                    console.log(vue.prereqsTags[vue.prereqs[index].module_code])
+                })
+            }
         }
     },
+    
     template: `<div class='container-fluid'>
         <div v-if='!display' style='text-align: center; margin-top: 48px; opacity: 0.5'>
             <i class='fas fa-spinner fa-pulse fa-lg'></i>
