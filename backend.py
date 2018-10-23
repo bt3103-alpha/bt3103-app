@@ -135,11 +135,13 @@ async def fetchData():
     # Each row = 1 student taking 1 module
     module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
     fetchProgress = 25
+    print(fetchProgress)
 
     # Each row = 1 student in 1 semester
     program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
     program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
     fetchProgress = 50
+    print(fetchProgress)
 
     # Generated data on webcasts and attendance
     student_attention = await fetchGoogleSheet(4, 'Sheet1')
@@ -148,6 +150,7 @@ async def fetchData():
     main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
 
     fetchProgress = 75
+    print(fetchProgress)
 
     cap = module_enrolment[['module_credits', 'final_grade', 'token']].copy()
     cap['grade'] = cap['final_grade'].apply(getScore)
@@ -161,11 +164,13 @@ async def fetchData():
     cap = cap[['CAP']]
     
     fetchProgress = 85
+    print(fetchProgress)
 
     program_enrolment = program_enrolment.join(cap, on='token').join(
         student_attention.set_index('token'), on='token')
 
     fetchProgress = 90
+    print(fetchProgress)
 
     module_descriptions = await fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
     
@@ -254,7 +259,8 @@ def module_current_term(module_code):
     Returns the latest semester's module_enrolments for a given module_code
     '''
     module_subset = module_all_terms(module_code)
-    return module_subset[module_subset.term == max(module_subset.term)]
+    return module_subset
+    # return module_subset[module_subset.term == max(module_subset.term)]
 
 
 def module_past_terms(module_code):
