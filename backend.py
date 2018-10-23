@@ -270,10 +270,10 @@ def program_current_term(module_code):
     Returns the program_enrolment for students currently taking a particular module
     '''
     module_current = module_current_term(module_code)
-    program_current = program_enrolment[program_enrolment.term == max(
-        program_enrolment.term)]
+    # program_current = program_enrolment[program_enrolment.term == max(
+        # program_enrolment.term)]
     program_current = module_current[['token']].join(
-        program_current.set_index('token'), on='token', how='inner')
+        program_enrolment.set_index('token'), on='token', how='inner')
     return program_current
 
 
@@ -486,3 +486,13 @@ def moduleAcademics(module_code):
     results['pred_scores'] = sorted(student_scores, key = lambda x: x[1])
 
     return jsonify(results)
+
+@backend.route(url_path+'/backend/student/view-module/<module_code>')
+def getPrereqs(module_code):
+    prereqs = fetchPrereqs(module_code)
+    # name parent children
+    final_list = {'name': module_code, 'parent': None, 'children': []}
+    for prereq in prereqs:
+        toAdd = {'name': prereq, 'parent': module_code}
+        final_list['children'].append(toAdd)
+    return jsonify(final_list)
