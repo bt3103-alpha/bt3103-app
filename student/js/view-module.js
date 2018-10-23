@@ -50,7 +50,10 @@ window.onload = function () {
             //prereq_arr: [],
             //completed: [],
             //completed_dict: {},
-            tag_arr: []
+            tag_arr: [],
+            tAbility: null,
+            tTimely: null,
+            tInterest: null
         },
         created() {
             let url = new URL(window.location.href);
@@ -89,8 +92,19 @@ window.onload = function () {
             wordcloud(goodSkill,"#goodCloud");
             wordcloud(badSkill,"#badCloud");
 
-
-        },
+            fetch("/bt3103-app/backend/student/view-module/feedbackT/" + this.module_code)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    var a = [1,3,6,1,5];
+                    console.log(json)
+                    // Update faculties
+                    this.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
+                    this.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
+                    this.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                });
+        }
     });
 }
 
@@ -314,4 +328,33 @@ function wordcloud(listword, id) {
       var bbox = svg.getBBox();
       var viewBox = [bbox.x, bbox.y, bbox.width, bbox.height].join(" ");
       svg.setAttribute("viewBox", viewBox);
+}
+
+function donutChart(id, labels = [], dat_a) {
+    return new Chart(document.getElementById(id), {
+        type: "pie",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "No. of students",
+                    data: dat_a,
+                    backgroundColor: [
+                        "rgba(54, 162, 235, 0.6)",
+                        "rgba(255, 99, 132, 0.6)",
+                        "rgba(75, 192, 192, 0.6)",
+                        "rgba(255, 206, 86, 0.6)",
+                        "rgba(210, 153, 172, 0.6)"
+                    ]
+                }
+            ]
+        },
+        options: {
+            cutoutPercentage: 50,
+            rotation: 0.5 * Math.PI,
+            animation: {
+                animateScale: true
+            }
+        }
+    });
 }

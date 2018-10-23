@@ -17,6 +17,8 @@ student_attention = None
 student_attention_cap = None
 cap = None
 module_descriptions = None
+student_fb_module = None
+student_fb_teaching = None
 association_rules = None
 module_names = {}
 fetchProgress = 0
@@ -30,7 +32,7 @@ def fetchPrereqs(module_code):
     '''
     Fetches a list of prerequisites for a given module_code.
 
-    Uses nusmods' API. Returns an empty list of module is not found. 
+    Uses nusmods' API. Returns an empty list of module is not found.
 
     Parameters:
     module_code -- string, module code
@@ -96,7 +98,7 @@ def getScore(x):
 
     Returns nan if grade is not found (e.g. S/U)
 
-    Parameters: 
+    Parameters:
     x -- string, letter grade
     '''
     if x == 'A' or x == 'A+':
@@ -127,21 +129,25 @@ async def fetchData():
     Fetch and process all the data that we need.
 
     We use asyncio to free the server up to respond to other requests
-    while running this function. 
+    while running this function.
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules, student_fb_module, student_fb_teaching
 
     print("Fetching data")
     fetchProgress = 0
 
     # Each row = 1 student taking 1 module
     module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
-    fetchProgress = 25
-    print(fetchProgress)
-
     # Each row = 1 student in 1 semester
     program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
     program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
+    fetchProgress = 25
+    print(fetchProgress)
+
+    student_fb_module = await fetchGoogleSheet(2, 'student_feedback_module')
+    student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
+    student_fb_teaching = await fetchGoogleSheet(2, 'student_feedback_teaching')
+    student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
     fetchProgress = 50
     print(fetchProgress)
 
@@ -166,7 +172,7 @@ async def fetchData():
 
     cap['CAP'] = cap['score'] / cap['module_credits']
     cap = cap[['CAP']]
-    
+
     fetchProgress = 85
     print(fetchProgress)
 
@@ -177,7 +183,7 @@ async def fetchData():
     print(fetchProgress)
 
     module_descriptions = await fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
-    
+
     fetchProgress = 100
     print("Done fetching data")
 
@@ -187,8 +193,8 @@ def callFetchData():
     '''
     Endpoint to start fetching data
 
-    Called when server is started, or when the 
-    Refresh data button is pressed in Faculty side. 
+    Called when server is started, or when the
+    Refresh data button is pressed in Faculty side.
     '''
     asyncio.set_event_loop(asyncio.new_event_loop())
     loop = asyncio.get_event_loop()
@@ -222,7 +228,7 @@ def countsAsDict(df, column_name):
     E.g. {'labels': ['A', 'B'], 'counts': [2, 4], 'tokens': ['Token1', 'Token2']}
 
     Parameters:
-    x - Pandas Series 
+    x - Pandas Series
     '''
     counts = df[column_name].value_counts()
     labels = [str(x) for x in counts.index]
@@ -240,7 +246,7 @@ def countsAsLists(df, column_name):
 
     E.g. [["A", 1, ['Token1', 'Token2']], ["B", 2, ['Token3']]]
 
-    Parameters: 
+    Parameters:
     x - Pandas Series
     '''
     counts = df[column_name].value_counts()
@@ -311,7 +317,7 @@ def mainOverview(module_code):
     row = main_mockup[main_mockup['module_code'] == module_code].to_dict('records')[0]
 
     #results[module_code] = [row['number of students'],
-    #row['number of webcasts unfinished'], 
+    #row['number of webcasts unfinished'],
     #row['unviewed forum'],
     #row['tutorial attendance']]
     return jsonify(row)
@@ -322,9 +328,9 @@ def mainOverview(module_code):
 @backend.route(url_path+'/backend/faculty/demographics/<module_code>')
 def moduleDemographics(module_code):
     '''
-    Fetches all demographic data to be displayed for a given module_code. 
+    Fetches all demographic data to be displayed for a given module_code.
 
-    Parameters: 
+    Parameters:
     module_code - string
     '''
     results = {}
@@ -506,3 +512,17 @@ def getPrereqs(module_code):
         toAdd = {'name': prereq, 'parent': module_code}
         final_list['children'].append(toAdd)
     return jsonify(final_list)
+
+@backend.route(url_path+'/backend/student/view-module/feedbackT/<module_code>')
+def getTeachingFeedback(module_code):
+    subset_student_fb_teaching = student_fb_teaching.loc[student_fb_teaching["mod_class_id"] == module_code]
+    results = {'tAbility':0, 'tTimely':0, 'tInterest':0}
+    results['tAbility'] = [0,0,0,0,0]
+    results['tTimely'] = [0,0,0,0,0]
+    results['tInterest'] = [0,0,0,0,0]
+    for x in range(len(subset_student_fb_teaching.index)):
+        row = subset_student_fb_teaching.iloc[x]
+        results['tAbility'][row['t1']-1] += 1
+        results['tTimely'][row['t2']-1] += 1
+        results['tInterest'][row['t3']-1] += 1
+    return jsonify(results)
