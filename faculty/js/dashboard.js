@@ -1,8 +1,6 @@
 async function getMainModuleInfo(module_code) {
-    console.log('3')
     return fetch('/bt3103-app/backend/faculty/main/' + module_code)
         .then((resp) => {
-            console.log('4')
             return resp.json()
         })
 }
@@ -21,14 +19,10 @@ const Dashboard = {
     },
     methods: {
         updateModuleInfo: function () {
-            console.log('vue', this);
             const vue = this;
             for (mod in this.modules) {
-                console.log("2!")
                 getMainModuleInfo(this.modules[mod]).then((resp) => {
-                    console.log('vue2', this);
                     vue.modules_info.push(resp);
-                    console.log(vue.modules_info)
                 })
             }
 
@@ -47,23 +41,31 @@ const Dashboard = {
             <div class='wide-chart card' v-for='mod in modules_info'>
                 <div class = "row">
                     <div class='col-12'>
-                        <h2>{{mod["module_code"]}}</h2>
-                        <i class='fas fa-user'></i>
+                    <div class= "overview-module-code">{{mod["module_code"]}}</div>
+
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-3">
-                        <p>Number of Students: {{mod["number of students"]}}</p>
+                <div class="row module-rows">
+                    <div class="col-3" >
+                        <div class= "overview-numfonts">{{mod["number of students"]}}</div>
+                        <div class="overview-fonts"> Number of students</div>
+                        <i class='fas fa-user fa-2x'></i>
                     </div>
                     <div class="col-3">
-                        <p>Number of Unfinished Webcasts: {{mod["number of webcasts unfinished"]}}</p>
+                        <div class= "overview-numfonts">{{mod["number of webcasts unfinished"]}}</div>
+                        <div class="overview-fonts">Did not complete webcast  </div>
+                        <i class='fas fa-desktop fa-2x'></i>
                     </div>
                     <div class="col-3">
-                        <p>Number of Unviewed Forum: {{mod["unviewed forum"]}}</p>
+                        <div class= "overview-numfonts">{{mod["unviewed forum"]}}</div>
+                        <div class="overview-fonts">Forums not viewed</div>
+                        <i class='fas fa-comments fa-2x'></i>
                     </div>
                     <div class="col-3">
-                        <p>Tutorial Attendance: {{mod["tutorial attendance"]}}% </p>
+                        <div class= "overview-numfonts">{{mod["tutorial attendance"]}}% </div>
+                        <div class="overview-fonts">Tutorial attendance rate</div>
+                        <i class='fas fa-clipboard-check fa-2x'></i>
                     </div>
                 </div>
             </div>
