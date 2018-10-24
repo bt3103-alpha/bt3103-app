@@ -526,3 +526,39 @@ def getTeachingFeedback(module_code):
         results['tTimely'][row['t2']-1] += 1
         results['tInterest'][row['t3']-1] += 1
     return jsonify(results)
+
+@backend.route(url_path+'/backend/student/view-module/feedbackM/<module_code>')
+def getModuleFeedback(module_code):
+    subset_student_fb_module = student_fb_module.loc[student_fb_module["mod_class_id"] == module_code]
+    results = {'mRating':{}, 'goodText':[], 'badText':[]}
+    results['mRating'] = {'num_feedback':0, 'total':0, 'average':0, 'array':[0,0,0,0,0]}
+    goodTextTemp = {}
+    badTextTemp = {}
+    for x in range(len(subset_student_fb_module.index)):
+        row = subset_student_fb_module.iloc[x]
+        results['mRating']['array'][row['m1']-1] += 1
+        if row['m4c'] in goodTextTemp:
+            goodTextTemp[row['m4c']] += 1
+        else:
+            goodTextTemp[row['m4c']] = 1
+        if row['m5c'] in badTextTemp:
+            badTextTemp[row['m5c']] += 1
+        else:
+            badTextTemp[row['m5c']] = 1
+
+    totalRating = 0
+    counter = 0
+    for i in range(5):
+        counter += results['mRating']['array'][i-1]
+        totalRating += results['mRating']['array'][i-1] * (i+1)
+    results['mRating']['num_feedback'] = len(subset_student_fb_module.index)
+    results['mRating']['total'] = totalRating
+    results['mRating']['average'] = totalRating/counter
+
+    for key, value in goodTextTemp.items():
+        tempObj = {'text':key, 'size':value}
+        results['goodText'].append(tempObj)
+    for key, value in badTextTemp.items():
+        tempObj = {'text':key, 'size':value}
+        results['badText'].append(tempObj)
+    return jsonify(results)
