@@ -55,6 +55,7 @@ window.onload = function () {
             tTimely: null,
             tInterest: null,
             module_fb_ratingAverage: 0,
+            module_fb_ratingRounded: 0,
             module_fb_ratingCount: 0,
             module_fb_array: [],
             module_fb_arrayPercent: [0,0,0,0,0]
@@ -101,6 +102,7 @@ window.onload = function () {
                 .then(function(json) {
                     console.log(json);;
                     vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
+                    vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
                     vuethis.module_fb_ratingCount = json.mRating['total'];
                     vuethis.module_fb_array = json.mRating['array'];
                     wordcloud(json.goodText,"#goodCloud");
@@ -109,7 +111,7 @@ window.onload = function () {
                         vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
                     }
                 });
-                
+
             fetch("/bt3103-app/backend/student/view-module/feedbackT/" + this.module_code)
                 .then(function(response) {
                     return response.json();
@@ -122,6 +124,10 @@ window.onload = function () {
                 });
         }
     });
+}
+
+function roundHalf(num) {
+    return Math.round(num*2)/2;
 }
 
 function treeStuff(treeData) {
