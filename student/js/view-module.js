@@ -105,8 +105,8 @@ window.onload = function () {
                     vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
                     vuethis.module_fb_ratingCount = json.mRating['total'];
                     vuethis.module_fb_array = json.mRating['array'];
-                    wordcloud(json.goodText,"#goodCloud");
-                    wordcloud(json.badText,"#badCloud");
+                    wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
+                    wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
                     for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
                         vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
                     }
@@ -283,12 +283,13 @@ function checkSize(listword) {
 
 
 // student feeback wordcloud
-function wordcloud(listword, id) {
-  var width = 400;
+function wordcloud(listword, id, colorRange) {
+  var width = 300;
   var height = 200;
-  var fill = d3.scale.linear()
+  var fill = ['#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7','#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7','#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7'];
+  var fill2 = d3.scale.linear()
   .domain([0, 5])
-  .range(['#9999ff', '#000099']);
+  .range(colorRange);
 
   checkSize(listword);
 
@@ -298,7 +299,6 @@ function wordcloud(listword, id) {
     .rotate(function() {
       return ~~(Math.random() * 1) * 90;
     })
-    .font("Impact")
     .fontSize(function(d) {
       return d.size;
     })
@@ -326,9 +326,9 @@ function wordcloud(listword, id) {
           .style("-ms-user-select", "none")
           .style("user-select", "none")
           .style("cursor", "default")
-          .style("font-family", "Impact")
+          .style("font-family", "Arial")
           .style("fill", function(d, i) {
-              return fill(i);
+              return fill2(i);
           })
           .attr("text-anchor", "middle")
           .attr("transform", function(d) {
@@ -347,19 +347,19 @@ function wordcloud(listword, id) {
 
 function donutChart(id, labels = [], dat_a) {
     return new Chart(document.getElementById(id), {
-        type: "pie",
+        type: "bar",
         data: {
             labels: labels,
             datasets: [
                 {
-                    label: "No. of students",
+                    label: false,
                     data: dat_a,
                     backgroundColor: [
-                        "rgba(54, 162, 235, 0.6)",
-                        "rgba(255, 99, 132, 0.6)",
-                        "rgba(75, 192, 192, 0.6)",
-                        "rgba(255, 206, 86, 0.6)",
-                        "rgba(210, 153, 172, 0.6)"
+                        "rgba(42, 180, 0, 0.6)",
+                        "rgba(105, 208, 82, 0.6)",
+                        "rgba(255, 235, 59, 0.5)",
+                        "rgba(242, 65, 66, 0.6)",
+                        "rgba(201, 7, 7, 0.6)"
                     ]
                 }
             ]
@@ -369,7 +369,18 @@ function donutChart(id, labels = [], dat_a) {
             rotation: 0.5 * Math.PI,
             animation: {
                 animateScale: true
+            },
+            legend: {display: false},
+            scales: {
+              yAxes: [{
+                display: false,
+                gridLines: {display: false}
+              }],
+              xAxes: [ {
+                gridLines: {display: false}
+              }]
             }
+
         }
     });
 }
