@@ -27,7 +27,6 @@ fetchProgress = 0
 grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
           "B-": 3.0, "C+": 2.5, "C": 2.0, "D+": 1.5, "D": 1.0, "F": 0}
 
-
 def fetchPrereqs(module_code):
     '''
     Fetches a list of prerequisites for a given module_code.
@@ -47,6 +46,9 @@ def fetchPrereqs(module_code):
         pass
     return results
 
+@backend.route(url_path+'/backend/prereqs/<module_code>')
+def fetchPrereqsEndpoint(module_code):
+    return jsonify(fetchPrereqs(module_code))
 
 async def fetchGoogleSheet(url_num, sheet_name):
     '''
@@ -349,28 +351,6 @@ def moduleDemographics(module_code):
     for year, count in years.items():
         results["years"][min(year-1, 3)] += count
 
-    # Calculate the grade distribution of current students
-
-    results["curr_grades"] = [0, 0, 0, 0, 0, 0]
-    results["curr_grades_students"] = [[], [], [], [], [], []]
-    for i in range(program_current.shape[0]):
-        grade = program_current.iloc[i]['CAP']
-        token = program_current.iloc[i]['token']
-        grade_index = 5
-        if grade >= 4.5:
-            grade_index = 0
-        elif grade >= 4:
-            grade_index = 1
-        elif grade >= 3.5:
-            grade_index = 2
-        elif grade >= 3:
-            grade_index = 3
-        elif grade >= 2:
-            grade_index = 4
-
-        results["curr_grades"][grade_index] += 1
-        results["curr_grades_students"][grade_index].append(str(token))
-
     return jsonify(results)
 
 
@@ -410,6 +390,7 @@ def moduleEnrolment(module_code):
         return output
     
     program_current['prereqs'] = program_current.token.apply(getPrereqGrades)
+    program_current.drop_duplicates(inplace=True)
 
     return jsonify(program_current.to_dict('records'))
 
@@ -449,6 +430,28 @@ def moduleAcademics(module_code):
     module_past = module_past_terms(module_code)
 
     results = {}
+
+    # Calculate the grade distribution of current students
+
+    results["curr_grades"] = [0, 0, 0, 0, 0, 0]
+    results["curr_grades_students"] = [[], [], [], [], [], []]
+    for i in range(program_current.shape[0]):
+        grade = program_current.iloc[i]['CAP']
+        token = program_current.iloc[i]['token']
+        grade_index = 5
+        if grade >= 4.5:
+            grade_index = 0
+        elif grade >= 4:
+            grade_index = 1
+        elif grade >= 3.5:
+            grade_index = 2
+        elif grade >= 3:
+            grade_index = 3
+        elif grade >= 2:
+            grade_index = 4
+
+        results["curr_grades"][grade_index] += 1
+        results["curr_grades_students"][grade_index].append(str(token))
 
     # Fetch a count of past grades
     results['grades'] = getModuleGrades(program_subset=program_current)
