@@ -11,10 +11,10 @@ const Module = {
         return {
             module_name: ''
         }
-    }, 
+    },
     created() {
         this.updateModuleInfo();
-    }, 
+    },
     watch: {
         $route(to, from) {
             this.updateModuleInfo();
@@ -28,7 +28,7 @@ const Module = {
                     vue.module_name = resp.title;
                 })
         }
-    }, 
+    },
     template: `
     <div class='module-page'>
         <div class='container'>
@@ -157,7 +157,7 @@ const ModuleDemographics = {
             <h2>Academic careers of incoming students</h2>
             <p>Your current students are:</p>
             <canvas id="academicCareerChart" width="100" height="70"></canvas>
-        </div> 
+        </div>
         <div class='demographic-chart card'>
             <h2>Academic load of incoming students</h2>
             <p>Your current students are:</p>
@@ -197,19 +197,48 @@ const ModuleAcademics = {
             attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
-            semesterWorkloadChart: null, 
+            semesterWorkloadChart: null,
             currGradesChart: null,
             predicted_scores: [],
             prereqs: [],
-            prereqsTags:[],
+            prereqsTags:{},
             prereqCharts: {},
             display: false // whether we should display the charts
         };
     },
     mounted() {
+
         this.buildCharts();
+
     },
     methods: {
+        updatePrereqsTags: async function (prereqList) {
+            const vue = this;
+            for (var i = 0; i < vue.prereqs.length; i++) {
+                await getModuleInfo(this.prereqs[i].module_code).then((resp) => {
+                    vue.prereqsTags[vue.prereqs[i].module_code] = resp;
+                    //var obj = {};
+                    //obj[vue.prereqs[index].module_code] = resp;
+                    //vue.prereqsTags.push(obj);
+                    //vue.prereqsTags.push(obj);
+                })
+            }
+            for (var i = 0; i < vue.prereqs.length; i++){
+                console.log(JSON.stringify(vue.prereqsTags));
+                
+                someToolTipText = vue.prereqsTags[vue.prereqs[i].module_code]["tags"];
+                console.log(JSON.stringify(someToolTipText));
+                tippy("#" + vue.prereqs[i].module_code + "-header", {
+                    content: someToolTipText,
+                    delay: 100,
+                    arrow: true,
+                    arrowType: 'round',
+                    size: 'large',
+                    duration: 500,
+                    animation: 'scale'
+                    });
+                };
+        },
 
         buildCharts: function() {
             this.display = false;
@@ -244,12 +273,14 @@ const ModuleAcademics = {
                 "CAP"
             );
             this.fetchData();
-        },
+    },
         fetchData: function() {
             var vue = this;
             fetch("/bt3103-app/backend/faculty/academics/" + this.$route.params.module)
                 .then(function(response) {
+
                     return response.json();
+
                 })
                 .then(function(json) {
                     // Update current grades
@@ -261,7 +292,7 @@ const ModuleAcademics = {
                     vue.pastGradesChart.data.datasets[0].data = json.grades.counts;
                     vue.pastGradesChart.data.datasets[0].tooltips = json.grades.students;
                     vue.pastGradesChart.update();
-                    
+
                     // Semester workload
                     vue.semesterWorkloadChart.data.datasets[0].data = json.semester_workload.counts;
                     vue.semesterWorkloadChart.data.datasets[0].tooltips = json.semester_workload.students;
@@ -280,6 +311,15 @@ const ModuleAcademics = {
 
                     // Show prereq grades
                     vue.prereqs = json.prereqs;
+
+                    console.log(JSON.stringify(vue.prereqs));
+                    // Update prereqsTags list
+
+                    vue.updatePrereqsTags(vue.prereqs);
+
+
+                    
+            
 
                     // We set a timeout so that the DOM
                     // has time to update
@@ -310,28 +350,31 @@ const ModuleAcademics = {
                             vue.prereqCharts[i].update();
                         }
 
-                        vue.updatePrereqsTags();
-                    }, 200);
+                    /* for (var i = 0; i < vue.prereqs.length; i++){
+                        console.log(JSON.stringify(vue.prereqsTags));
+                        someToolTipText = vue.prereqsTags[vue.prereqs[i].module_code]["tags"];
+                        tippy("#" + vue.prereqs[i].module_code + "-header", {
+                            content: someToolTipText,
+                            delay: 100,
+                            arrow: true,
+                            arrowType: 'round',
+                            size: 'large',
+                            duration: 500,
+                            animation: 'scale'
+                            });
+                        }; */
 
+
+                    }, 200);
 
                     vue.display = true;
                 });
+            }
+
         },
 
-        updatePrereqsTags: function () {
-            const vue = this;
-            for (var i = 0; i < vue.prereqs.length; i++) {
-                const index = i;
-                getModuleInfo(this.prereqs[index].module_code).then((resp) => {
-                    vue.prereqsTags.push(resp);
-                    console.log(resp);
-                    console.log(vue.prereqsTags)
-                    console.log(vue.prereqsTags[vue.prereqs[index].module_code])
-                })
-            }
-        }
-    },
-    
+
+
     template: `<div class='container-fluid'>
         <div v-if='!display' style='text-align: center; margin-top: 48px; opacity: 0.5'>
             <i class='fas fa-spinner fa-pulse fa-lg'></i>
@@ -341,7 +384,7 @@ const ModuleAcademics = {
                 <h2>Grades of incoming students</h2>
                 <p>Your current students have the following grades:</p>
                 <canvas id="currGradesChart" width="100" height="70"></canvas>
-            </div> 
+            </div>
             <div class='demographic-chart card'>
                 <h2>Past grades of incoming students</h2>
                 <p>Your current students got the following grades in their previous modules:</p>
@@ -370,15 +413,17 @@ const ModuleAcademics = {
             </div>
             <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]' v-for='prereq in prereqs'>
                 <h2>Grades for {{prereq.module_code}}</h2>
+
                 <div>
                     <span class='badge badge-success'>Uses third-party data</span>
                 </div>
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
+                <button :id='prereq.module_code + "-header"'> More Information on {{prereq.module_code}}</button>
             </div>
             <div class='wide-chart card'>
                 <h2>Predicted Problematic Students</h2>
-                <p>A statistical model was run to predict which students may fare better or worse than the average. 
-                This is based on historical data, by comparing past students' grades and which modules they have 
+                <p>A statistical model was run to predict which students may fare better or worse than the average.
+                This is based on historical data, by comparing past students' grades and which modules they have
                 taken, to what incoming students have also taken before. </p>
                 <table class='table table-sm table-hover'>
                     <thead>
