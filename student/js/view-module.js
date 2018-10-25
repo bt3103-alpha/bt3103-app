@@ -50,12 +50,20 @@ window.onload = function () {
             //prereq_arr: [],
             //completed: [],
             //completed_dict: {},
-            tag_arr: []
+            tag_arr: [],
+            tAbility: null,
+            tTimely: null,
+            tInterest: null,
+            module_fb_ratingAverage: 0,
+            module_fb_ratingRounded: 0,
+            module_fb_ratingCount: 0,
+            module_fb_array: [],
+            module_fb_arrayPercent: [0,0,0,0,0]
         },
         created() {
             let url = new URL(window.location.href);
             this.module_code = url.searchParams.get("name");
-
+            const vuethis = this;
             // Fetch name
             fetch("https://bt3103-alpha-student.firebaseio.com/profile.json")
                 .then(response => {
@@ -86,12 +94,40 @@ window.onload = function () {
                         this.module_name = search_codes[this.module_code.toLowerCase()].name;
                     }
                 });
-            wordcloud(goodSkill,"#goodCloud");
-            wordcloud(badSkill,"#badCloud");
 
+            fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    console.log(json);;
+                    vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
+                    vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
+                    vuethis.module_fb_ratingCount = json.mRating['total'];
+                    vuethis.module_fb_array = json.mRating['array'];
+                    wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
+                    wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
+                    for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
+                        vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
+                    }
+                });
 
-        },
+            fetch("/bt3103-app/backend/student/view-module/feedbackT/" + this.module_code)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(json) {
+                    // Update faculties
+                    this.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
+                    this.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
+                    this.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                });
+        }
     });
+}
+
+function roundHalf(num) {
+    return Math.round(num*2)/2;
 }
 
 function treeStuff(treeData) {
@@ -223,53 +259,46 @@ function treeStuff(treeData) {
     }
 }
 
-var goodSkill = [
-{ text: 'Good Text 1', size: 40 },
-{ text: 'Good Text 2', size: 15 },
-{ text: 'Good Text 3', size: 25 },
-{ text: 'Good Text 4', size: 25 },
-{ text: 'Good Text 5', size: 30 },
-{ text: 'Good Text 6', size: 30 },
-{ text: 'Good Text 7', size: 15 },
-{ text: 'Good Text 8', size: 10 },
-{ text: 'Good Text 9', size: 50 },
-{ text: 'Good Text 10', size: 40 },
-{ text: 'Good Text 11', size: 64 },
-{ text: 'Good Text 12', size: 20 },
-{ text: 'Good Text 13', size: 30 }
-];
+// wordcloud font size uses text count
+// cannot be too small, need to inflate/scale numbers
+function checkSize(listword) {
+  var count5 = 0;
+  var count10 = 0;
+  var i;
+  for (i=0; i<listword.length; i++) {
+    if (listword[i].size < 5) {count5++;}
+    else if (listword[i].size < 10) {count10++;}
 
-var badSkill = [
-{ text: 'Bad Text 1', size: 40 },
-{ text: 'Bad Text 2', size: 15 },
-{ text: 'Bad Text 3', size: 25 },
-{ text: 'Bad Text 4', size: 25 },
-{ text: 'Bad Text 5', size: 30 },
-{ text: 'Bad Text 6', size: 30 },
-{ text: 'Bad Text 7', size: 15 },
-{ text: 'Bad Text 8', size: 10 },
-{ text: 'Bad Text 9', size: 50 },
-{ text: 'Bad Text 10', size: 40 },
-{ text: 'Bad Text 11', size: 64 },
-{ text: 'Bad Text 12', size: 20 },
-{ text: 'Bad Text 13', size: 30 }
-];
+  }
+  if (count5 > 5) {
+    for (i=0; i<listword.length; i++) {
+      listword[i].size = listword[i].size * 7.5
+    }
+  } else if (count10 > 5) {
+    for (i=0; i<listword.length; i++) {
+      listword[i].size = listword[i].size * 5.5
+    }
+  }
+}
+
 
 // student feeback wordcloud
-function wordcloud(listword, id) {
-  var width = 400;
+function wordcloud(listword, id, colorRange) {
+  var width = 300;
   var height = 200;
-  var fill = d3.scale.linear()
+  var fill = ['#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7','#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7','#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7'];
+  var fill2 = d3.scale.linear()
   .domain([0, 5])
-  .range(['#9999ff', '#000099']);
+  .range(colorRange);
+
+  checkSize(listword);
 
   d3.layout.cloud()
     .size([width, height])
     .words(listword)
     .rotate(function() {
-      return ~~(Math.random() * 2) * 90;
+      return ~~(Math.random() * 1) * 90;
     })
-    .font("Impact")
     .fontSize(function(d) {
       return d.size;
     })
@@ -297,9 +326,9 @@ function wordcloud(listword, id) {
           .style("-ms-user-select", "none")
           .style("user-select", "none")
           .style("cursor", "default")
-          .style("font-family", "Impact")
+          .style("font-family", "Arial")
           .style("fill", function(d, i) {
-              return fill(i);
+              return fill2(i);
           })
           .attr("text-anchor", "middle")
           .attr("transform", function(d) {
@@ -314,4 +343,44 @@ function wordcloud(listword, id) {
       var bbox = svg.getBBox();
       var viewBox = [bbox.x, bbox.y, bbox.width, bbox.height].join(" ");
       svg.setAttribute("viewBox", viewBox);
+}
+
+function donutChart(id, labels = [], dat_a) {
+    return new Chart(document.getElementById(id), {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: false,
+                    data: dat_a,
+                    backgroundColor: [
+                        "rgba(42, 180, 0, 0.6)",
+                        "rgba(105, 208, 82, 0.6)",
+                        "rgba(255, 235, 59, 0.5)",
+                        "rgba(242, 65, 66, 0.6)",
+                        "rgba(201, 7, 7, 0.6)"
+                    ]
+                }
+            ]
+        },
+        options: {
+            cutoutPercentage: 50,
+            rotation: 0.5 * Math.PI,
+            animation: {
+                animateScale: true
+            },
+            legend: {display: false},
+            scales: {
+              yAxes: [{
+                display: false,
+                gridLines: {display: false}
+              }],
+              xAxes: [ {
+                gridLines: {display: false}
+              }]
+            }
+
+        }
+    });
 }

@@ -86,7 +86,6 @@ const ModuleDemographics = {
             grades: [],
             degrees: [],
             yearsChart: null,
-            currGradesChart: null,
             facultiesChart: null,
             academicLoadChart: null
         };
@@ -100,11 +99,6 @@ const ModuleDemographics = {
             "Year 3",
             "Year 4"
         ]);
-        this.currGradesChart = barChart(
-            "currGradesChart",
-            "rgba(100, 155, 255, 0.6)",
-            ["First", "Second Upper", "Second Lower", "Third", "Pass", "Fail"]
-        );
         this.facultiesChart = barChart(
             "facultiesChart",
             "rgba(100, 155, 255, 0.6)"
@@ -132,11 +126,6 @@ const ModuleDemographics = {
                     // Update years
                     vue.yearsChart.data.datasets[0].data = json.years;
                     vue.yearsChart.update();
-
-                    // Update current grades
-                    vue.currGradesChart.data.datasets[0].data = json.curr_grades;
-                    vue.currGradesChart.data.datasets[0].tooltips = json.curr_grades_students;
-                    vue.currGradesChart.update();
 
                     // Update faculties
                     vue.updateChart(vue.facultiesChart, json.faculty);
@@ -180,11 +169,6 @@ const ModuleDemographics = {
             <canvas id="facultiesChart" width="100" height="70"></canvas>
         </div>
         <div class='demographic-chart card'>
-            <h2>Grades of incoming students</h2>
-            <p>Your current students have the following grades:</p>
-            <canvas id="currGradesChart" width="100" height="70"></canvas>
-        </div> 
-        <div class='demographic-chart card'>
             <h2>Degrees</h2>
             <p>Your current students are currently pursuing:</p>
             <table class='table table-sm table-hover'>
@@ -213,6 +197,8 @@ const ModuleAcademics = {
             attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
+            semesterWorkloadChart: null, 
+            currGradesChart: null,
             predicted_scores: [],
             prereqs: [],
             prereqsTags:[],
@@ -225,12 +211,6 @@ const ModuleAcademics = {
         this.buildCharts();
 
     },
-    // watch: {
-    //     show_extra_data(newVar, oldVar) {
-    //         // Redisplay charts
-    //         setTimeout(this.buildCharts, 100);
-    //     }
-    // },
     methods: {
         updatePrereqsTags: function () {
             const vue = this;
@@ -247,11 +227,22 @@ const ModuleAcademics = {
         buildCharts: function() {
             this.display = false;
 
+            this.currGradesChart = barChart(
+                "currGradesChart",
+                "rgba(100, 155, 255, 0.6)",
+                ["4.50 & above", "4.00 - 4.49", "3.50 - 3.99", "3.00 - 3.49", "2.00 - 2.99", "Below 2.00"]
+            );
+
             this.pastGradesChart = barChart(
                 "pastGradesChart",
                 "rgba(100, 155, 255, 0.6)",
                 ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]
             );
+
+            this.semesterWorkloadChart = barChart(
+                "semesterWorkloadChart",
+                "rgba(100, 155, 255, 0.6)"
+            )
 
             this.attendanceCapChart = scatterChart(
                 "attendanceCapChart",
@@ -276,10 +267,21 @@ const ModuleAcademics = {
                     
                 })
                 .then(function(json) {
+                    // Update current grades
+                    vue.currGradesChart.data.datasets[0].data = json.curr_grades;
+                    vue.currGradesChart.data.datasets[0].tooltips = json.curr_grades_students;
+                    vue.currGradesChart.update();
+
                     // Update past grades
                     vue.pastGradesChart.data.datasets[0].data = json.grades.counts;
                     vue.pastGradesChart.data.datasets[0].tooltips = json.grades.students;
                     vue.pastGradesChart.update();
+                    
+                    // Semester workload
+                    vue.semesterWorkloadChart.data.datasets[0].data = json.semester_workload.counts;
+                    vue.semesterWorkloadChart.data.datasets[0].tooltips = json.semester_workload.students;
+                    vue.semesterWorkloadChart.data.labels = json.semester_workload.labels;
+                    vue.semesterWorkloadChart.update();
 
                     // Show predicted problem students
                     vue.predicted_scores = json.pred_scores;
@@ -316,9 +318,10 @@ const ModuleAcademics = {
                                     "F"
                                 ]
                             );
-
                             vue.prereqCharts[i].data.datasets[0].data =
-                                json.prereqs[i].grades;
+                                json.prereqs[i].grades.counts;
+                            vue.prereqCharts[i].data.datasets[0].tooltips =
+                                json.prereqs[i].grades.students;
                             vue.prereqCharts[i].update();
                         }
 
@@ -356,9 +359,19 @@ const ModuleAcademics = {
         </div>
         <div v-bind:class='["chart-rows", display ? "" : "hide"]'>
             <div class='demographic-chart card'>
-                <h2>Past grades</h2>
+                <h2>Grades of incoming students</h2>
+                <p>Your current students have the following grades:</p>
+                <canvas id="currGradesChart" width="100" height="70"></canvas>
+            </div> 
+            <div class='demographic-chart card'>
+                <h2>Past grades of incoming students</h2>
                 <p>Your current students got the following grades in their previous modules:</p>
                 <canvas id="pastGradesChart" width="100" height="70"></canvas>
+            </div>
+            <div class='demographic-chart card'>
+                <h2>Semester Workload</h2>
+                <p>Your current students are currently taking this number of modules this semester:</p>
+                <canvas id="semesterWorkloadChart" width="100" height="70"></canvas>
             </div>
             <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
                 <h2>Attendance vs CAP</h2>
@@ -417,7 +430,8 @@ const ModuleEnrolment = {
     props: ["show_extra_data"],
     data() {
         return {
-            enrolment: []
+            enrolment: [],
+            prereqs: [],
         };
     },
     mounted() {
@@ -426,6 +440,13 @@ const ModuleEnrolment = {
     methods: {
         fetchData: function() {
             var vue = this;
+            fetch('/bt3103-app/backend/prereqs/' + this.$route.params.module)
+                .then((response) => {
+                    return response.json();
+                })
+                .then((json) => {
+                    vue.prereqs = json;
+                })
             fetch("/bt3103-app/backend/faculty/enrolment/" + this.$route.params.module)
                 .then(function(response) {
                     return response.json();
@@ -442,12 +463,13 @@ const ModuleEnrolment = {
                 <tr>
                     <th>Token</th>
                     <th>Faculty</th>
-                    <th>Degree</th>
+                    <th>Acad Plan</th>
                     <th>Acad Career</th>
                     <th>Admit Term</th>
                     <th>CAP</th>
                     <th v-if='show_extra_data'>Attendance Rate <span class='badge badge-warning'>Mocked up data</span></th>
                     <th v-if='show_extra_data'>Webcast Rate <span class='badge badge-warning'>Mocked up data</span></th>
+                    <th v-if='show_extra_data && prereqs.length > 0'>Prereqs Taken <span class='badge badge-success'>Using third-party data</span></th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
@@ -455,12 +477,13 @@ const ModuleEnrolment = {
                 <tr v-for='row in enrolment'>
                     <td>{{row.token}}</td>
                     <td>{{row.faculty_descr}}</td>
-                    <td>{{row.degree_descr}}</td>
+                    <td>{{row.academic_plan_descr}}</td>
                     <td>{{row.academic_load_descr}} {{row.academic_career}}</td>
                     <td>{{row.admit_term_descr}}</td>
                     <td>{{row.CAP}}</td>
                     <td v-if='show_extra_data'>{{row.attendance}}%</td>
                     <td v-if='show_extra_data'>{{row.webcast}}%</td>
+                    <td v-if='show_extra_data && prereqs.length > 0'>{{row.prereqs}}</td>
                     <td><a :href='"mailto:"+row.token+"@u.nus.edu?subject=["+$route.params.module+"] "' class='btn btn-info'><i class='fas fa-envelope'></i></a></td>
                 </tr>
             </tbody>
