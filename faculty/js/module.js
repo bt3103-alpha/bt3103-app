@@ -169,7 +169,7 @@ const ModuleDemographics = {
             <canvas id="facultiesChart" width="100" height="70"></canvas>
         </div>
         <div class='demographic-chart card'>
-            <h2>Degrees</h2>
+            <h2>Majors of incoming students</h2>
             <p>Your current students are currently pursuing:</p>
             <table class='table table-sm table-hover'>
                 <thead class='thead-light'>
