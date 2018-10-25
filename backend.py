@@ -384,6 +384,32 @@ def moduleEnrolment(module_code):
         lambda x: format(x, '.2f'))
     program_current['CAP'] = program_current['CAP'].apply(
         lambda x: format(x, '.2f'))
+    
+    # For each student token, check which of the prereqs they have done
+    # and their grades for it
+    prereqs = fetchPrereqs(module_code)
+    def getPrereqGrades(token):
+        output = ""
+        
+        modules_taken = module_enrolment[(module_enrolment.token == token) & (module_enrolment.module_code.isin(prereqs))]
+        for i in range(modules_taken.shape[0]):
+            code = modules_taken.iloc[i]['module_code']
+            grade = modules_taken.iloc[i]['original_letter_grade']
+            if str(grade) == 'nan':
+                grade = "-"
+            text = str(code) + " (" + grade + ")"
+            
+            if len(output) == 0:
+                output = text
+            else:
+                output += ", " + text
+        
+        if len(output) == 0:
+            output = "-"
+        
+        return output
+    
+    program_current['prereqs'] = program_current.token.apply(getPrereqGrades)
 
     return jsonify(program_current.to_dict('records'))
 

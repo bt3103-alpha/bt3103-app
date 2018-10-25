@@ -437,6 +437,7 @@ const ModuleEnrolment = {
                     <th>CAP</th>
                     <th v-if='show_extra_data'>Attendance Rate <span class='badge badge-warning'>Mocked up data</span></th>
                     <th v-if='show_extra_data'>Webcast Rate <span class='badge badge-warning'>Mocked up data</span></th>
+                    <th v-if='show_extra_data'>Prereqs Taken <span class='badge badge-success'>Using third-party data</span></th>
                     <th>&nbsp;</th>
                 </tr>
             </thead>
@@ -450,6 +451,7 @@ const ModuleEnrolment = {
                     <td>{{row.CAP}}</td>
                     <td v-if='show_extra_data'>{{row.attendance}}%</td>
                     <td v-if='show_extra_data'>{{row.webcast}}%</td>
+                    <td v-if='show_extra_data'>{{row.prereqs}}</td>
                     <td><a :href='"mailto:"+row.token+"@u.nus.edu?subject=["+$route.params.module+"] "' class='btn btn-info'><i class='fas fa-envelope'></i></a></td>
                 </tr>
             </tbody>
