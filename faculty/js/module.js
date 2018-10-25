@@ -103,7 +103,7 @@ const ModuleDemographics = {
         this.currGradesChart = barChart(
             "currGradesChart",
             "rgba(100, 155, 255, 0.6)",
-            ["First", "Second Upper", "Second Lower", "Third", "Pass", "Fail"]
+            ["4.50 & above", "4.00 - 4.49", "3.50 - 3.99", "3.00 - 3.49", "2.00 - 2.99", "Below 2.00"]
         );
         this.facultiesChart = barChart(
             "facultiesChart",
