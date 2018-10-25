@@ -216,7 +216,6 @@ def fetchModuleDescription(module_code):
         result = module_descriptions.loc[module_code].to_dict()
     except:
         result = {'title': '', 'description': '', 'tags': []}
-    print(result['tags'])
     if result['tags'] is np.nan:
         result['tags'] = []
     return jsonify(result)
