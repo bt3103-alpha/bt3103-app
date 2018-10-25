@@ -46,7 +46,7 @@ window.onload = function() {
         router,
         data: {
             name: "Chris",
-            modules: ["MA1505", "GER1000", "MA1506", "EC3303"],
+            modules: ["MA1505", "GER1000", "MA1506", "EC3303", 'ST2334'],
             fetching_data: false,
             show_extra_data: true
         },

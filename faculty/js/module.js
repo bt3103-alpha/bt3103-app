@@ -213,6 +213,7 @@ const ModuleAcademics = {
             attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
+            semesterWorkloadChart: null, 
             predicted_scores: [],
             prereqs: [],
             prereqsTags:[],
@@ -223,12 +224,6 @@ const ModuleAcademics = {
     mounted() {
         this.buildCharts();
     },
-    // watch: {
-    //     show_extra_data(newVar, oldVar) {
-    //         // Redisplay charts
-    //         setTimeout(this.buildCharts, 100);
-    //     }
-    // },
     methods: {
 
         buildCharts: function() {
@@ -239,6 +234,11 @@ const ModuleAcademics = {
                 "rgba(100, 155, 255, 0.6)",
                 ["A+", "A", "A-", "B+", "B", "B-", "C+", "C", "D+", "D", "F"]
             );
+
+            this.semesterWorkloadChart = barChart(
+                "semesterWorkloadChart",
+                "rgba(100, 155, 255, 0.6)"
+            )
 
             this.attendanceCapChart = scatterChart(
                 "attendanceCapChart",
@@ -265,6 +265,12 @@ const ModuleAcademics = {
                     vue.pastGradesChart.data.datasets[0].data = json.grades.counts;
                     vue.pastGradesChart.data.datasets[0].tooltips = json.grades.students;
                     vue.pastGradesChart.update();
+
+                    
+                    vue.semesterWorkloadChart.data.datasets[0].data = json.semester_workload.counts;
+                    vue.semesterWorkloadChart.data.datasets[0].tooltips = json.semester_workload.students;
+                    vue.semesterWorkloadChart.data.labels = json.semester_workload.labels;
+                    vue.semesterWorkloadChart.update();
 
                     // Show predicted problem students
                     vue.predicted_scores = json.pred_scores;
@@ -339,6 +345,11 @@ const ModuleAcademics = {
                 <h2>Past grades</h2>
                 <p>Your current students got the following grades in their previous modules:</p>
                 <canvas id="pastGradesChart" width="100" height="70"></canvas>
+            </div>
+            <div class='demographic-chart card'>
+                <h2>Semester Workload</h2>
+                <p>Your current students are currently taking this number of modules this semester:</p>
+                <canvas id="semesterWorkloadChart" width="100" height="70"></canvas>
             </div>
             <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
                 <h2>Attendance vs CAP</h2>

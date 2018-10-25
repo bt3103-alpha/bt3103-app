@@ -230,7 +230,7 @@ def countsAsDict(df, column_name):
     x - Pandas Series
     '''
     counts = df[column_name].value_counts()
-    labels = [str(x) for x in counts.index]
+    labels = [x for x in counts.index]
     counts = [int(x) for x in counts]
     students = []
     for label in labels:
@@ -268,8 +268,8 @@ def module_current_term(module_code):
     Returns the latest semester's module_enrolments for a given module_code
     '''
     module_subset = module_all_terms(module_code)
-    return module_subset
-    # return module_subset[module_subset.term == max(module_subset.term)]
+#    return module_subset
+    return module_subset[module_subset.term == max(module_subset.term)]
 
 
 def module_past_terms(module_code):
@@ -426,6 +426,12 @@ def moduleAcademics(module_code):
 
     # Fetch a count of past grades
     results['grades'] = getModuleGrades(program_subset=program_current)
+
+    # Count number of modules that each student is doing this semester
+    students = program_current[['token']]
+    module_counts = students.join(module_enrolment[module_enrolment.term == max(module_enrolment.term)].set_index('token'), on='token', how='inner').groupby('token').size()
+    module_counts = pd.DataFrame(module_counts).reset_index()
+    results['semester_workload'] = countsAsDict(module_counts, 0)
 
     results['attendance_cap'] = []
     results['webcast_cap'] = []
