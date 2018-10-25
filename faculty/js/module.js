@@ -225,7 +225,9 @@ const ModuleAcademics = {
             }
             for (var i = 0; i < vue.prereqs.length; i++){
                 console.log(JSON.stringify(vue.prereqsTags));
+                
                 someToolTipText = vue.prereqsTags[vue.prereqs[i].module_code]["tags"];
+                console.log(JSON.stringify(someToolTipText));
                 tippy("#" + vue.prereqs[i].module_code + "-header", {
                     content: someToolTipText,
                     delay: 100,
@@ -310,10 +312,14 @@ const ModuleAcademics = {
                     // Show prereq grades
                     vue.prereqs = json.prereqs;
 
-                    // VIENNA HERE -jasmine
+                    console.log(JSON.stringify(vue.prereqs));
+                    // Update prereqsTags list
+
                     vue.updatePrereqsTags(vue.prereqs);
-                    // can remove log. should return empty {} -jasmine
-                    console.log(JSON.stringify(vue.prereqsTags));
+
+
+                    
+            
 
                     // We set a timeout so that the DOM
                     // has time to update
@@ -412,7 +418,7 @@ const ModuleAcademics = {
                     <span class='badge badge-success'>Uses third-party data</span>
                 </div>
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
-                <div :id='prereq.module_code+ "-header"'> {{prereq.module_code}}</div>
+                <button :id='prereq.module_code + "-header"'> More Information on {{prereq.module_code}}</button>
             </div>
             <div class='wide-chart card'>
                 <h2>Predicted Problematic Students</h2>
