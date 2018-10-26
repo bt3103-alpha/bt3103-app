@@ -3,6 +3,10 @@ body {
     min-height: 100vh;
 }
 
+body {
+    padding-bottom: 48px;
+}
+
 #app > div {
     margin-top: 24px;
 }

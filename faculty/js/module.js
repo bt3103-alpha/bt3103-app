@@ -199,7 +199,8 @@ const ModuleAcademics = {
             pastGradesChart: null,
             semesterWorkloadChart: null,
             currGradesChart: null,
-            predicted_scores: [],
+            predicted_scores_good: [],
+            predicted_scores_bad: [],
             prereqs: [],
             prereqsTags:{},
             prereqCharts: {},
@@ -224,10 +225,11 @@ const ModuleAcademics = {
                 })
             }
             for (var i = 0; i < vue.prereqs.length; i++){
-                console.log(JSON.stringify(vue.prereqsTags));
-                
-                someToolTipText = vue.prereqsTags[vue.prereqs[i].module_code]["tags"];
-                console.log(JSON.stringify(someToolTipText));
+                someToolTipText = "";
+                tags = vue.prereqsTags[vue.prereqs[i].module_code]["tags"];
+                for (let i = 0; i < tags.length; i++) {
+                    someToolTipText += '<span class="badge badge-info" style="font-weight:100;">' + tags[i] + '</span> &nbsp;'
+                }
                 tippy("#" + vue.prereqs[i].module_code + "-header", {
                     content: someToolTipText,
                     delay: 100,
@@ -301,7 +303,8 @@ const ModuleAcademics = {
                     vue.semesterWorkloadChart.update();
 
                     // Show predicted problem students
-                    vue.predicted_scores = json.pred_scores;
+                    vue.predicted_scores_good = json.pred_scores_good;
+                    vue.predicted_scores_bad = json.pred_scores_bad;
 
                     vue.attendanceCapChart.data.datasets[0].data =
                         json.attendance_cap;
@@ -419,31 +422,57 @@ const ModuleAcademics = {
                     <span class='badge badge-success'>Uses third-party data</span>
                 </div>
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
-                <button :id='prereq.module_code + "-header"'> More Information on {{prereq.module_code}}</button>
+                <button :id='prereq.module_code + "-header"' class='btn btn-outline-info' style='margin-top: 12px;'> Hover for more information on {{prereq.module_code}}</button>
             </div>
             <div class='wide-chart card'>
                 <h2>Predicted Students To Lookout For</h2>
                 <p>A statistical model was run to predict which students may fare better or worse than the average.
                 This is based on historical data, by comparing past students' grades and which modules they have
                 taken, to what incoming students have also taken before. </p>
-                <table class='table table-sm table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Student Token</th>
-                            <th>Score</th>
-                            <th>Influencing Modules</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for='student in predicted_scores'>
-                            <td>{{student[0]}}</td>
-                            <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
-                            <td>
-                                <span class='badge badge-light' v-for='module in student[2]' style='margin-right: 3px;'>{{module.code}} ({{module.score}})</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class='row'>
+                    <div class='col-6'>
+                        <p class='lead'>May be ahead of the class:</p>
+                        <table class='table table-sm table-hover'>
+                            <thead>
+                                <tr>
+                                    <th>Student Token</th>
+                                    <th>Score</th>
+                                    <th>Influencing Modules</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for='student in predicted_scores_good'>
+                                    <td>{{student[0]}}</td>
+                                    <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
+                                    <td>
+                                        <span class='badge badge-light' v-for='module in student[2]' style='margin-right: 3px;'>{{module.code}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class='col-6'>
+                        <p class='lead'>May need some time to catch up:</p>
+                        <table class='table table-sm table-hover'>
+                            <thead>
+                                <tr>
+                                    <th>Student Token</th>
+                                    <th>Score</th>
+                                    <th>Influencing Modules</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for='student in predicted_scores_bad'>
+                                    <td>{{student[0]}}</td>
+                                    <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
+                                    <td>
+                                        <span class='badge badge-light' v-for='module in student[2]' style='margin-right: 3px;'>{{module.code}}</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>`

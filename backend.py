@@ -513,7 +513,8 @@ def moduleAcademics(module_code):
         module_influence_scores[key] = np.mean(value)
 
     # Now for all prospective students, we look at what modules they have taken and calculate a score
-    student_scores = []
+    good_student_scores = []
+    bad_student_scores = []
     for i in range(module_current.shape[0]):
         student = module_current.iloc[i]
         scores = []
@@ -531,9 +532,13 @@ def moduleAcademics(module_code):
             score = 0
         else:
             score = np.mean(scores)
-        student_scores.append([student['token'], score, influencing_modules])
+        if score > 0:
+            good_student_scores.append([student['token'], score, influencing_modules])
+        elif score < 0:
+            bad_student_scores.append([student['token'], score, influencing_modules])
 
-    results['pred_scores'] = sorted(student_scores, key = lambda x: x[1])
+    results['pred_scores_good'] = sorted(good_student_scores, key = lambda x: -x[1])
+    results['pred_scores_bad'] = sorted(bad_student_scores, key = lambda x: x[1])
 
     return jsonify(results)
 

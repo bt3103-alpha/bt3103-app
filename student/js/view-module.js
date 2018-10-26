@@ -74,7 +74,6 @@ window.onload = function () {
                 .then(json => {
                     this.name = json.name;
                 });
-            getPrereqs(this.module_code)
 
             // fetch module details and module name
             fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
@@ -82,6 +81,9 @@ window.onload = function () {
                     return response.json();
                 })
                 .then(json => {
+                    
+                    getPrereqs(this.module_code)
+
                     if (this.module_code != null && json[this.module_code] != null) {
                         const vue = this;
                         this.module_description = json[this.module_code].description;
