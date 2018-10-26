@@ -75,28 +75,19 @@ window.onload = function () {
                     this.name = json.name;
                 });
 
+            if (this.module_code != null) {
             // fetch module details and module name
-            fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+            // fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+            fetch("/bt3103-app/backend/module_description/" + this.module_code)
                 .then(response => {
                     return response.json();
                 })
                 .then(json => {
-                    
+                    this.module_name = json.title;
+                    this.module_description = json.description;
+                    this.tag_arr = json.tags;
+
                     getPrereqs(this.module_code)
-
-                    if (this.module_code != null && json[this.module_code] != null) {
-                        const vue = this;
-                        this.module_description = json[this.module_code].description;
-                        getTags(this.module_code)
-                            .then(resp => {
-                                vue.tag_arr = resp.tags;
-                            })
-                    }
-
-                    // have to park it here because async property, need wait for search_codes obj to finish query
-                    if (this.module_code != null) {
-                        this.module_name = search_codes[this.module_code.toLowerCase()].name;
-                    }
                 });
 
             fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
@@ -136,6 +127,7 @@ window.onload = function () {
                       vuethis.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
                     }
                 });
+            }
         }
     });
 }
