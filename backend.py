@@ -559,6 +559,8 @@ def getTeachingFeedback(module_code):
         results['tAbility'][row['t1']-1] += 1
         results['tTimely'][row['t2']-1] += 1
         results['tInterest'][row['t3']-1] += 1
+    if sum(results['tAbility']) > 0:
+        results['data'] = True
     return jsonify(results)
 
 @backend.route(url_path+'/backend/student/view-module/feedbackM/<module_code>')
@@ -588,9 +590,12 @@ def getModuleFeedback(module_code):
         for i in range(5):
             counter += results['mRating']['array'][i-1]
             totalRating += results['mRating']['array'][i-1] * (i+1)
-        results['mRating']['num_feedback'] = len(subset_student_fb_module.index)
-        results['mRating']['total'] = totalRating
-        results['mRating']['average'] = totalRating/counter
+
+        if counter>0:
+            results['data'] = True
+            results['mRating']['num_feedback'] = len(subset_student_fb_module.index)
+            results['mRating']['total'] = totalRating
+            results['mRating']['average'] = totalRating/counter
 
         for key, value in goodTextTemp.items():
             tempObj = {'text':key, 'size':value}

@@ -51,8 +51,8 @@ window.onload = function () {
             //completed: [],
             //completed_dict: {},
             tag_arr: [],
-            module_fb: false,
-            teaching_fb: false,
+            module_fb: true,
+            teaching_fb: true,
             tAbility: null,
             tTimely: null,
             tInterest: null,
@@ -102,9 +102,10 @@ window.onload = function () {
                     return response.json();
                 })
                 .then(function(json) {
-                    console.log(json);
+                    console.log(json.data);
+                    console.log('module');
                     vuethis.module_fb = json.data
-                    if (vuethis.modulefb) {
+                    if (vuethis.module_fb) {
                       vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
                       vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
                       vuethis.module_fb_ratingCount = json.mRating['total'];
@@ -123,11 +124,14 @@ window.onload = function () {
                 })
                 .then(function(json) {
                     // Update faculties
-                    vuethis.teaching_fb = json.data
+                    vuethis.teaching_fb = json.data;
+                    console.log(json.data);
+                    console.log('teaching')
+                    const a = [1,2,3,4,5]
                     if (vuethis.teaching_fb) {
-                      this.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
-                      this.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
-                      this.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                      vuethis.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
+                      vuethis.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
+                      vuethis.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
                     }
                 });
         }
