@@ -422,7 +422,7 @@ const ModuleAcademics = {
                 <button :id='prereq.module_code + "-header"'> More Information on {{prereq.module_code}}</button>
             </div>
             <div class='wide-chart card'>
-                <h2>Predicted Problematic Students</h2>
+                <h2>Predicted Students To Lookout For</h2>
                 <p>A statistical model was run to predict which students may fare better or worse than the average.
                 This is based on historical data, by comparing past students' grades and which modules they have
                 taken, to what incoming students have also taken before. </p>
