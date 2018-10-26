@@ -51,6 +51,8 @@ window.onload = function () {
             //completed: [],
             //completed_dict: {},
             tag_arr: [],
+            module_fb: true,
+            teaching_fb: true,
             tAbility: null,
             tTimely: null,
             tInterest: null,
@@ -100,15 +102,19 @@ window.onload = function () {
                     return response.json();
                 })
                 .then(function(json) {
-                    console.log(json);;
-                    vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
-                    vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
-                    vuethis.module_fb_ratingCount = json.mRating['total'];
-                    vuethis.module_fb_array = json.mRating['array'];
-                    wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
-                    wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
-                    for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
-                        vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
+                    console.log(json.data);
+                    console.log('module');
+                    vuethis.module_fb = json.data
+                    if (vuethis.module_fb) {
+                      vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
+                      vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
+                      vuethis.module_fb_ratingCount = json.mRating['total'];
+                      vuethis.module_fb_array = json.mRating['array'];
+                      wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
+                      wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
+                      for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
+                          vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
+                      }
                     }
                 });
 
@@ -118,9 +124,15 @@ window.onload = function () {
                 })
                 .then(function(json) {
                     // Update faculties
-                    this.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
-                    this.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
-                    this.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                    vuethis.teaching_fb = json.data;
+                    console.log(json.data);
+                    console.log('teaching')
+                    const a = [1,2,3,4,5]
+                    if (vuethis.teaching_fb) {
+                      vuethis.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
+                      vuethis.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
+                      vuethis.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                    }
                 });
         }
     });
@@ -145,7 +157,7 @@ function treeStuff(treeData) {
     var diagonal = d3.svg.diagonal()
         .projection(function (d) { return [d.y, d.x]; });
 
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("#tree").append("svg")
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")

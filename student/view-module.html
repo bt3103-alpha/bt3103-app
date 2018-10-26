@@ -84,15 +84,15 @@
                         </p>
 
                         <h2>Tags</h2>
-                        <button v-for="modtag in this.tag_arr" type='button' class='btn' style='margin-right: 6px;'>{{modtag}}</button>
+                        <button v-for="modtag in this.tag_arr" type='button' class='btn' style='margin-right:6px;'>{{modtag}}</button>
 
                         <h2>Module Prerequisites</h2>
-
+                        <div id="tree">{{module_code}} {{module_name}}</div>
                     </div>
                 </div>
                 <div class='col-3'>
                     <button type='button' class='btn btn-primary' data-toggle='modal' data-target='#timetableModal'
-                        style='margin: 0 6px 6px 0'>
+                        style='margin: 0 6px 6px 0;'>
                         <i class='fas fa-plus'></i>&nbsp;&nbsp;
                         Add Module to Schedule
                     </button>
@@ -102,80 +102,83 @@
                     </button>
                 </div>
             </div>
-            <h2>Student Reviews</h2>
 
             <div>
-              <div class="row">
-                <div style='width:25%; margin-left: 20px'>
+              <h2>Student Reviews</h2>
+              <div v-if='module_fb===false && teaching_fb===false'>
+                Nothing to display
+              </div>
+              <div v-if='module_fb===true' class="row">
+                <div style='width:25%; margin-left: 20px;'>
                   <span class="progbar-heading">I rate this module as </span> <br>
-                  <span v-for='star in Math.floor(module_fb_ratingAverage)' class="fa fa-star checked" style='margin-left:3px'></span>
+                  <span v-for='star in Math.floor(module_fb_ratingAverage)' class="fa fa-star checked" style='margin-left:3px;'></span>
                   <span v-if='module_fb_ratingRounded-module_fb_ratingAverage>0' class="fa fa-star-half-o checked"></span>
                   <span v-for='star in Math.floor(5-module_fb_ratingRounded)' class="fa fa-star-o checked"></span>
                   <p>{{module_fb_ratingAverage}} average based on {{module_fb_ratingCount}} reviews.</p>
-                  <hr style="border:3px solid #f1f1f1">
+                  <hr style="border:3px solid #f1f1f1;">
 
                   <div class="progbar-side">
                     <div>5 <span class="fa fa-star"></span></div>
                   </div>
                   <div class="progbar-middle progress">
-                      <div class="progress-bar" id="ratingbar5" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[4]+'%'}" style= "background-color: #ff9800; aria-valuenow=40; aria-valuemin=0; aria-valuemax=100"></div>
+                      <div class="progress-bar" id="ratingbar5" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[4]+'%'}" style= "background-color: #ff9800;"></div>
                   </div>
                   <div class="progbar-side progbar-right">{{module_fb_array[4]}}</div>
                   <div class="progbar-side">
                     <div>4 <span class="fa fa-star"></span></div>
                     </div>
                   <div class="progbar-middle progress">
-                      <div class="progress-bar" id="ratingbar4" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[3]+'%'}" style= "background-color: #ff9800; aria-valuenow=40; aria-valuemin=0; aria-valuemax=100"></div>
+                      <div class="progress-bar" id="ratingbar4" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[3]+'%'}" style= "background-color: #ff9800; "></div>
                   </div>
                   <div class="progbar-side progbar-right">{{module_fb_array[3]}}</div>
                   <div class="progbar-side">
                     <div>3 <span class="fa fa-star"></span></div>
                     </div>
                   <div class="progbar-middle progress">
-                      <div class="progress-bar" id="ratingbar3" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[2]+'%'}" style= "background-color: #ff9800; aria-valuenow=40; aria-valuemin=0; aria-valuemax=100"></div>
+                      <div class="progress-bar" id="ratingbar3" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[2]+'%'}" style= "background-color: #ff9800;"></div>
                   </div>
                   <div class="progbar-side progbar-right">{{module_fb_array[2]}}</div>
                   <div class="progbar-side">
                     <div>2 <span class="fa fa-star"></span></div>
                   </div>
                   <div class="progbar-middle progress">
-                      <div class="progress-bar" id="ratingbar2" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[1]+'%'}" style= "background-color: #ff9800; aria-valuenow=40; aria-valuemin=0; aria-valuemax=100"></div>
+                      <div class="progress-bar" id="ratingbar2" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[1]+'%'}" style= "background-color: #ff9800; "></div>
                   </div>
                   <div class="progbar-side progbar-right">{{module_fb_array[1]}}</div>
                   <div class="progbar-side">
                     <div>1 <span class="fa fa-star"></span></div>
                   </div>
                   <div class="progbar-middle progress">
-                      <div class="progress-bar" id="ratingbar1" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[0]+'%'}" style= "background-color: #ff9800; aria-valuenow=40; aria-valuemin=0; aria-valuemax=100"></div>
+                      <div class="progress-bar" id="ratingbar1" role="progressbar" v-bind:style="{width:module_fb_arrayPercent[0]+'%'}" style= "background-color: #ff9800; "></div>
                   </div>
                   <div class="progbar-side progbar-right">{{module_fb_array[0]}}</div>
                 </div> <!-- width 30% -->
-                  <div style="width:30%; margin-left:40px">
+                  <div style="width:30%; margin-left:40px;">
                     <span class="progbar-heading">What I like about this module </span>
                     <div id="goodCloud"></div>
                   </div>
-                  <div style="width:30%; margin-left:25px">
+                  <div style="width:30%; margin-left:25px;">
                     <span class="progbar-heading">What I do not like about this module </span>
                     <div id="badCloud"></div>
                   </div>
               </div>
             <br><br>
-            <div class='row' style="margin-left: 5px">
-              <div style="width:30%">
+            <div v-if='teaching_fb===true' class='row' style="margin-left: 5px">
+              <div style="width:30%;">
                 <span class="progbar-heading">The teacher has enhanced my thinking ability. </span>
-                <div style="margin-top:20px">
+                <div style="margin-top:20px;">
                   <canvas id="tAbility" width="100" height="70"></canvas>
                 </div>
               </div>
-              <div style="width:30%; margin-left:0px">
+              <div style="width:30%; margin-left:0px;">
                 <span class="progbar-heading">The teacher provided timely and useful feedback.</span>
-                <div style="margin-top:20px">
+                <div style="margin-top:20px;">
                   <canvas id="tTimely" width="100" height="70"></canvas>
                 </div>
               </div>
-              <div style="width:30%; margin-left:15px">
+              <div style="width:30%; margin-left:15px;">
                 <span class="progbar-heading">The teacher has increased my interest in the subject.</span>
-                <div style="margin-top:20px">
+                <div style="margin-top:20px;">
                   <canvas id="tInterest" width="100" height="70"></canvas>
                 </div>
               </div>
