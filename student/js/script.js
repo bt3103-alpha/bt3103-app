@@ -105,6 +105,7 @@ window.onload = function() {
                 readyCallback: function() {
                     // Append to schedule if missing semesters
                     this.fillMissingSemesters();
+                    this.display = true;
                 }
             },
             suggestions: {
@@ -113,6 +114,7 @@ window.onload = function() {
             }
         },
         data: {
+            display: false, 
             mode: "schedule",
 
             special_progs_dict: {

@@ -62,133 +62,132 @@
                 </div>
             </div>
         </nav>
-        <div class='container-fluid'>
-            <div class='row'>
-                <div class='col-9' v-if='schedule.length == 0'>
-                    Loading, please wait...
-                </div>
-                <div class='col-9'>
-                    <h2>Schedule</h2>
-                    <div class='row' style='margin-bottom: 24px;'>
-                        <div class='col-7'>
-                            <span v-if='profile.faculty'>
-                                {{ profile.faculty }} ({{ profile.course }}),
-                                {{special_progs_dict[profile.special_programme]}}
-                                <span v-if="profile.special_programme > 0">
-                                    in {{ profile.special_programme_target }}
+        <transition name='fade'>
+            <div class='container-fluid' v-if='display'>
+                <div class='row'>
+                    <div class='col-9'>
+                        <h2>Schedule</h2>
+                        <div class='row' style='margin-bottom: 24px;'>
+                            <div class='col-7'>
+                                <span v-if='profile.faculty'>
+                                    {{ profile.faculty }} ({{ profile.course }}),
+                                    {{special_progs_dict[profile.special_programme]}}
+                                    <span v-if="profile.special_programme > 0">
+                                        in {{ profile.special_programme_target }}
+                                    </span>
                                 </span>
-                            </span>
+                            </div>
+                            <div class='col-5' style='text-align: right;'>
+                                CAP: {{ calcCAP() }} &nbsp;
+                                <button v-if="mode == 'schedule'" class='btn btn-primary' @click='mode="cap"'>Edit CAP</button>
+                                <button v-if="mode == 'cap'" class='btn btn-secondary' @click='mode="schedule"'>Exit</button>
+                            </div>
                         </div>
-                        <div class='col-5' style='text-align: right;'>
-                            CAP: {{ calcCAP() }} &nbsp;
-                            <button v-if="mode == 'schedule'" class='btn btn-primary' @click='mode="cap"'>Edit CAP</button>
-                            <button v-if="mode == 'cap'" class='btn btn-secondary' @click='mode="schedule"'>Exit</button>
-                        </div>
+                        <table class='table modules'>
+                            <thead>
+                                <tr>
+                                    <th v-for='semester in semesters'>{{semester}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td v-for='(semester, index) in schedule[".value"]'>
+                                        <draggable v-model="schedule['.value'][index]" class='schedule-semester' @start="dragging=true"
+                                            @end="syncModules" :options="{group:'modules'}" name='list'>
+                                            <module-schedule v-for='(module, module_index) in semester' :name='module.name' :type='module.type'
+                                                :sem='index' :key='module.name+module_index' :mode='mode' :grade='module.grade' :module_index='module_index'
+                                                v-on:change-grade='changeGrade'></module-schedule>
+                                        </draggable>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td v-for='semester in schedule[".value"]' v-bind:class="[sumMCs(semester) > 20 ? 'colour-red' : '', sumMCs(semester) == 20 ? 'colour-green' : '', sumMCs(semester) < 20 ? 'colour-orange' : '']">
+                                        {{ sumMCs(semester) }} MCs
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <transition name="fade">
+                            <div id='elective-selection' class='card bg-faded' v-if="select_elective_display">
+                                <div class='card-header'>
+                                    <h4 class='card-title'>Selecting {{select_elective_type}} Elective for {{
+                                        semesters[select_elective_semester] }}</h4>
+                                    <span class='filler'></span>
+                                    <i class='fas fa-times' id='elective-selection-close' @click='select_elective_display = false'></i>
+                                </div>
+                                <div class='card-body'>
+                                    <div v-if="select_elective_suggested_mods.length > 0">
+                                        <h5>Suggested Modules:</h5>
+                                        <draggable v-model="select_elective_suggested_mods" @start="dragging=true" @end="syncModules"
+                                            :options="{group:'modules'}">
+                                            <module-replace v-for='module in select_elective_suggested_mods' :name='module.name'
+                                                :type='module.type' :key='module.name'></module-replace>
+                                        </draggable>
+                                        <br />
+                                    </div>
+                                    <h5>Select Another Module:</h5>
+                                    <input type='text' class='form-control' id='suggestion_input2' onkeyup='searchModules("suggestion_input2")' placeholder="e.g. BT1101, Mining Web Data">
+                                    <div class='search_results' id='suggestion_input2_results'></div>
+                                </div>
+                            </div>
+                        </transition>
+                        <br />
+                        <button class='btn btn-danger' @click='resetInfo'>Reset</button>
+
                     </div>
-                    <table class='table modules'>
-                        <thead>
-                            <tr>
-                                <th v-for='semester in semesters'>{{semester}}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td v-for='(semester, index) in schedule[".value"]'>
-                                    <draggable v-model="schedule['.value'][index]" class='schedule-semester' @start="dragging=true"
-                                        @end="syncModules" :options="{group:'modules'}" name='list'>
-                                        <module-schedule v-for='(module, module_index) in semester' :name='module.name' :type='module.type'
-                                            :sem='index' :key='module.name+module_index' :mode='mode' :grade='module.grade' :module_index='module_index'
-                                            v-on:change-grade='changeGrade'></module-schedule>
-                                    </draggable>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td v-for='semester in schedule[".value"]' v-bind:class="[sumMCs(semester) > 20 ? 'colour-red' : '', sumMCs(semester) == 20 ? 'colour-green' : '', sumMCs(semester) < 20 ? 'colour-orange' : '']">
-                                    {{ sumMCs(semester) }} MCs
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <transition name="fade">
-                        <div id='elective-selection' class='card bg-faded' v-if="select_elective_display">
-                            <div class='card-header'>
-                                <h4 class='card-title'>Selecting {{select_elective_type}} Elective for {{
-                                    semesters[select_elective_semester] }}</h4>
-                                <span class='filler'></span>
-                                <i class='fas fa-times' id='elective-selection-close' @click='select_elective_display = false'></i>
-                            </div>
-                            <div class='card-body'>
-                                <div v-if="select_elective_suggested_mods.length > 0">
-                                    <h5>Suggested Modules:</h5>
-                                    <draggable v-model="select_elective_suggested_mods" @start="dragging=true" @end="syncModules"
-                                        :options="{group:'modules'}">
-                                        <module-replace v-for='module in select_elective_suggested_mods' :name='module.name'
-                                            :type='module.type' :key='module.name'></module-replace>
-                                    </draggable>
-                                    <br />
+                    <div class='col-3'>
+                        <h2>Add modules</h2>
+                        <select class='form-control' v-model="recommendation_semester">
+                            <option value=-1>Please select a semester</option>
+                            <option v-for='(semester, index) in semesters' :value="index">{{semester}}</option>
+                        </select>
+                        <transition name="fade">
+                            <div id='module-suggestions' v-if="recommendation_semester > -1">
+                                <div v-if="recommendation_semester < suggestions['.value'].length">
+                                    <br />Based on your current study plan, we recommend that you take:
+                                    <div v-if="suggestions['.value'][recommendation_semester].core">
+                                        <h3>Core</h3>
+                                        <draggable v-model="suggestions['.value'][recommendation_semester].core" @start="dragging=true"
+                                            @end="syncModules" :options="{group:'modules'}">
+                                            <module-add v-for='module in suggestions[".value"][recommendation_semester].core'
+                                                :name='module.name' :type='module.type' :key='module.name'></module-add>
+                                        </draggable>
+                                    </div>
+                                    <div v-if="suggestions['.value'][recommendation_semester].pe">
+                                        <h3>Electives</h3>
+                                        <draggable v-model="suggestions['.value'][recommendation_semester].pe" @start="dragging=true"
+                                            @end="syncModules" :options="{group:'modules'}">
+                                            <module-add v-for="module in suggestions['.value'][recommendation_semester].pe"
+                                                :name='module.name' :type='module.type' :key='module.name'></module-add>
+                                        </draggable>
+                                    </div>
+                                    <div v-if="suggestions['.value'][recommendation_semester].ue">
+                                        <h3>Unrestricted Electives</h3>
+                                        <draggable v-model="suggestions['.value'][recommendation_semester].ue" @start="dragging=true"
+                                            @end="syncModules" :options="{group:'modules'}">
+                                            <module-add v-for="module in suggestions['.value'][recommendation_semester].ue"
+                                                :name='module.name' :type='module.type' :key='module.name'></module-add>
+                                        </draggable>
+                                    </div>
                                 </div>
-                                <h5>Select Another Module:</h5>
-                                <input type='text' class='form-control' id='suggestion_input2' onkeyup='searchModules("suggestion_input2")' placeholder="e.g. BT1101, Mining Web Data">
-                                <div class='search_results' id='suggestion_input2_results'></div>
-                            </div>
-                        </div>
-                    </transition>
-                    <br />
-                    <button class='btn btn-danger' @click='resetInfo'>Reset</button>
-
-                </div>
-                <div class='col-3'>
-                    <h2>Add modules</h2>
-                    <select class='form-control' v-model="recommendation_semester">
-                        <option value=-1>Please select a semester</option>
-                        <option v-for='(semester, index) in semesters' :value="index">{{semester}}</option>
-                    </select>
-                    <transition name="fade">
-                        <div id='module-suggestions' v-if="recommendation_semester > -1">
-                            <div v-if="recommendation_semester < suggestions['.value'].length">
-                                <br />Based on your current study plan, we recommend that you take:
-                                <div v-if="suggestions['.value'][recommendation_semester].core">
-                                    <h3>Core</h3>
-                                    <draggable v-model="suggestions['.value'][recommendation_semester].core" @start="dragging=true"
-                                        @end="syncModules" :options="{group:'modules'}">
-                                        <module-add v-for='module in suggestions[".value"][recommendation_semester].core'
-                                            :name='module.name' :type='module.type' :key='module.name'></module-add>
-                                    </draggable>
+                                <div class='suggestion-search'>
+                                    Module not listed above?
+                                    <input type='text' class='form-control' id='suggestion_input' onkeyup='searchModules("suggestion_input")' placeholder="e.g. BT1101, Mining Web Data">
+                                    <div class='search_results' id='suggestion_input_results'></div>
                                 </div>
-                                <div v-if="suggestions['.value'][recommendation_semester].pe">
-                                    <h3>Electives</h3>
-                                    <draggable v-model="suggestions['.value'][recommendation_semester].pe" @start="dragging=true"
-                                        @end="syncModules" :options="{group:'modules'}">
-                                        <module-add v-for="module in suggestions['.value'][recommendation_semester].pe"
-                                            :name='module.name' :type='module.type' :key='module.name'></module-add>
-                                    </draggable>
-                                </div>
-                                <div v-if="suggestions['.value'][recommendation_semester].ue">
-                                    <h3>Unrestricted Electives</h3>
-                                    <draggable v-model="suggestions['.value'][recommendation_semester].ue" @start="dragging=true"
-                                        @end="syncModules" :options="{group:'modules'}">
-                                        <module-add v-for="module in suggestions['.value'][recommendation_semester].ue"
-                                            :name='module.name' :type='module.type' :key='module.name'></module-add>
-                                    </draggable>
+                                <div class='suggestion-search'>
+                                    If you're unsure, you can also add a:
+                                    <module-add name='General Core' type='module-core'></module-add>
+                                    <module-add name='General PE' type='module-pe'></module-add>
+                                    <module-add name='General UE' type='module-ue'></module-add>
                                 </div>
                             </div>
-                            <div class='suggestion-search'>
-                                Module not listed above?
-                                <input type='text' class='form-control' id='suggestion_input' onkeyup='searchModules("suggestion_input")' placeholder="e.g. BT1101, Mining Web Data">
-                                <div class='search_results' id='suggestion_input_results'></div>
-                            </div>
-                            <div class='suggestion-search'>
-                                If you're unsure, you can also add a:
-                                <module-add name='General Core' type='module-core'></module-add>
-                                <module-add name='General PE' type='module-pe'></module-add>
-                                <module-add name='General UE' type='module-ue'></module-add>
-                            </div>
-                        </div>
-                    </transition>
+                        </transition>
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
     </div>
 </body>
 
