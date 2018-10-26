@@ -339,7 +339,7 @@ def moduleDemographics(module_code):
     program_current = program_current_term(module_code)
 
     # Fetch program information about current students
-    results["degrees"] = countsAsLists(program_current, 'degree_descr')
+    results["degrees"] = countsAsLists(program_current, 'academic_plan_descr')
     results["academic_career"] = countsAsDict(program_current, 'academic_career')
     results["faculty"] = countsAsDict(program_current, 'faculty_descr')
     results["academic_load"] = countsAsDict(program_current, 'academic_load_descr')
