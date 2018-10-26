@@ -364,13 +364,13 @@ def moduleEnrolment(module_code):
         lambda x: format(x, '.2f'))
     program_current['CAP'] = program_current['CAP'].apply(
         lambda x: format(x, '.2f'))
-    
+
     # For each student token, check which of the prereqs they have done
     # and their grades for it
     prereqs = fetchPrereqs(module_code)
     def getPrereqGrades(token):
         output = ""
-        
+
         modules_taken = module_enrolment[(module_enrolment.token == token) & (module_enrolment.module_code.isin(prereqs))]
         for i in range(modules_taken.shape[0]):
             code = modules_taken.iloc[i]['module_code']
@@ -378,17 +378,17 @@ def moduleEnrolment(module_code):
             if str(grade) == 'nan':
                 grade = "-"
             text = str(code) + " (" + grade + ")"
-            
+
             if len(output) == 0:
                 output = text
             else:
                 output += ", " + text
-        
+
         if len(output) == 0:
             output = "-"
-        
+
         return output
-    
+
     program_current['prereqs'] = program_current.token.apply(getPrereqGrades)
     program_current.drop_duplicates(inplace=True)
 
@@ -550,7 +550,7 @@ def getPrereqs(module_code):
 @backend.route(url_path+'/backend/student/view-module/feedbackT/<module_code>')
 def getTeachingFeedback(module_code):
     subset_student_fb_teaching = student_fb_teaching.loc[student_fb_teaching["mod_class_id"] == module_code]
-    results = {'tAbility':0, 'tTimely':0, 'tInterest':0}
+    results = {'data':False, 'tAbility':0, 'tTimely':0, 'tInterest':0}
     results['tAbility'] = [0,0,0,0,0]
     results['tTimely'] = [0,0,0,0,0]
     results['tInterest'] = [0,0,0,0,0]
@@ -563,36 +563,39 @@ def getTeachingFeedback(module_code):
 
 @backend.route(url_path+'/backend/student/view-module/feedbackM/<module_code>')
 def getModuleFeedback(module_code):
+    print(module_code)
     subset_student_fb_module = student_fb_module.loc[student_fb_module["mod_class_id"] == module_code]
-    results = {'mRating':{}, 'goodText':[], 'badText':[]}
+    results = {'data':False, 'mRating':{}, 'goodText':[], 'badText':[]}
     results['mRating'] = {'num_feedback':0, 'total':0, 'average':0, 'array':[0,0,0,0,0]}
-    goodTextTemp = {}
-    badTextTemp = {}
-    for x in range(len(subset_student_fb_module.index)):
-        row = subset_student_fb_module.iloc[x]
-        results['mRating']['array'][row['m1']-1] += 1
-        if row['m4c'] in goodTextTemp:
-            goodTextTemp[row['m4c']] += 1
-        else:
-            goodTextTemp[row['m4c']] = 1
-        if row['m5c'] in badTextTemp:
-            badTextTemp[row['m5c']] += 1
-        else:
-            badTextTemp[row['m5c']] = 1
 
-    totalRating = 0
-    counter = 0
-    for i in range(5):
-        counter += results['mRating']['array'][i-1]
-        totalRating += results['mRating']['array'][i-1] * (i+1)
-    results['mRating']['num_feedback'] = len(subset_student_fb_module.index)
-    results['mRating']['total'] = totalRating
-    results['mRating']['average'] = totalRating/counter
+    if subset_student_fb_module.size != 0:
+        goodTextTemp = {}
+        badTextTemp = {}
+        for x in range(len(subset_student_fb_module.index)):
+            row = subset_student_fb_module.iloc[x]
+            results['mRating']['array'][row['m1']-1] += 1
+            if row['m4c'] in goodTextTemp:
+                goodTextTemp[row['m4c']] += 1
+            else:
+                goodTextTemp[row['m4c']] = 1
+            if row['m5c'] in badTextTemp:
+                badTextTemp[row['m5c']] += 1
+            else:
+                badTextTemp[row['m5c']] = 1
 
-    for key, value in goodTextTemp.items():
-        tempObj = {'text':key, 'size':value}
-        results['goodText'].append(tempObj)
-    for key, value in badTextTemp.items():
-        tempObj = {'text':key, 'size':value}
-        results['badText'].append(tempObj)
+        totalRating = 0
+        counter = 0
+        for i in range(5):
+            counter += results['mRating']['array'][i-1]
+            totalRating += results['mRating']['array'][i-1] * (i+1)
+        results['mRating']['num_feedback'] = len(subset_student_fb_module.index)
+        results['mRating']['total'] = totalRating
+        results['mRating']['average'] = totalRating/counter
+
+        for key, value in goodTextTemp.items():
+            tempObj = {'text':key, 'size':value}
+            results['goodText'].append(tempObj)
+        for key, value in badTextTemp.items():
+            tempObj = {'text':key, 'size':value}
+            results['badText'].append(tempObj)
     return jsonify(results)

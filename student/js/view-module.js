@@ -51,6 +51,8 @@ window.onload = function () {
             //completed: [],
             //completed_dict: {},
             tag_arr: [],
+            module_fb: false,
+            teaching_fb: false,
             tAbility: null,
             tTimely: null,
             tInterest: null,
@@ -100,15 +102,18 @@ window.onload = function () {
                     return response.json();
                 })
                 .then(function(json) {
-                    console.log(json);;
-                    vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
-                    vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
-                    vuethis.module_fb_ratingCount = json.mRating['total'];
-                    vuethis.module_fb_array = json.mRating['array'];
-                    wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
-                    wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
-                    for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
-                        vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
+                    console.log(json);
+                    vuethis.module_fb = json.data
+                    if (vuethis.modulefb) {
+                      vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
+                      vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
+                      vuethis.module_fb_ratingCount = json.mRating['total'];
+                      vuethis.module_fb_array = json.mRating['array'];
+                      wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
+                      wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
+                      for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
+                          vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
+                      }
                     }
                 });
 
@@ -118,9 +123,12 @@ window.onload = function () {
                 })
                 .then(function(json) {
                     // Update faculties
-                    this.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
-                    this.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
-                    this.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                    vuethis.teaching_fb = json.data
+                    if (vuethis.teaching_fb) {
+                      this.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
+                      this.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
+                      this.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
+                    }
                 });
         }
     });
