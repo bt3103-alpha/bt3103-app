@@ -33,7 +33,7 @@ const Module = {
     <div class='module-page'>
         <div class='container'>
             <h1>{{$route.params.module}}</h1>
-            <p v-if='show_extra_data && module_name != ""' class='lead'>{{module_name}} &nbsp; <span class='badge badge-success'>Third-party data</span></p>
+            <p v-if='show_extra_data && module_name != ""' class='lead' style='display: flex; align-items: flex-start;'>{{module_name}} &nbsp; <span class='badge badge-success' style='font-size: 8px; font-weight:400;'>third-party data</span></p>
             <ul class=" module-nav nav nav-pills nav-fill">
                 <li class='nav-item'>
                     <router-link class='nav-link' to='demographics'>Demographics</router-link>
