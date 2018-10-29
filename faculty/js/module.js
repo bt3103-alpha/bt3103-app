@@ -385,7 +385,7 @@ const ModuleAcademics = {
         </div>
         <div v-bind:class='["chart-rows", display ? "" : "hide"]'>
             <div class='demographic-chart card'>
-                <h2>Grades of incoming students</h2>
+                <h2>CAP of incoming students</h2>
                 <p>Your current students have the following grades:</p>
                 <canvas id="currGradesChart" width="100" height="70"></canvas>
             </div>
