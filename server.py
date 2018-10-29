@@ -29,6 +29,7 @@ def add_header(r):
     r.headers['Cache-Control'] = 'public, max-age=0'
     return r
 
-callFetchData()
-app.register_blueprint(backend)
-app.run(debug=True, threaded=True)
+if __name__ == "__main__":
+    callFetchData()
+    app.register_blueprint(backend)
+    app.run(debug=True, threaded=True)
