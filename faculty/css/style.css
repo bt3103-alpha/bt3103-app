@@ -73,12 +73,17 @@ html, body {
     font-size: 24px;
     letter-spacing: 6px;
     color: #777;
+
+}
+.overview-module-code-tag {
     text-align: center;
     margin-bottom: 32px;
     position: relative;
+
 }
 
-.overview-module-code::after {
+
+.overview-module-code::after { 
     content: "";
     position: absolute;
     width: 50px;
@@ -87,6 +92,7 @@ html, body {
     top: 48px;
     left: calc(50% - 25px);
 }
+
 
 .module-rows .col-3 {
     text-align: center;

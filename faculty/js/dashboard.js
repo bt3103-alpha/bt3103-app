@@ -40,7 +40,7 @@ const Dashboard = {
         <div class='chart-rows'>
             <div class='wide-chart card' v-for='mod in modules_info'>
                 <div class = "row">
-                    <div class='col-12'>
+                    <div class='col-12 overview-module-code-tag'>            
                     <router-link :to='"/"+mod["module_code"]' class='overview-module-code'>{{mod["module_code"]}}</router-link>
                     </div>
                 </div>
