@@ -131,3 +131,8 @@ html, body {
     margin-bottom: 0;
     padding-left: 18px;
 }
+
+/* Modal */
+.modal-lg {
+    max-width: 97vw;
+}

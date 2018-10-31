@@ -1,18 +1,20 @@
 function barChart(id, colour, labels = [], tooltipData = []) {
-
+    
     var dataset = {
         label: "No. of students",
         data: [],
         backgroundColor: colour,
         tooltips: tooltipData
-    }
+    };
+
+    var data = {
+        labels: labels, 
+        datasets: [ dataset ]
+    };
 
     return new Chart(document.getElementById(id), {
         type: "bar",
-        data: {
-            labels: labels,
-            datasets: [ dataset ]
-        },
+        data: data,
         options: {
             layout: {
                 padding: {
@@ -78,6 +80,28 @@ function barChart(id, colour, labels = [], tooltipData = []) {
                         position.top + window.pageYOffset + tooltipModel.caretY + "px";
                     tooltipEl.style.pointerEvents = "none";
                 }
+            } ,
+            onClick: (evt, item) => {
+                let tooltips = dataset.tooltips;
+                if (item[0] == null) {
+                    return
+                }
+                for (let i = 0 ; i < data.labels.length; i++) {
+                    if (data.labels[i] == item[0]._model.label) {
+                        // This is the label we want
+                        let tokens = tooltips[i];
+                        results = []
+                        for (let j = 0; j < app.student_enrolment.length; j++) {
+                            if (tokens.includes(app.student_enrolment[j].token)) {
+                                results.push(app.student_enrolment[j]);
+                            }
+                        }
+                        app.studentFilter = results;
+                        break;
+                    }
+                }
+                $("#studentModal").modal();
+                
             }
         }
     });

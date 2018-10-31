@@ -48,14 +48,59 @@ window.onload = function() {
             name: "Chris",
             modules: ["MA1505", "GER1000", "MA1506", "EC3303", 'ST2334'],
             fetching_data: false,
-            show_extra_data: true
+            show_extra_data: true,
+
+            student_enrolment: [], 
+            module_prereqs: [], 
+
+            studentFilter: [],
+            studentFilterPrereqs: [],
         },
         methods: {
             fetch_data: function() {
                 this.fetching_data = true;
                 fetch("/bt3103-app/backend/fetch_data");
                 poll_status = setInterval(checkRefreshStatus, 500);
+            }, 
+            get_module_data: function() {
+                var vue = this;
+                console.log(this.$route.params.module);
+
+                fetch('/bt3103-app/backend/prereqs/' + this.$route.params.module)
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((json) => {
+                        vue.module_prereqs = json;
+                    })
+
+                fetch("/bt3103-app/backend/faculty/enrolment/" + this.$route.params.module)
+                    .then(function(response) {
+                        return response.json();
+                    })
+                    .then(function(json) {
+                        vue.student_enrolment = json;
+                    });
+            }
+        }, 
+        mounted() {
+            this.get_module_data();
+        }, 
+        watch: {
+            $route(to, from) {
+                let module_to = to.params.module;
+                let module_from = from.params.module;
+                if (module_to != module_from) {
+                    // Switched module
+                    // Pull enrolment data
+                    this.get_module_data();
+                }
             }
         }
     });
+
+    $("#studentModal").on('hidden.bs.modal', function(e) {
+        app.studentFilter = []
+        app.studentFilterPrereqs = []
+    })
 };

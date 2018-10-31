@@ -6,7 +6,7 @@ async function getModuleInfo(module_code) {
 }
 
 const Module = {
-    props: ["show_extra_data"],
+    props: ["show_extra_data", 'student_enrolment', 'module_prereqs'],
     data() {
         return {
             module_name: ''
@@ -47,7 +47,7 @@ const Module = {
             </ul>
         </div>
         <transition name='fade'>
-            <router-view class='child-view' :show_extra_data='show_extra_data'></router-view>
+            <router-view class='child-view' :show_extra_data='show_extra_data' :module_prereqs='module_prereqs' :student_enrolment='student_enrolment'></router-view>
         </transition>
     </div>`
 };
@@ -218,10 +218,6 @@ const ModuleAcademics = {
             for (var i = 0; i < vue.prereqs.length; i++) {
                 await getModuleInfo(this.prereqs[i].module_code).then((resp) => {
                     vue.prereqsTags[vue.prereqs[i].module_code] = resp;
-                    //var obj = {};
-                    //obj[vue.prereqs[index].module_code] = resp;
-                    //vue.prereqsTags.push(obj);
-                    //vue.prereqsTags.push(obj);
                 })
             }
             for (var i = 0; i < vue.prereqs.length; i++){
@@ -285,7 +281,6 @@ const ModuleAcademics = {
 
                 })
                 .then(function(json) {
-                    console.log(JSON.stringify(json.prereqs));
                     // Update current grades
                     vue.currGradesChart.data.datasets[0].data = json.curr_grades;
                     vue.currGradesChart.data.datasets[0].tooltips = json.curr_grades_students;
@@ -321,10 +316,6 @@ const ModuleAcademics = {
 
                     vue.updatePrereqsTags(vue.prereqs);
 
-
-                    
-            
-
                     // We set a timeout so that the DOM
                     // has time to update
                     setTimeout(function() {
@@ -353,21 +344,6 @@ const ModuleAcademics = {
                                 json.prereqs[i].grades.students;
                             vue.prereqCharts[i].update();
                         }
-
-                    /* for (var i = 0; i < vue.prereqs.length; i++){
-                        console.log(JSON.stringify(vue.prereqsTags));
-                        someToolTipText = vue.prereqsTags[vue.prereqs[i].module_code]["tags"];
-                        tippy("#" + vue.prereqs[i].module_code + "-header", {
-                            content: someToolTipText,
-                            delay: 100,
-                            arrow: true,
-                            arrowType: 'round',
-                            size: 'large',
-                            duration: 500,
-                            animation: 'scale'
-                            });
-                        }; */
-
 
                     }, 200);
 
@@ -478,39 +454,10 @@ const ModuleAcademics = {
     </div>`
 };
 
-const ModuleEnrolment = {
-    props: ["show_extra_data"],
-    data() {
-        return {
-            enrolment: [],
-            prereqs: [],
-        };
-    },
-    mounted() {
-        this.fetchData();
-    },
-    methods: {
-        fetchData: function() {
-            var vue = this;
-            fetch('/bt3103-app/backend/prereqs/' + this.$route.params.module)
-                .then((response) => {
-                    return response.json();
-                })
-                .then((json) => {
-                    vue.prereqs = json;
-                })
-            fetch("/bt3103-app/backend/faculty/enrolment/" + this.$route.params.module)
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(json) {
-                    vue.enrolment = json;
-                });
-        }
-    },
+Vue.component('module-enrolment-table', {
+    props: ['data', 'show_extra_data', 'prereqs'], 
     template: `
-    <div class='container-fluid'><transition name='fade'>
-        <table class='table table-hover' v-if='enrolment.length > 0'>
+        <table class='table table-hover' v-if='data.length > 0'>
             <thead class='thead-light'>
                 <tr>
                     <th>Token</th>
@@ -526,7 +473,7 @@ const ModuleEnrolment = {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for='row in enrolment'>
+                <tr v-for='row in data'>
                     <td>{{row.token}}</td>
                     <td>{{row.faculty_descr}}</td>
                     <td>{{row.academic_plan_descr}}</td>
@@ -539,6 +486,13 @@ const ModuleEnrolment = {
                     <td><a :href='"mailto:"+row.token+"@u.nus.edu?subject=["+$route.params.module+"] "' class='btn btn-info'><i class='fas fa-envelope'></i></a></td>
                 </tr>
             </tbody>
-        </table>
+        </table>`
+})
+
+const ModuleEnrolment = {
+    props: ["show_extra_data", 'student_enrolment', 'module_prereqs'],
+    template: `
+    <div class='container-fluid'><transition name='fade'>
+        <module-enrolment-table :data='student_enrolment' :show_extra_data='show_extra_data' :prereqs='module_prereqs'></module-enrolment-table>
     </transition></div>`
 };
