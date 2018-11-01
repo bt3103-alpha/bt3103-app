@@ -158,7 +158,8 @@ function treeStuff(treeData) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     root = treeData;
-
+    root.x0 = height/2
+    root.y0 = width
     update(root);
 
     function update(source) {
@@ -168,7 +169,7 @@ function treeStuff(treeData) {
             links = tree.links(nodes);
 
         // Normalize for fixed-depth.
-        nodes.forEach(function (d) { d.y = d.depth * 180; });
+        nodes.forEach(function (d) { d.y = width - (d.depth * 180); });
 
         // Update the nodes…
         var node = svg.selectAll("g.node")
@@ -185,9 +186,9 @@ function treeStuff(treeData) {
             .style("fill", function (d) { return d._children ? "lightsteelblue" : "#fff"; });
 
         nodeEnter.append("text")
-            .attr("x", function (d) { return d.children || d._children ? -13 : 13; })
+            .attr("x", function (d) { return d.children || d._children ? 13 : -13; })
             .attr("dy", ".35em")
-            .attr("text-anchor", function (d) { return d.children || d._children ? "end" : "start"; })
+            .attr("text-anchor", function (d) { return d.children || d._children ? "start" : "end"; })
             .text(function (d) { return d.name; })
             .style("fill-opacity", 1e-6);
 
