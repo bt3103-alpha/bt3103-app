@@ -226,6 +226,8 @@ def fetchModuleDescription(module_code):
         result = {'title': '', 'description': '', 'tags': []}
     if result['tags'] is np.nan:
         result['tags'] = []
+    temp = dict((el,0) for el in result['tags'])
+    result['tags'] = temp
     return jsonify(result)
 
 def countsAsDict(df, column_name):

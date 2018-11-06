@@ -40,8 +40,24 @@ function searchModules() {
 }
 
 window.onload = function () {
+    const db = firebase
+        .initializeApp({
+            databaseURL: "https://bt3103-jasminw.firebaseio.com"
+        })
+        .database();
+
+    var tags_ref = db.ref("tags");
     app = new Vue({
         el: "#app",
+        firebase: {
+          tag_dict_db: {
+              source: db.ref("tags"),
+              asObject: true,
+              readyCallback: function() {
+                this.matchTagKeys();
+              }
+          }
+        },
         data: {
             module_code: "",
             module_name: "",
@@ -50,7 +66,8 @@ window.onload = function () {
             //prereq_arr: [],
             //completed: [],
             //completed_dict: {},
-            tag_arr: [],
+            //tag_arr: [],
+            tag_dict_vue: {},
             module_fb: true,
             teaching_fb: true,
             tAbility: null,
@@ -85,9 +102,11 @@ window.onload = function () {
                 .then(json => {
                     this.module_name = json.title;
                     this.module_description = json.description;
-                    this.tag_arr = json.tags;
+                    //this.tag_arr = json.tags;
+                    this.tag_dict_vue = json.tags;
 
-                    getPrereqs(this.module_code)
+                    getPrereqs(this.module_code);
+
                 });
 
             fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
@@ -128,6 +147,24 @@ window.onload = function () {
                     }
                 });
             }
+        },
+        methods: {
+          increment: function(tag_name) {
+            this.tag_dict_vue[tag_name]++;
+            tags_ref.child(tag_name).set({
+              count: this.tag_dict_vue[tag_name]
+            })
+          },
+          matchTagKeys: function() {
+            let tag_dict_db_keys = Object.keys(this.tag_dict_db);
+            console.log(tag_dict_db_keys);
+            console.log(tags_ref);
+            for (let i=0; i<tag_dict_db_keys.length;i++) {
+              if (tag_dict_db_keys[i] in this.tag_dict_vue) {
+                this.tag_dict_vue[tag_dict_db_keys[i]] = this.tag_dict_db[tag_dict_db_keys[i]].count;
+              }
+            }
+          }
         }
     });
 }
