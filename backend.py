@@ -429,7 +429,7 @@ def getModuleGrades(module_code = None, program_subset=None):
         students.append(list(module_subset[module_subset.final_grade == grade]['token']))
     return {"counts": counts, "students": students}
 
-@backend.route(url_path+'/backend/faculty/academics/byfac/<module_code')
+@backend.route(url_path+'/backend/faculty/academics/byfac/<module_code>')
 def moduleAcademicsFac(module_code):
     program_current = program_current_term(module_code)
     program_past = program_past_terms(module_code)[['attendance', 'CAP', 'webcast']].dropna()
@@ -439,8 +439,33 @@ def moduleAcademicsFac(module_code):
 
     results = {}
     #create the same data as module Academics but added a new key of unique faculties 
-    # and the value will be the same data and all but filtered by faculties
+    # and the value will be the same data but filtered by faculties
+    #also added an All key after the faculties keys so that we can display everything also
 
+    # Some statistical analysis part 1 for module_influence_scores
+
+    module_influence_scores = {}
+
+    for i in range(module_past.shape[0]):
+        student = module_past.iloc[i]
+        marks = student['final_marks'] - module_past['final_marks'].mean()
+        if marks == 0:
+            continue
+        # For each student, we go through what modules they've taken, and assign the module their score
+        modules_taken = module_enrolment[module_enrolment['token']
+                                         == student['token']]
+        for j in range(modules_taken.shape[0]):
+            module = modules_taken.iloc[j]['module_code']
+            if module == module_code:
+                continue
+            if module not in module_influence_scores:
+                module_influence_scores[module] = []
+            module_influence_scores[module].append(marks)
+
+    for key, value in module_influence_scores.items():
+        module_influence_scores[key] = np.mean(value)
+
+    #A for loop for separation of faculties will all the other variables(curr grades etc)
     for i in range(len(faculties)):
         results[faculties[i]] = {}
         results[faculties[i]]["curr_grades"] = [0,0,0,0,0,0]
@@ -501,6 +526,32 @@ def moduleAcademicsFac(module_code):
             if sum(prereq_data['grades']['counts']) > 0:
                 results[faculties[i]]['prereqs'].append(prereq_data)
 
+        #Statistical analysis part 2 (to find good and bad students for each fac)
+        for l in range(module_current.shape[0]):
+            student = module_current.iloc[l]
+            if student['token'] in fac_set['token']:
+                scores = []
+                influencing_modules = []
+                # Iterate through all modules this student has taken
+                # If they are in the list, add to his 'score'
+                modules_taken = module_enrolment[module_enrolment['token']
+                                                == student['token']]
+                for j in range(modules_taken.shape[0]):
+                    module = modules_taken.iloc[j]['module_code']
+                    if module in module_influence_scores:
+                        scores.append(module_influence_scores[module])
+                        influencing_modules.append({'code': module, 'score': format(module_influence_scores[module], ".2f")})
+                if len(scores) == 0:
+                    score = 0
+                else:
+                    score = np.mean(scores)
+                if score > 0:
+                    good_student_scores.append([student['token'], score, influencing_modules])
+                elif score < 0:
+                    bad_student_scores.append([student['token'], score, influencing_modules])
+
+        results[faculties[i]]['pred_scores_good'] = sorted(good_student_scores, key = lambda x: -x[1])
+        results[faculties[i]]['pred_scores_bad'] = sorted(bad_student_scores, key = lambda x: x[1])
     
 
     # last key will be all (display everything)
@@ -522,7 +573,73 @@ def moduleAcademicsFac(module_code):
 
         results['all']["curr_grades"][grade_index] += 1
         results['all']["curr_grades_students"][grade_index].append(str(token))
+# Fetch a count of past grades
+    results["all"]['grades'] = getModuleGrades(program_subset=program_current)
 
+    # Count number of modules that each student is doing this semester
+    students = program_current[['token']]
+    module_counts = students.join(module_enrolment[module_enrolment.term == max(module_enrolment.term)].set_index('token'), on='token', how='inner').groupby('token').size()
+    module_counts = pd.DataFrame(module_counts).reset_index()
+    results["all"]['semester_workload'] = countsAsDict(module_counts, 0)
+
+    results["all"]['attendance_cap'] = []
+    results["all"]['webcast_cap'] = []
+
+    for i in range(program_past.shape[0]):
+        student = program_past.iloc[i]
+        results["all"]['attendance_cap'].append({
+            'x': float(student['attendance']),
+            'y': float(student['CAP'])
+        })
+        results["all"]['webcast_cap'].append({
+            'x': float(student['webcast']),
+            'y': float(student['CAP'])
+        })
+
+    # Fetch grades for prereqs
+    prereqs = fetchPrereqs(module_code)
+    results['all']['prereqs'] = []
+    for prereq in prereqs:
+        prereq_data = {
+            'module_code': prereq,
+            'grades': getModuleGrades(prereq, program_current[['token']])
+        }
+
+        # Only append if we have found students who took this prereq
+        if sum(prereq_data['grades']['counts']) > 0:
+            results['all']['prereqs'].append(prereq_data)
+
+    # Some statistical analysis!
+
+    # Now for all prospective students, we look at what modules they have taken and calculate a score
+    good_student_scores = []
+    bad_student_scores = []
+    for i in range(module_current.shape[0]):
+        student = module_current.iloc[i]
+        scores = []
+        influencing_modules = []
+        # Iterate through all modules this student has taken
+        # If they are in the list, add to his 'score'
+        modules_taken = module_enrolment[module_enrolment['token']
+                                         == student['token']]
+        for j in range(modules_taken.shape[0]):
+            module = modules_taken.iloc[j]['module_code']
+            if module in module_influence_scores:
+                scores.append(module_influence_scores[module])
+                influencing_modules.append({'code': module, 'score': format(module_influence_scores[module], ".2f")})
+        if len(scores) == 0:
+            score = 0
+        else:
+            score = np.mean(scores)
+        if score > 0:
+            good_student_scores.append([student['token'], score, influencing_modules])
+        elif score < 0:
+            bad_student_scores.append([student['token'], score, influencing_modules])
+
+    results['all']['pred_scores_good'] = sorted(good_student_scores, key = lambda x: -x[1])
+    results['all']['pred_scores_bad'] = sorted(bad_student_scores, key = lambda x: x[1])
+
+    return jsonify(results)
  
 @backend.route(url_path+'/backend/faculty/academics/<module_code>')
 def moduleAcademics(module_code):
