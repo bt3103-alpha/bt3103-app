@@ -35,6 +35,10 @@
     <!-- charts library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+    <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>
+
     <script src="js/view-module.js"></script>
 
 </head>
@@ -86,10 +90,9 @@
                             <p>
                                 {{module_description}}
                             </p>
-
                             <h2>Tags</h2>
-                            <div style='margin-bottom: 24px;'> 
-                                <span v-for="modtag in this.tag_arr" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{modtag}}</span>
+                            <div style='margin-bottom: 24px;'>
+                                <button v-on:click="increment(key)" v-for="(value, key) in this.tag_dict_vue" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{key}} [{{value}}]</button>
                             </div>
 
                             <h2>Module Prerequisites</h2>
