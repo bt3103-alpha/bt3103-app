@@ -194,6 +194,7 @@ const ModuleAcademics = {
     props: ["show_extra_data"],
     data() {
         return {
+            selected: [],
             attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
@@ -281,6 +282,7 @@ const ModuleAcademics = {
 
                 })
                 .then(function(json) {
+                    console.log(JSON.stringify(json))
                     // Update current grades
                     vue.currGradesChart.data.datasets[0].data = json.curr_grades;
                     vue.currGradesChart.data.datasets[0].tooltips = json.curr_grades_students;

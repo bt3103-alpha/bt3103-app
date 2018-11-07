@@ -427,7 +427,101 @@ def getModuleGrades(module_code = None, program_subset=None):
         students.append(list(module_subset[module_subset.final_grade == grade]['token']))
     return {"counts": counts, "students": students}
 
+@backend.route(url_path+'/backend/faculty/academics/byfac/<module_code')
+def moduleAcademicsFac(module_code):
+    program_current = program_current_term(module_code)
+    program_past = program_past_terms(module_code)[['attendance', 'CAP', 'webcast']].dropna()
+    module_current = module_current_term(module_code)
+    module_past = module_past_terms(module_code)
+    faculties = program_current['faculty_descr'].unique()
 
+    results = {}
+    #create the same data as module Academics but added a new key of unique faculties 
+    # and the value will be the same data and all but filtered by faculties
+
+    for i in range(len(faculties)):
+        results[faculties[i]] = {}
+        results[faculties[i]]["curr_grades"] = [0,0,0,0,0,0]
+        results[faculties[i]]["curr_grades_students"] = [[], [], [], [], [], []]
+        fac_set = program_current[program_current['faculty_descr'] == faculties[i]]
+         # Fetch a count of past grades
+        results[faculties[i]]['grades'] = getModuleGrades(program_subset=fac_set)
+        # Calculate the grade distribution of current students
+        for j in range(fac_set.shape[0]):
+            grade = fac_set.iloc[j]['CAP']
+            token = fac_set.iloc[j]['token']
+            grade_index = 5
+            if grade >= 4.5:
+                grade_index = 0
+            elif grade >= 4:
+                grade_index = 1
+            elif grade >= 3.5:
+                grade_index = 2
+            elif grade >= 3:
+                grade_index = 3
+            elif grade >= 2:
+                grade_index = 4
+
+            results[faculties[i]]["curr_grades"][grade_index] += 1
+            results[faculties[i]]["curr_grades_students"][grade_index].append(str(token))
+
+        # Count number of modules that each student is doing this semester
+        students = fac_set[['token']]
+        module_counts = students.join(module_enrolment[module_enrolment.term == max(module_enrolment.term)].set_index('token'), on='token', how='inner').groupby('token').size()
+        module_counts = pd.DataFrame(module_counts).reset_index()
+        results[faculties[i]]['semester_workload'] = countsAsDict(module_counts, 0)
+
+        results[faculties[i]]['attendance_cap'] = []
+        results[faculties[i]]['webcast_cap'] = []
+        fac_set_past = program_past[program_past['faculty_descr'] == faculties[i]]
+
+        for k in range(fac_set_past.shape[0]):
+            student = fac_set_past.iloc[k]
+            results[faculties[i]]['attendance_cap'].append({
+                'x': float(student['attendance']),
+                'y': float(student['CAP'])
+            })
+            results[faculties[i]]['webcast_cap'].append({
+                'x': float(student['webcast']),
+                'y': float(student['CAP'])
+            })
+        
+        # Fetch grades for prereqs
+        prereqs = fetchPrereqs(module_code)
+        results[faculties[i]]['prereqs'] = []
+        for prereq in prereqs:
+            prereq_data = {
+                'module_code': prereq,
+                'grades': getModuleGrades(prereq, fac_set[['token']])
+            }
+
+            # Only append if we have found students who took this prereq
+            if sum(prereq_data['grades']['counts']) > 0:
+                results[faculties[i]]['prereqs'].append(prereq_data)
+
+    
+
+    # last key will be all (display everything)
+    results["all"] = {}
+    for i in range(program_current.shape[0]):
+        grade = program_current.iloc[i]['CAP']
+        token = program_current.iloc[i]['token']
+        grade_index = 5
+        if grade >= 4.5:
+            grade_index = 0
+        elif grade >= 4:
+            grade_index = 1
+        elif grade >= 3.5:
+            grade_index = 2
+        elif grade >= 3:
+            grade_index = 3
+        elif grade >= 2:
+            grade_index = 4
+
+        results['all']["curr_grades"][grade_index] += 1
+        results['all']["curr_grades_students"][grade_index].append(str(token))
+
+ 
 @backend.route(url_path+'/backend/faculty/academics/<module_code>')
 def moduleAcademics(module_code):
     program_current = program_current_term(module_code)
