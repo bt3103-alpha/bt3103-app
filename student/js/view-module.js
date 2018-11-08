@@ -59,13 +59,11 @@ window.onload = function () {
           }
         },
         data: {
+            show_extra_data: true,
             module_code: "",
             module_name: "",
             name: "",
             module_description: "",
-            //prereq_arr: [],
-            //completed: [],
-            //completed_dict: {},
             tag_arr: [],
             tag_dict_vue: {},
             module_fb: true,
