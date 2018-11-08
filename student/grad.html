@@ -19,12 +19,16 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
 
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://gstatic.com/firebasejs/4.2.0/firebase.js"></script>
+    <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>
+
     <!-- <script src="https://unpkg.com/vue"></script> -->
     <script src="js/grad.js"></script>
 </head>
 
 <body>
-    <div id='app' v-cloak>
+    <div id='app'>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="main.html">Ultimods</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -44,6 +48,16 @@
                         <a class="nav-link" href="grad.html">Graduation Progress</a>
                     </li>
                 </ul>
+                <div id='show-extra-data'>
+                    <button v-if='show_extra_data' class='btn btn-outline-success btn-sm' @click='show_extra_data=false'>
+                        <i class='fas fa-check'></i>
+                        Showing extra data
+                    </button>
+                    <button v-else class='btn btn-outline-warning btn-sm' @click='show_extra_data=true'>
+                        <i class='fas fa-times'></i>
+                        Hiding extra data
+                    </button>
+                </div>
                 <div>
                     Welcome back, <span id='profile_name'></span>!
                     <a href='profile.html' class='nav-icon'>
@@ -62,7 +76,7 @@
                         <th>You took</th>
                     </tr>
                 </thead>
-                <tbody id='table_body'></tbody>
+                <tbody id='table_body' v-if='show_extra_data'></tbody>
             </table>
         </div>
     </div>

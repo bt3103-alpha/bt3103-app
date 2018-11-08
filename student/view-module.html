@@ -40,7 +40,7 @@
 </head>
 
 <body>
-    <div id='app' v-cloak>
+    <div id='app'>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <a class="navbar-brand" href="main.html">Ultimods</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -60,6 +60,16 @@
                         <a class="nav-link" href="grad.html">Graduation Progress</a>
                     </li>
                 </ul>
+                <div id='show-extra-data'>
+                    <button v-if='show_extra_data' class='btn btn-outline-success btn-sm' @click='show_extra_data=false'>
+                        <i class='fas fa-check'></i>
+                        Showing extra data
+                    </button>
+                    <button v-else class='btn btn-outline-warning btn-sm' @click='show_extra_data=true'>
+                        <i class='fas fa-times'></i>
+                        Hiding extra data
+                    </button>
+                </div>
                 <div>
                     Welcome back, {{name}}!
                     <a href='profile.html' class='nav-icon'>
@@ -81,19 +91,21 @@
                 <h1>{{module_code}} {{module_name}}</h1>
                 <div class='row'>
                     <div class='col-9'>
-                        <div id='moduleInfo'>
+                        <div id='moduleInfo'>                         
                             <h2>Module Description</h2>
-                            <p>
+                                <div id='moduleDesc' v-if='show_extra_data'>
+                                <p>
                                 {{module_description}}
-                            </p>
-
-                            <h2>Tags</h2>
-                            <div style='margin-bottom: 24px;'> 
-                                <span v-for="modtag in this.tag_arr" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{modtag}}</span>
+                                </p>
                             </div>
-
+                            <h2>Tags</h2>
+                                <div id='tags' v-if='show_extra_data'>
+                                <div style='margin-bottom: 24px;'> 
+                                    <span v-for="modtag in this.tag_arr" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{modtag}}</span>
+                                </div>
+                            </div>
                             <h2>Module Prerequisites</h2>
-                            <div id="tree"></div>
+                            <div id="tree" v-if='show_extra_data'></div>
                         </div>
                     </div>
                     <div class='col-3'>

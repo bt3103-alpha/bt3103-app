@@ -43,13 +43,11 @@ window.onload = function () {
     app = new Vue({
         el: "#app",
         data: {
+            show_extra_data: true,
             module_code: "",
             module_name: "",
             name: "",
             module_description: "",
-            //prereq_arr: [],
-            //completed: [],
-            //completed_dict: {},
             tag_arr: [],
             module_fb: true,
             teaching_fb: true,
