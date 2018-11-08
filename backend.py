@@ -432,7 +432,7 @@ def getModuleGrades(module_code = None, program_subset=None):
 @backend.route(url_path+'/backend/faculty/academics/byfac/<module_code>')
 def moduleAcademicsFac(module_code):
     program_current = program_current_term(module_code)
-    program_past = program_past_terms(module_code)[['attendance', 'CAP', 'webcast']].dropna()
+    program_past = program_past_terms(module_code).dropna()
     module_current = module_current_term(module_code)
     module_past = module_past_terms(module_code)
     faculties = program_current['faculty_descr'].unique()
@@ -527,6 +527,8 @@ def moduleAcademicsFac(module_code):
                 results[faculties[i]]['prereqs'].append(prereq_data)
 
         #Statistical analysis part 2 (to find good and bad students for each fac)
+        good_student_scores = []
+        bad_student_scores = []
         for l in range(module_current.shape[0]):
             student = module_current.iloc[l]
             if student['token'] in fac_set['token']:
@@ -556,6 +558,8 @@ def moduleAcademicsFac(module_code):
 
     # last key will be all (display everything)
     results["all"] = {}
+    results["all"]["curr_grades"] = [0,0,0,0,0,0]
+    results["all"]["curr_grades_students"] = [[], [], [], [], [], []]
     for i in range(program_current.shape[0]):
         grade = program_current.iloc[i]['CAP']
         token = program_current.iloc[i]['token']
