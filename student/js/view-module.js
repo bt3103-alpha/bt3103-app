@@ -66,7 +66,7 @@ window.onload = function () {
             //prereq_arr: [],
             //completed: [],
             //completed_dict: {},
-            //tag_arr: [],
+            tag_arr: [],
             tag_dict_vue: {},
             module_fb: true,
             teaching_fb: true,
@@ -103,7 +103,7 @@ window.onload = function () {
                     this.module_name = json.title;
                     this.module_description = json.description;
                     //this.tag_arr = json.tags;
-                    this.tag_dict_vue = json.tags;
+                    this.tag_arr = json.tags;
 
                     getPrereqs(this.module_code);
 
@@ -156,14 +156,17 @@ window.onload = function () {
             })
           },
           matchTagKeys: function() {
-            let tag_dict_db_keys = Object.keys(this.tag_dict_db);
-            console.log(tag_dict_db_keys);
-            console.log(tags_ref);
-            for (let i=0; i<tag_dict_db_keys.length;i++) {
-              if (tag_dict_db_keys[i] in this.tag_dict_vue) {
-                this.tag_dict_vue[tag_dict_db_keys[i]] = this.tag_dict_db[tag_dict_db_keys[i]].count;
+            console.log(this.tag_dict_db);
+            let dict = {}
+            for (let i=0; i<this.tag_arr.length;i++) {
+              if (this.tag_arr[i].toLowerCase() in this.tag_dict_db) {
+
+                dict[this.tag_arr[i].toLowerCase()] = this.tag_dict_db[this.tag_arr[i].toLowerCase()].count;
               }
             }
+            console.log(this.tag_dict_vue);
+            console.log(dict);
+            this.tag_dict_vue = dict;
           }
         }
     });

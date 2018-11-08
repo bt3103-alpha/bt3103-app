@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify
+from multiprocessing import Pool
 import requests
 import pandas as pd
 import numpy as np
 from io import StringIO
 import asyncio
 import re
+import json
 
 backend = Blueprint('backend', __name__)
 url_path = "/bt3103-app"
@@ -17,6 +19,8 @@ student_attention = None
 student_attention_cap = None
 cap = None
 module_descriptions = None
+module_descriptions_DICT = {}
+newData = {}
 student_fb_module = None
 student_fb_teaching = None
 association_rules = None
@@ -96,8 +100,9 @@ async def fetchFirebase(url):
 
 
 async def fetchFirebaseJSON(url):
-    r = requests.get(url)
-    return pd.DataFrame.from_dict(r.json(), orient='index')
+    global module_descriptions_DICT
+    module_descriptions_DICT = requests.get(url).json()
+    return pd.DataFrame.from_dict(module_descriptions_DICT, orient='index')
 
 
 def getScore(x):
@@ -195,7 +200,6 @@ async def fetchData():
     fetchProgress = 100
     print("Done fetching data")
 
-
 @backend.route(url_path+'/backend/fetch_data')
 def callFetchData():
     '''
@@ -210,6 +214,36 @@ def callFetchData():
     loop.close()
     return "{'ok': true}"
 
+## below 2 functions generate tags firebase data
+"""
+def generateTagDB():
+    global newData
+    newData = {}
+    temp = {'hello':{'count': 23, 'mods': ['w','r']}}
+
+    for module, value in module_descriptions_DICT.items():
+        if 'tags' in value:
+            for tag in value['tags']:
+                tag_lower = tag.lower()
+                if tag_lower in newData:
+                    newData[tag_lower]['modules'].append(module)
+                else:
+                    newData[tag_lower] = {'count': 0, 'modules': [module]}
+    print()
+    for tag, descr in newData.items():
+        print(1)
+        resp = requests.put(url=url+tag+'.json',
+                    data=json.dumps(descr)) # turn json (dict) to data format (string)
+        #response code
+        print(resp)
+
+def putDB(item):
+    url = "https://bt3103-jasminw.firebaseio.com/tags/"
+    resp = requests.put(url=url+item[0]+'.json',
+                data=json.dumps(item[1])) # turn json (dict) to data format (string)
+    #response code
+    print(resp)
+"""
 
 @backend.route(url_path+'/backend/fetch_data/status')
 def fetchDataStatus():
@@ -226,8 +260,8 @@ def fetchModuleDescription(module_code):
         result = {'title': '', 'description': '', 'tags': []}
     if result['tags'] is np.nan:
         result['tags'] = []
-    temp = dict((el,0) for el in result['tags'])
-    result['tags'] = temp
+    #temp = dict((el,0) for el in result['tags'])
+    #result['tags'] = temp
     return jsonify(result)
 
 def countsAsDict(df, column_name):
