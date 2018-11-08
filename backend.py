@@ -466,7 +466,7 @@ def getModuleGrades(module_code = None, program_subset=None):
 @backend.route(url_path+'/backend/faculty/academics/byfac/<module_code>')
 def moduleAcademicsFac(module_code):
     program_current = program_current_term(module_code)
-    program_past = program_past_terms(module_code).dropna()
+    program_past = program_past_terms(module_code)[['faculty_descr','attendance', 'CAP', 'webcast']].dropna()
     module_current = module_current_term(module_code)
     module_past = module_past_terms(module_code)
     faculties = program_current['faculty_descr'].unique()
