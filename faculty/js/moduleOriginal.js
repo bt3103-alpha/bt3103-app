@@ -194,9 +194,8 @@ const ModuleAcademics = {
     props: ["show_extra_data"],
     data() {
         return {
-            Jsondata: null,
-            selected: 'all',
-            filters: [],
+            data: null,
+            selected: [],
             attendanceCapChart: null,
             webcastCapChart: null,
             pastGradesChart: null,
@@ -211,19 +210,10 @@ const ModuleAcademics = {
         };
     },
     mounted() {
-        var vue = this;
-        vue.fetchData().then(function(Jsondata){
-            vue.buildCharts();
-        })
+
+        this.buildCharts();
 
     },
-    watch: {
-        // whenever selected changes, this function will run
-        selected: function (newSelected, oldSelected) {
-          this.buildCharts();
-
-        }
-      },
     methods: {
         updatePrereqsTags: async function (prereqList) {
             const vue = this;
@@ -251,9 +241,7 @@ const ModuleAcademics = {
         },
 
         buildCharts: function() {
-            filter = this.selected;
             this.display = false;
-
 
             this.currGradesChart = barChart(
                 "currGradesChart",
@@ -284,116 +272,89 @@ const ModuleAcademics = {
                 "Webcast Watch Rate",
                 "CAP"
             );
-            this.updateCurrentGrades();
-            this.updatePastGrades();
-            this.updatePredictedStudents();
-            this.updateSemesterWorkload();
-            this.updateAttnWeb();
-            this.updatePrereqCharts();
-            this.display = true;
-        },
-        fetchData: async function() {
+            this.fetchData();
+    },
+        fetchData: function() {
             var vue = this;
-            await fetch("/bt3103-app/backend/faculty/academics/byfac/" + this.$route.params.module)
+            fetch("/bt3103-app/backend/faculty/academics/" + this.$route.params.module)
                 .then(function(response) {
 
                     return response.json();
 
                 })
                 .then(function(json) {
-                    vue.Jsondata = json;
-                    //console.log(JSON.stringify(vue.Jsondata['BIZ'].curr_grades_students))
-                    vue.prereqs = json['all'].prereqs;
+                    console.log(JSON.stringify(json))
+                    // Update current grades
+                    vue.currGradesChart.data.datasets[0].data = json.curr_grades;
+                    vue.currGradesChart.data.datasets[0].tooltips = json.curr_grades_students;
+                    vue.currGradesChart.update();
+
+                    // Update past grades
+                    vue.pastGradesChart.data.datasets[0].data = json.grades.counts;
+                    vue.pastGradesChart.data.datasets[0].tooltips = json.grades.students;
+                    vue.pastGradesChart.update();
+
+                    // Semester workload
+                    vue.semesterWorkloadChart.data.datasets[0].data = json.semester_workload.counts;
+                    vue.semesterWorkloadChart.data.datasets[0].tooltips = json.semester_workload.students;
+                    vue.semesterWorkloadChart.data.labels = json.semester_workload.labels;
+                    vue.semesterWorkloadChart.update();
+
+                    // Show predicted problem students
+                    vue.predicted_scores_good = json.pred_scores_good;
+                    vue.predicted_scores_bad = json.pred_scores_bad;
+
+                    vue.attendanceCapChart.data.datasets[0].data =
+                        json.attendance_cap;
+                    vue.attendanceCapChart.update();
+                    vue.webcastCapChart.data.datasets[0].data =
+                        json.webcast_cap;
+                    vue.webcastCapChart.update();
+
+                    // Show prereq grades
+                    vue.prereqs = json.prereqs;
+
+                    console.log(JSON.stringify(vue.prereqs));
+                    // Update prereqsTags list
+
                     vue.updatePrereqsTags(vue.prereqs);
-                    // Get all the faculties + all into selected list
-                    for (var key in json){
-                        vue.filters.push(key)
-                    }
 
+                    // We set a timeout so that the DOM
+                    // has time to update
+                    setTimeout(function() {
+                        for (var i = 0; i < json.prereqs.length; i++) {
+                            vue.prereqCharts[i] = barChart(
+                                "prereqGradesChart" +
+                                    json.prereqs[i].module_code,
+                                "rgba(75, 192, 192, 0.6)",
+                                [
+                                    "A+",
+                                    "A",
+                                    "A-",
+                                    "B+",
+                                    "B",
+                                    "B-",
+                                    "C+",
+                                    "C",
+                                    "D+",
+                                    "D",
+                                    "F"
+                                ]
+                            );
+                            vue.prereqCharts[i].data.datasets[0].data =
+                                json.prereqs[i].grades.counts;
+                            vue.prereqCharts[i].data.datasets[0].tooltips =
+                                json.prereqs[i].grades.students;
+                            vue.prereqCharts[i].update();
+                        }
 
-                    
-                
-                })
-            console.log('attendance')
-            console.log(JSON.stringify(vue.Jsondata['all'].attendance_cap))
-            return vue.Jsondata
+                    }, 200);
 
-            },
-        updateCurrentGrades: function(){
-            var vue = this;
-            filter = vue.selected;
-            //console.log(JSON.stringify(vue.Jsondata))
-            vue.currGradesChart.data.datasets[0].data = vue.Jsondata[filter].curr_grades;
-            vue.currGradesChart.data.datasets[0].tooltips = vue.Jsondata[filter].curr_grades_students;
-            vue.currGradesChart.update();
-
-
-        },
-        updatePastGrades: function(){
-            var vue = this;
-            filter = vue.selected;
-            vue.pastGradesChart.data.datasets[0].data = vue.Jsondata[filter].grades.counts;
-            vue.pastGradesChart.data.datasets[0].tooltips = vue.Jsondata[filter].grades.students;
-            vue.pastGradesChart.update();   
-        },
-
-        updateSemesterWorkload: function(){
-            var vue = this;
-            filter = vue.selected;
-            vue.semesterWorkloadChart.data.datasets[0].data = vue.Jsondata[filter].semester_workload.counts;
-            vue.semesterWorkloadChart.data.datasets[0].tooltips = vue.Jsondata[filter].semester_workload.students;
-            vue.semesterWorkloadChart.data.labels = vue.Jsondata[filter].semester_workload.labels;
-            vue.semesterWorkloadChart.update();
-
-        },
-        updatePredictedStudents: function(){
-            var vue = this;
-            filter = vue.selected;
-            vue.predicted_scores_good = vue.Jsondata[filter].pred_scores_good;
-            vue.predicted_scores_bad = vue.Jsondata[filter].pred_scores_bad;
-        },
-        updateAttnWeb: function(){
-            var vue = this;
-            filter = vue.selected;
-            vue.attendanceCapChart.data.datasets[0].data =
-            vue.Jsondata[filter].attendance_cap;
-            vue.attendanceCapChart.update();
-            vue.webcastCapChart.data.datasets[0].data =
-            vue.Jsondata[filter].webcast_cap;
-            vue.webcastCapChart.update();
-
-        },
-        updatePrereqCharts: function (){
-            var vue = this;
-            filter = vue.selected;
-            for (var i = 0; i < vue.Jsondata[filter].prereqs.length; i++) {
-                vue.prereqCharts[i] = barChart(
-                    "prereqGradesChart" +
-                    vue.Jsondata[filter].prereqs[i].module_code,
-                    "rgba(75, 192, 192, 0.6)",
-                    [
-                        "A+",
-                        "A",
-                        "A-",
-                        "B+",
-                        "B",
-                        "B-",
-                        "C+",
-                        "C",
-                        "D+",
-                        "D",
-                        "F"
-                    ]
-                );
-                vue.prereqCharts[i].data.datasets[0].data =
-                vue.Jsondata[filter].prereqs[i].grades.counts;
-                vue.prereqCharts[i].data.datasets[0].tooltips =
-                vue.Jsondata[filter].prereqs[i].grades.students;
-                vue.prereqCharts[i].update();
+                    vue.display = true;
+                });
             }
 
-        }
-    },
+        },
 
 
 
@@ -402,15 +363,6 @@ const ModuleAcademics = {
             <i class='fas fa-spinner fa-pulse fa-lg'></i>
         </div>
         <div v-bind:class='["chart-rows", display ? "" : "hide"]'>
-        <div class = 'container-fluid'>
-            <select v-model="selected" >
-                <option disabled value="">Filter by</option>
-                <option v-for='filter in filters'>
-                    {{ filter}}
-                </option>    
-            </select>
-            <span>Filter by: {{ selected }}</span>
-            </div>
             <div class='demographic-chart card'>
                 <h2>CAP of incoming students</h2>
                 <p>Your current students have the following grades:</p>

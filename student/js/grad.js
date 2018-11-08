@@ -273,41 +273,19 @@ var requirements = [
 var profile = {};
 var modules = [];
 
-// Fetch Name
-fetch("https://bt3103-alpha-student.firebaseio.com/profile.json")
-    .then(response => {
-        return response.json();
-    })
-    .then(json => {
-        document.getElementById("profile_name").innerHTML = json.name;
-    });
 
-fetch("https://bt3103-alpha-student.firebaseio.com/schedule.json")
-    .then(response => {
-        return response.json();
-    })
-    .then(json => {
-        // Prepare list of modules
-        for (let sem_index = 0; sem_index < json.length; sem_index++) {
-            if (json[sem_index] == null) {
-                continue;
-            }
-            for (let i = 0; i < json[sem_index].length; i++) {
-                modules.push(new Module(json[sem_index][i].name));
-            }
-        }
 
-        // Display list of requirements and whether they are met
-        displayRequirements();
-    });
+var app; // Vue app
 
 function displayRequirements() {
+
     let tbl = document.getElementById("table_body");
     tbl.innerHTML = "";
+
     for (let req_id = 0; req_id < requirements.length; req_id++) {
         let req = requirements[req_id];
         let row = "<tr><td>";
-
+        
         // Draw tick/cross if they have met the requirement
         let req_pass = req.pass(modules);
         if (req_pass) {
@@ -317,6 +295,52 @@ function displayRequirements() {
         }
 
         row += "</td><td>" + req.toString() + "</td><td>" + req.currentModules() + "</td></tr>";
-        tbl.innerHTML += row;
+        tbl.innerHTML += row
     }
+}
+
+window.onload = function() {
+    app = new Vue({
+        el: "#app",
+        data: {
+            show_extra_data: true,
+        },
+        created(){
+            fetch("https://bt3103-alpha-student.firebaseio.com/profile.json")
+                .then(response => {
+                    return response.json();
+                })
+                .then(json => {
+                    document.getElementById("profile_name").innerHTML = json.name;
+                });
+
+            fetch("https://bt3103-alpha-student.firebaseio.com/schedule.json")
+                .then(response => {
+                    return response.json();
+                })
+                .then(json => {
+                // Prepare list of modules
+                    for (let sem_index = 0; sem_index < json.length; sem_index++) {
+                        if (json[sem_index] == null) {
+                            continue;
+                        }
+                        for (let i = 0; i < json[sem_index].length; i++) {
+                            modules.push(new Module(json[sem_index][i].name));
+                        }
+                    }
+
+                    // Display list of requirements and whether they are met
+                    displayRequirements();
+                });
+        },   
+        watch: {
+            show_extra_data: function(){
+                if(this.show_extra_data){
+                    setTimeout(function() {
+                        displayRequirements()
+                    }, 200)
+                }
+            }
+        },
+    })
 }

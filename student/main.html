@@ -57,6 +57,17 @@
                         <a class="nav-link" href="grad.html">Graduation Progress</a>
                     </li>
                 </ul>
+                <div id='show-extra-data'>
+                    <button v-if='show_extra_data' class='btn btn-outline-success btn-sm' @click='show_extra_data=false'>
+                        <i class='fas fa-check'></i>
+                        Showing extra data
+                    </button>
+                    <button v-else class='btn btn-outline-warning btn-sm' @click='show_extra_data=true'>
+                        <i class='fas fa-times'></i>
+                        Hiding extra data
+                    </button>
+                </div>
+                <br>
                 <div>
                     Welcome back, {{profile.name}}!
                     <a href='profile.html' class='nav-icon'>

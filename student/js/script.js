@@ -115,6 +115,7 @@ window.onload = function() {
         },
         data: {
             display: false, 
+            show_extra_data: true,
             mode: "schedule",
 
             special_progs_dict: {
