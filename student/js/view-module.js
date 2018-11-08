@@ -40,8 +40,24 @@ function searchModules() {
 }
 
 window.onload = function () {
+    const db = firebase
+        .initializeApp({
+            databaseURL: "https://bt3103-jasminw.firebaseio.com"
+        })
+        .database();
+
+    var tags_ref = db.ref("tags");
     app = new Vue({
         el: "#app",
+        firebase: {
+          tag_dict_db: {
+              source: db.ref("tags"),
+              asObject: true,
+              readyCallback: function() {
+                this.matchTagKeys();
+              }
+          }
+        },
         data: {
             show_extra_data: true,
             module_code: "",
@@ -49,6 +65,7 @@ window.onload = function () {
             name: "",
             module_description: "",
             tag_arr: [],
+            tag_dict_vue: {},
             module_fb: true,
             teaching_fb: true,
             tAbility: null,
@@ -83,9 +100,11 @@ window.onload = function () {
                 .then(json => {
                     this.module_name = json.title;
                     this.module_description = json.description;
+                    //this.tag_arr = json.tags;
                     this.tag_arr = json.tags;
 
-                    getPrereqs(this.module_code)
+                    getPrereqs(this.module_code);
+
                 });
 
             fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
@@ -126,6 +145,27 @@ window.onload = function () {
                     }
                 });
             }
+        },
+        methods: {
+          increment: function(tag_name) {
+            this.tag_dict_vue[tag_name]++;
+            tags_ref.child(tag_name).set({
+              count: this.tag_dict_vue[tag_name]
+            })
+          },
+          matchTagKeys: function() {
+            console.log(this.tag_dict_db);
+            let dict = {}
+            for (let i=0; i<this.tag_arr.length;i++) {
+              if (this.tag_arr[i].toLowerCase() in this.tag_dict_db) {
+
+                dict[this.tag_arr[i].toLowerCase()] = this.tag_dict_db[this.tag_arr[i].toLowerCase()].count;
+              }
+            }
+            console.log(this.tag_dict_vue);
+            console.log(dict);
+            this.tag_dict_vue = dict;
+          }
         }
     });
 }
