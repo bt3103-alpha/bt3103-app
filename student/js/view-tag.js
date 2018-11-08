@@ -51,55 +51,53 @@ window.onload = function () {
                 .then(json => {
                     this.name = json.name;
                 });
+            if (vuethis.tag_name != null) {
+              // Fetch tags
+              function getModList() {
+                return fetch("/bt3103-app/backend/student/view-tag/" + vuethis.tag_name)
+                  .then(response => {
+                      return response.json()
+                    })
+                  .then(json => {
+                      vuethis.one_tag_result = json
+                      vuethis.tag_count = vuethis.one_tag_result.count
+                      vuethis.tag_modules = vuethis.one_tag_result.modules
+                      console.log(vuethis.one_tag_result);
+                    });
+              }
+              // Fetch all module
+              function getTagDict() {
+                return fetch("https://api.nusmods.com/2018-2019/moduleList.json")
+                  .then(response => {
+                      return response.json();
+                  })
+                  .then(json => {
+                      for (let i = 0; i < json.length; i++) {
+                          let code = json[i].ModuleCode;
+                          let name = json[i].ModuleTitle;
+                          let mod = { name: name, code: code };
+                          vuethis.mod_list_all[code] = mod;
+                      }
 
-            // Fetch tags
-            function getModList() {
-              return fetch("https://bt3103-jasminw.firebaseio.com/tags.json")
-                .then(response => {
-                    return response.json();
-                })
-                .then(json => {
-                    vuethis.one_tag_result = json[vuethis.tag_name]
-                    vuethis.tag_count = vuethis.one_tag_result.count
-                    vuethis.tag_modules = vuethis.one_tag_result.modules
-                    console.log(vuethis.one_tag_result);
+                  });
+              }
+
+              // allow both tag and module names to be complete fetch first
+              function getTagDictModList() {
+                return Promise.all([getTagDict(), getModList()]);
+              }
+
+              getTagDictModList()
+                .then(([tagdict, modlist]) => {
+                  let temp_arr = vuethis.one_tag_result.modules;
+                  let temp_dict = {};
+                  for (let j=0; j<temp_arr.length; j++){
+                    temp_dict[temp_arr[j]] = vuethis.mod_list_all[temp_arr[j]];
                   }
-                );
-            }
-            // Fetch all module
-            function getTagDict() {
-              return fetch("https://api.nusmods.com/2018-2019/moduleList.json")
-                .then(response => {
-                    return response.json();
+                  vuethis.mod_list_filtered = temp_dict;
+                  searchMod(vuethis.mod_list_filtered)
                 })
-                .then(json => {
-                    for (let i = 0; i < json.length; i++) {
-                        let code = json[i].ModuleCode;
-                        let name = json[i].ModuleTitle;
-                        let mod = { name: name, code: code };
-                        vuethis.mod_list_all[code] = mod;
-                    }
-
-                });
             }
-
-            function getTagDictModList() {
-              return Promise.all([getTagDict(), getModList()]);
-            }
-
-            getTagDictModList()
-              .then(([tagdict, modlist]) => {
-                let temp_arr = vuethis.one_tag_result.modules;
-                let temp_dict = {};
-                for (let j=0; j<temp_arr.length; j++){
-                  temp_dict[temp_arr[j]] = vuethis.mod_list_all[temp_arr[j]];
-                }
-                vuethis.mod_list_filtered = temp_dict;
-                console.log(vuethis.mod_list_filtered);
-                searchMod(vuethis.mod_list_filtered)
-              })
-
-
         }
     });
 }

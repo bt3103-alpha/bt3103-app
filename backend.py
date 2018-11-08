@@ -26,6 +26,7 @@ student_fb_teaching = None
 association_rules = None
 module_names = {}
 fetchProgress = 0
+tags = {}
 
 
 grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
@@ -100,10 +101,12 @@ async def fetchFirebase(url):
 
 
 async def fetchFirebaseJSON(url):
-    global module_descriptions_DICT
-    module_descriptions_DICT = requests.get(url).json()
-    return pd.DataFrame.from_dict(module_descriptions_DICT, orient='index')
+    r = requests.get(url)
+    return pd.DataFrame.from_dict(r.json(), orient='index')
 
+async def fetchFirebaseJSON_no(url):
+    r = requests.get(url)
+    return r.json()
 
 def getScore(x):
     '''
@@ -144,7 +147,7 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function.
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules, student_fb_module, student_fb_teaching
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules, student_fb_module, student_fb_teaching, tags
 
     print("Fetching data")
     fetchProgress = 0
@@ -196,9 +199,10 @@ async def fetchData():
     print(fetchProgress)
 
     module_descriptions = await fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
-
+    tags = await fetchFirebaseJSON_no("https://bt3103-jasminw.firebaseio.com/tags.json")
     fetchProgress = 100
     print("Done fetching data")
+
 
 @backend.route(url_path+'/backend/fetch_data')
 def callFetchData():
@@ -472,7 +476,7 @@ def moduleAcademicsFac(module_code):
     faculties = program_current['faculty_descr'].unique()
 
     results = {}
-    #create the same data as module Academics but added a new key of unique faculties 
+    #create the same data as module Academics but added a new key of unique faculties
     # and the value will be the same data but filtered by faculties
     #also added an All key after the faculties keys so that we can display everything also
 
@@ -546,7 +550,7 @@ def moduleAcademicsFac(module_code):
                 'x': float(student['webcast']),
                 'y': float(student['CAP'])
             })
-        
+
         # Fetch grades for prereqs
         prereqs = fetchPrereqs(module_code)
         results[faculties[i]]['prereqs'] = []
@@ -588,7 +592,7 @@ def moduleAcademicsFac(module_code):
 
         results[faculties[i]]['pred_scores_good'] = sorted(good_student_scores, key = lambda x: -x[1])
         results[faculties[i]]['pred_scores_bad'] = sorted(bad_student_scores, key = lambda x: x[1])
-    
+
 
     # last key will be all (display everything)
     results["all"] = {}
@@ -678,7 +682,7 @@ def moduleAcademicsFac(module_code):
     results['all']['pred_scores_bad'] = sorted(bad_student_scores, key = lambda x: x[1])
 
     return jsonify(results)
- 
+
 @backend.route(url_path+'/backend/faculty/academics/<module_code>')
 def moduleAcademics(module_code):
     program_current = program_current_term(module_code)
@@ -866,3 +870,7 @@ def getModuleFeedback(module_code):
             tempObj = {'text':key, 'size':value}
             results['badText'].append(tempObj)
     return jsonify(results)
+
+@backend.route(url_path+'/backend/student/view-tag/<tag_name>')
+def getTags(tag_name):
+    return jsonify(tags[tag_name])
