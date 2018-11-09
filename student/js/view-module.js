@@ -149,8 +149,18 @@ window.onload = function () {
         methods: {
           increment: function(tag_name) {
             this.tag_dict_vue[tag_name]++;
-            tags_ref.child(tag_name).set({
-              count: this.tag_dict_vue[tag_name]
+            tags_ref.child(tag_name).child('count').set(
+              this.tag_dict_vue[tag_name]
+            )
+            fetch('/bt3103-app/backend/student/view-tag/count/' + tag_name, {
+              method: 'post',
+              body: JSON.stringify({
+                count: this.tag_dict_vue[tag_name]
+              }),
+              headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+              },
             })
           },
           matchTagKeys: function() {

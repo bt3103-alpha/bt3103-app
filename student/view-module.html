@@ -106,7 +106,9 @@
                             <h2>Tags</h2>
                                 <div id='tags' v-if='show_extra_data'>
                                   <div style='margin-bottom: 24px;'>
-                                    <button v-on:click="increment(key)" v-for="(value, key) in this.tag_dict_vue" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{key}} [{{value}}]</button>
+                                    <!--<a :href="'view-tag.html?tag=' + key.toLowerCase()" v-on:click="increment(key.toLowerCase())" v-for="(value, key) in this.tag_dict_vue" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{key}} [{{value}}]</a>-->
+                                    <a :href="'view-tag.html?tag=' + tag.toLowerCase()" v-on:click="increment(tag.toLowerCase())" v-for="tag in this.tag_arr" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{tag}}</a>
+
                                   </div>
                                 </div>
                             <h2>Module Prerequisites</h2>
