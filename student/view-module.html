@@ -98,16 +98,17 @@
                 <h1>{{module_code}} {{module_name}}</h1>
                 <div class='row'>
                     <div class='col-9'>
-                        <div id='moduleInfo'>                         
+                        <div id='moduleInfo'>
                             <h2>Module Description</h2>
                                 <div id='moduleDesc' v-if='show_extra_data'>
-                                <p>
-                                {{module_description}}
-                            </p>
+                                    <p>{{module_description}}</p>
+                                </div>
                             <h2>Tags</h2>
-                            <div style='margin-bottom: 24px;'>
-                                <button v-on:click="increment(key)" v-for="(value, key) in this.tag_dict_vue" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{key}} [{{value}}]</button>
-                            </div>
+                                <div id='tags' v-if='show_extra_data'>
+                                  <div style='margin-bottom: 24px;'>
+                                    <button v-on:click="increment(key)" v-for="(value, key) in this.tag_dict_vue" class='badge' style='font-weight: 400; font-size: 14px; line-height: 18px; margin: 0 5px 5px 0; background-color: #e0e0e0;'>{{key}} [{{value}}]</button>
+                                  </div>
+                                </div>
                             <h2>Module Prerequisites</h2>
                             <div id="tree" v-if='show_extra_data'></div>
                         </div>

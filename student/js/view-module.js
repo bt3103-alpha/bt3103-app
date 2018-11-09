@@ -154,16 +154,12 @@ window.onload = function () {
             })
           },
           matchTagKeys: function() {
-            console.log(this.tag_dict_db);
             let dict = {}
             for (let i=0; i<this.tag_arr.length;i++) {
               if (this.tag_arr[i].toLowerCase() in this.tag_dict_db) {
-
                 dict[this.tag_arr[i].toLowerCase()] = this.tag_dict_db[this.tag_arr[i].toLowerCase()].count;
               }
             }
-            console.log(this.tag_dict_vue);
-            console.log(dict);
             this.tag_dict_vue = dict;
           }
         }
