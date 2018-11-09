@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from multiprocessing import Pool
 import requests
 import pandas as pd
@@ -874,3 +874,9 @@ def getModuleFeedback(module_code):
 @backend.route(url_path+'/backend/student/view-tag/<tag_name>')
 def getTags(tag_name):
     return jsonify(tags[tag_name])
+
+@backend.route(url_path+'/backend/student/view-tag/count/<tag_name>', methods=["POST"])
+def setCountTags(tag_name):
+    content = request.get_json()
+    tags[tag_name]['count'] = content['count']
+    return tag_name
