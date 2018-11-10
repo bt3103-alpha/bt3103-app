@@ -23,7 +23,7 @@ module_descriptions_DICT = {}
 newData = {}
 student_fb_module = None
 student_fb_teaching = None
-association_rules = None
+SEP = None
 column_descriptions = None
 module_names = {}
 fetchProgress = 0
@@ -146,6 +146,43 @@ def calculate_cap():
     # Calculate cap
     global program_enrolment
 
+async def fetchData():
+    '''
+    Fetch and process all the data that we need.
+
+    We use asyncio to free the server up to respond to other requests
+    while running this function.
+    '''
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, SEP, student_fb_module, student_fb_teaching, tags
+
+    print("Fetching data")
+    fetchProgress = 0
+
+    # Each row = 1 student taking 1 module
+    module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
+    # Each row = 1 student in 1 semester
+    program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
+    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
+    fetchProgress = 25
+    print(fetchProgress)
+
+    student_fb_module = await fetchGoogleSheet(2, 'student_feedback_module')
+    student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
+    student_fb_teaching = await fetchGoogleSheet(2, 'student_feedback_teaching')
+    student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
+    fetchProgress = 50
+    print(fetchProgress)
+
+    # Generated data on webcasts and attendance
+    student_attention = await fetchGoogleSheet(4, 'Sheet1')
+
+    # Generated data on webcasts/tutorial attendance/forum
+    main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
+
+    # SEP Mockup
+    SEP = await fetchGoogleSheet(4, 'Sheet5' )
+    fetchProgress = 75
+    print(fetchProgress)
     while module_enrolment is None or program_enrolment is None or student_attention is None:
         # Try again later
         time.sleep(2)
@@ -207,9 +244,9 @@ def fetch_student_attention():
     student_attention = fetchGoogleSheet(4, 'Sheet1')
     update_fetch_progress()
 
-def fetch_association_rules():
-    global association_rules
-    association_rules = fetchGoogleSheet(4, 'Sheet4' )
+def fetch_SEP():
+    global SEP
+    SEP = fetchGoogleSheet(4, 'Sheet5' )
     update_fetch_progress()
 
 def fetch_column_descriptions():
@@ -238,7 +275,7 @@ def fetchData():
         fetch_module_enrolment, fetch_program_enrolment, 
         fetch_student_fb_module, fetch_student_fb_teaching, 
         fetch_main_mockup, fetch_student_attention, 
-        fetch_association_rules, fetch_column_descriptions, 
+        fetch_SEP, fetch_column_descriptions, 
         fetch_module_descriptions, fetch_tags
     ]
 
@@ -887,7 +924,6 @@ def getTeachingFeedback(module_code):
 
 @backend.route(url_path+'/backend/student/view-module/feedbackM/<module_code>')
 def getModuleFeedback(module_code):
-    print(module_code)
     subset_student_fb_module = student_fb_module.loc[student_fb_module["mod_class_id"] == module_code]
     results = {'data':False, 'mRating':{}, 'goodText':[], 'badText':[]}
     results['mRating'] = {'num_feedback':0, 'total':0, 'average':0, 'array':[0,0,0,0,0]}
@@ -937,6 +973,18 @@ def setCountTags(tag_name):
     tags[tag_name]['count'] = content['count']
     return tag_name
 
+@backend.route(url_path+'/backend/student/SEP/<module_code>')
+def getSEPUni(module_code):
+    result = []
+    for i in range(len(SEP)):
+        row = SEP.iloc[i]
+        if row["NUS Module Code"] == module_code:
+            curr = {}
+            curr["PU"] = row["Partner University"]
+            curr["MC"] = row["Partner University Module Code"]
+            result.append(curr)
+    sortedlist = sorted(result, key=lambda elem:(elem['PU'], elem['MC']))
+    return jsonify(sortedlist)
 
 
 @backend.route(url_path+'/backend/faculty/student/<token>')

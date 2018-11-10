@@ -209,6 +209,23 @@
                 </div>
                 </div>
             </div>
+            <div>
+                <h2>Partner Universities Offering this Module</h2>
+                <table class="table table-sm table-hover">
+                    <thead class='thead-light'>
+                        <tr>
+                            <th>Partner University</th>
+                            <th>Partner University Module Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for='uni in PU_schools'>
+                            <td>{{uni["PU"]}}</td>
+                            <td>{{uni["MC"]}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </transition>
         <!-- Modal -->
         <div class="modal fade" id="timetableModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
