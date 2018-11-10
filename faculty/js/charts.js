@@ -206,6 +206,7 @@ function scatterChart(id, colour, xLabel, yLabel, tooltipData = []) {
                 let tokens = data.current
                 console.log(tokens)
                 results = []
+                console.log(app.student_enrolment)
                 for (let j = 0; j < app.student_enrolment.length; j++) {
 
                     if (tokens ==  (app.student_enrolment[j].token)) {

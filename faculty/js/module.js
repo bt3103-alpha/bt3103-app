@@ -340,8 +340,6 @@ const ModuleAcademics = {
             vue.semesterWorkloadChart.data.datasets[0].data = vue.Jsondata[filter].semester_workload.counts;
             vue.semesterWorkloadChart.data.datasets[0].tooltips = vue.Jsondata[filter].semester_workload.students;
             vue.semesterWorkloadChart.data.labels = vue.Jsondata[filter].semester_workload.labels;
-            console.log("tooltip");
-            console.log(JSON.stringify(vue.semesterWorkloadChart.data.datasets[0].tooltips))
             vue.semesterWorkloadChart.update();
 
         },
@@ -358,11 +356,9 @@ const ModuleAcademics = {
             vue.attendanceCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].attendance_cap_students;
             vue.attendanceCapChart.update();
 
-            console.log("tooltip2");
-            console.log(JSON.stringify(vue.attendanceCapChart.data.datasets[0].tooltips))
+    
             vue.webcastCapChart.data.datasets[0].data = vue.Jsondata[filter].webcast_cap;
             vue.webcastCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].webcast_cap_students;
-
             vue.webcastCapChart.update();
 
         },

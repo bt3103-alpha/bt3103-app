@@ -590,8 +590,8 @@ def moduleAcademicsFac(module_code):
         results[faculties[i]]['webcast_cap_students'] = []
         fac_set_past = program_past[program_past['faculty_descr'] == faculties[i]]
 
-        for k in range(fac_set_past.shape[0]):
-            student = fac_set_past.iloc[k]
+        for k in range(fac_set.shape[0]):
+            student = fac_set.iloc[k]
             results[faculties[i]]['attendance_cap'].append({
                 'x': float(student['attendance']),
                 'y': float(student['CAP'])
@@ -681,8 +681,8 @@ def moduleAcademicsFac(module_code):
     results["all"]['webcast_cap'] = []
     results["all"]['webcast_cap_students'] = []
 
-    for i in range(program_past.shape[0]):
-        student = program_past.iloc[i]
+    for i in range(program_current.shape[0]):
+        student = program_current.iloc[i]
         results["all"]['attendance_cap'].append({
             'x': float(student['attendance']),
             'y': float(student['CAP'])
