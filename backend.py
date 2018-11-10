@@ -248,10 +248,10 @@ def fetchData():
     for func in functions:
         threads.append(threading.Thread(target=func))
         threads[-1].start()
-
+    
     for thread in threads:
         thread.join()
-
+    
     print("Done fetching data")
 
 
@@ -928,3 +928,34 @@ def setCountTags(tag_name):
     content = request.get_json()
     tags[tag_name]['count'] = content['count']
     return tag_name
+
+
+
+@backend.route(url_path+'/backend/faculty/student/<token>')
+def get_student_info(token):
+    subset = program_enrolment[program_enrolment['token'] == token]#.dropna(axis=1)
+    subset = subset[subset['term'] == max(subset['term'])]
+    # subset.drop(['token', 'term', 'faculty_code', 'academic_plan', 'academic_plan_type', 'academic_subplan1', 'academic_program', 'admit_term', 'degree', 'program_status', 'degree_checkout_status'], axis=1, inplace=True)
+    subset = subset.iloc[0].copy()
+    subset['CAP'] = "{:.2f}".format(subset['CAP'])
+    subset['attendance'] = subset['attendance'].astype(str)
+    subset['webcast'] = subset['webcast'].astype(str)
+    subset['attendance'] = subset['attendance'] + '%'
+    subset['webcast'] = subset['webcast'] + '%'
+
+    results = []
+    for var_name in subset.index:
+        if var_name not in column_descriptions.index:
+            # Remove those columns we don't want
+            continue
+        if pd.isnull(subset.loc[var_name]):
+            continue
+        column = column_descriptions.loc[var_name]
+        result = {
+            'name': column['full_name'],
+            'description': column['description'], 
+            'value': str(subset.loc[var_name])
+        }
+        results.append(result)
+
+    return jsonify(results)

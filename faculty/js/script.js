@@ -11,7 +11,11 @@ const routes = [
             { path: "enrolment", component: ModuleEnrolment },
             { path: "", redirect: "demographics" }
         ]
-    },
+    }, 
+    { 
+        path: "/view-student/:student", 
+        component: Student
+    }, 
     { path: "/", component: Dashboard },
     { path: "*", redirect: "/" }
 ];
@@ -64,7 +68,6 @@ window.onload = function() {
             }, 
             get_module_data: function() {
                 var vue = this;
-                console.log(this.$route.params.module);
 
                 fetch('/bt3103-app/backend/prereqs/' + this.$route.params.module)
                     .then((response) => {
@@ -84,7 +87,9 @@ window.onload = function() {
             }
         }, 
         mounted() {
-            this.get_module_data();
+            if (this.$route.params.module != undefined) {
+                this.get_module_data();
+            }
         }, 
         watch: {
             $route(to, from) {
