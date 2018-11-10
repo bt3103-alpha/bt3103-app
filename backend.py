@@ -23,7 +23,7 @@ module_descriptions_DICT = {}
 newData = {}
 student_fb_module = None
 student_fb_teaching = None
-association_rules = None
+SEP = None
 module_names = {}
 fetchProgress = 0
 tags = {}
@@ -147,7 +147,7 @@ async def fetchData():
     We use asyncio to free the server up to respond to other requests
     while running this function.
     '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules, student_fb_module, student_fb_teaching, tags
+    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, SEP, student_fb_module, student_fb_teaching, tags
 
     print("Fetching data")
     fetchProgress = 0
@@ -173,8 +173,8 @@ async def fetchData():
     # Generated data on webcasts/tutorial attendance/forum
     main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
 
-    # market basket analysis mockup
-    association_rules = await fetchGoogleSheet(4, 'Sheet4' )
+    # SEP Mockup
+    SEP = await fetchGoogleSheet(4, 'Sheet5' )
     fetchProgress = 75
     print(fetchProgress)
 
@@ -831,7 +831,6 @@ def getTeachingFeedback(module_code):
 
 @backend.route(url_path+'/backend/student/view-module/feedbackM/<module_code>')
 def getModuleFeedback(module_code):
-    print(module_code)
     subset_student_fb_module = student_fb_module.loc[student_fb_module["mod_class_id"] == module_code]
     results = {'data':False, 'mRating':{}, 'goodText':[], 'badText':[]}
     results['mRating'] = {'num_feedback':0, 'total':0, 'average':0, 'array':[0,0,0,0,0]}
@@ -880,3 +879,16 @@ def setCountTags(tag_name):
     content = request.get_json()
     tags[tag_name]['count'] = content['count']
     return tag_name
+
+@backend.route(url_path+'/backend/student/SEP/<module_code>')
+def getSEPUni(module_code):
+    result = []
+    for i in range(len(SEP)):
+        row = SEP.iloc[i]
+        if row["NUS Module Code"] == module_code:
+            curr = {}
+            curr["PU"] = row["Partner University"]
+            curr["MC"] = row["Partner University Module Code"]
+            result.append(curr)
+    sortedlist = sorted(result, key=lambda elem:(elem['PU'], elem['MC']))
+    return jsonify(sortedlist)

@@ -1,7 +1,6 @@
 async function getModuleInfo(module_code) {
     return fetch('/bt3103-app/backend/module_description/' + module_code)
         .then((resp) => {
-            console.log(resp)
             return resp.json()
         })
 }
@@ -20,6 +19,16 @@ async function getTags(module_code) {
     return fetch('/bt3103-app/backend/module_description/' + module_code)
         .then((resp) => {
             return resp.json()
+        })
+}
+
+async function getSEPUni(module_code) {
+    return fetch('/bt3103-app/backend/student/SEP/' + module_code)
+        .then((resp) => {
+            return resp.json()
+        })
+        .then((university) => {
+            searchUni(university)
         })
 }
 
@@ -75,7 +84,8 @@ window.onload = function () {
             module_fb_ratingRounded: 0,
             module_fb_ratingCount: 0,
             module_fb_array: [],
-            module_fb_arrayPercent: [0,0,0,0,0]
+            module_fb_arrayPercent: [0,0,0,0,0],
+            PU_schools: []
         },
         created() {
             let url = new URL(window.location.href);
@@ -100,11 +110,17 @@ window.onload = function () {
                 .then(json => {
                     this.module_name = json.title;
                     this.module_description = json.description;
-                    //this.tag_arr = json.tags;
                     this.tag_arr = json.tags;
 
                     getPrereqs(this.module_code);
 
+                });
+            fetch('/bt3103-app/backend/student/SEP/' + this.module_code)
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(json => {
+                    vuethis.PU_schools = json;
                 });
 
             fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
@@ -112,8 +128,6 @@ window.onload = function () {
                     return response.json();
                 })
                 .then(function(json) {
-                    console.log(json.data);
-                    console.log('module');
                     vuethis.module_fb = json.data
                     if (vuethis.module_fb) {
                       vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
@@ -431,3 +445,12 @@ function donutChart(id, labels = [], dat_a) {
         }
     });
 }
+
+// function searchUni(results){
+//     let resultsDiv = document.getElementById("uni-module");
+//     resultsDiv.innerHTML = "";
+//     for (let key in results) {
+//         console.log(key);
+//         resultsDiv.innerHTML += key['PU'] + " - " + key['MC']
+//     }
+//   }
