@@ -15,15 +15,18 @@ function searchMod(results){
   resultsDiv.innerHTML = "";
   for (let key in results) {
       console.log(key);
-      resultsDiv.innerHTML +=
-          "<a href='view-module.html?name=" +
-          key +
-          "'>" +
-          key +
-          " - " +
-          results[key].name +
-          "</a> <br><br>";
+      let url = '"view-module.html?name=' + key + '"';
+      let row = "<tr style='cursor:pointer' onclick='DoNav(" + url + ");'>";
+      row += "<td><a href='view-module.html?name=" + key + "'>" + key + "</a></td>";
+      row += "<td><a href='view-module.html?name=" + key + "'>" + results[key].name + "</a></td>";
+      row += '</tr>'
+      resultsDiv.innerHTML += row;
   }
+}
+
+function DoNav(theUrl){
+  console.log(theUrl);
+ document.location.href = theUrl;
 }
 
 window.onload = function () {
