@@ -311,9 +311,6 @@ const ModuleAcademics = {
                     for (var key in json){
                         vue.filters.push(key)
                     }
-
-
-                    
                 
                 })
             return vue.Jsondata
@@ -343,6 +340,8 @@ const ModuleAcademics = {
             vue.semesterWorkloadChart.data.datasets[0].data = vue.Jsondata[filter].semester_workload.counts;
             vue.semesterWorkloadChart.data.datasets[0].tooltips = vue.Jsondata[filter].semester_workload.students;
             vue.semesterWorkloadChart.data.labels = vue.Jsondata[filter].semester_workload.labels;
+            console.log("tooltip");
+            console.log(JSON.stringify(vue.semesterWorkloadChart.data.datasets[0].tooltips))
             vue.semesterWorkloadChart.update();
 
         },
@@ -355,11 +354,15 @@ const ModuleAcademics = {
         updateAttnWeb: function(){
             var vue = this;
             filter = vue.selected;
-            vue.attendanceCapChart.data.datasets[0].data =
-            vue.Jsondata[filter].attendance_cap;
+            vue.attendanceCapChart.data.datasets[0].data = vue.Jsondata[filter].attendance_cap;
+            vue.attendanceCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].attendance_cap_students;
             vue.attendanceCapChart.update();
-            vue.webcastCapChart.data.datasets[0].data =
-            vue.Jsondata[filter].webcast_cap;
+
+            console.log("tooltip2");
+            console.log(JSON.stringify(vue.attendanceCapChart.data.datasets[0].tooltips))
+            vue.webcastCapChart.data.datasets[0].data = vue.Jsondata[filter].webcast_cap;
+            vue.webcastCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].webcast_cap_students;
+
             vue.webcastCapChart.update();
 
         },

@@ -518,7 +518,7 @@ def getModuleGrades(module_code = None, program_subset=None):
 @backend.route(url_path+'/backend/faculty/academics/byfac/<module_code>')
 def moduleAcademicsFac(module_code):
     program_current = program_current_term(module_code)
-    program_past = program_past_terms(module_code)[['faculty_descr','attendance', 'CAP', 'webcast']].dropna()
+    program_past = program_past_terms(module_code)[['token', 'faculty_descr','attendance', 'CAP', 'webcast']].dropna()
     module_current = module_current_term(module_code)
     module_past = module_past_terms(module_code)
     faculties = program_current['faculty_descr'].unique()
@@ -585,7 +585,9 @@ def moduleAcademicsFac(module_code):
         results[faculties[i]]['semester_workload'] = countsAsDict(module_counts, 0)
 
         results[faculties[i]]['attendance_cap'] = []
+        results[faculties[i]]['attendance_cap_students'] = []
         results[faculties[i]]['webcast_cap'] = []
+        results[faculties[i]]['webcast_cap_students'] = []
         fac_set_past = program_past[program_past['faculty_descr'] == faculties[i]]
 
         for k in range(fac_set_past.shape[0]):
@@ -594,10 +596,12 @@ def moduleAcademicsFac(module_code):
                 'x': float(student['attendance']),
                 'y': float(student['CAP'])
             })
+            results[faculties[i]]['attendance_cap_students'].append(student['token'])
             results[faculties[i]]['webcast_cap'].append({
                 'x': float(student['webcast']),
                 'y': float(student['CAP'])
             })
+            results[faculties[i]]['webcast_cap_students'].append(student['token'])
 
         # Fetch grades for prereqs
         prereqs = fetchPrereqs(module_code)
@@ -673,7 +677,9 @@ def moduleAcademicsFac(module_code):
     results["all"]['semester_workload'] = countsAsDict(module_counts, 0)
 
     results["all"]['attendance_cap'] = []
+    results["all"]['attendance_cap_students'] = []
     results["all"]['webcast_cap'] = []
+    results["all"]['webcast_cap_students'] = []
 
     for i in range(program_past.shape[0]):
         student = program_past.iloc[i]
@@ -681,10 +687,12 @@ def moduleAcademicsFac(module_code):
             'x': float(student['attendance']),
             'y': float(student['CAP'])
         })
+        results["all"]['attendance_cap_students'].append(student["token"])
         results["all"]['webcast_cap'].append({
             'x': float(student['webcast']),
             'y': float(student['CAP'])
         })
+        results["all"]['webcast_cap_students'].append(student["token"])
 
     # Fetch grades for prereqs
     prereqs = fetchPrereqs(module_code)
