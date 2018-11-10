@@ -40,13 +40,6 @@ function searchModules() {
 }
 
 window.onload = function () {
-    const db = firebase
-        .initializeApp({
-            databaseURL: "https://bt3103-jasminw.firebaseio.com"
-        })
-        .database();
-
-    var tags_ref = db.ref("tags");
     app = new Vue({
         el: "#app",
         data: {
@@ -135,9 +128,6 @@ window.onload = function () {
                     }
                 });
             }
-        },
-        methods: {
-
         }
     });
 }
