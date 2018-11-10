@@ -4,9 +4,9 @@ import requests
 import pandas as pd
 import numpy as np
 from io import StringIO
-import asyncio
 import re
 import json
+import threading
 
 backend = Blueprint('backend', __name__)
 url_path = "/bt3103-app"
@@ -55,7 +55,7 @@ def fetchPrereqs(module_code):
 def fetchPrereqsEndpoint(module_code):
     return jsonify(fetchPrereqs(module_code))
 
-async def fetchGoogleSheet(url_num, sheet_name):
+def fetchGoogleSheet(url_num, sheet_name):
     '''
     Reads in the Google spreadsheet, returning it as a Pandas dataframe.
 
@@ -89,7 +89,7 @@ async def fetchGoogleSheet(url_num, sheet_name):
     return pd.read_csv(strio)
 
 
-async def fetchFirebase(url):
+def fetchFirebase(url):
     '''
     Reads in a Firebase URL, and returns the data as a Pandas dataframe.
 
@@ -100,11 +100,11 @@ async def fetchFirebase(url):
     return pd.DataFrame.from_records(r.json())
 
 
-async def fetchFirebaseJSON(url):
+def fetchFirebaseJSON(url):
     r = requests.get(url)
     return pd.DataFrame.from_dict(r.json(), orient='index')
 
-async def fetchFirebaseJSON_no(url):
+def fetchFirebaseJSON_no(url):
     r = requests.get(url)
     return r.json()
 
@@ -140,12 +140,9 @@ def getScore(x):
     return np.nan
 
 
-async def fetchData():
+def fetchData():
     '''
     Fetch and process all the data that we need.
-
-    We use asyncio to free the server up to respond to other requests
-    while running this function.
     '''
     global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules, student_fb_module, student_fb_teaching, tags
 
@@ -153,28 +150,28 @@ async def fetchData():
     fetchProgress = 0
 
     # Each row = 1 student taking 1 module
-    module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
+    module_enrolment = fetchGoogleSheet(1, "module_enrolment")
     # Each row = 1 student in 1 semester
-    program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
+    program_enrolment = fetchGoogleSheet(1, 'program_enrolment')
     program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
     fetchProgress = 25
     print(fetchProgress)
 
-    student_fb_module = await fetchGoogleSheet(2, 'student_feedback_module')
+    student_fb_module = fetchGoogleSheet(2, 'student_feedback_module')
     student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
-    student_fb_teaching = await fetchGoogleSheet(2, 'student_feedback_teaching')
+    student_fb_teaching = fetchGoogleSheet(2, 'student_feedback_teaching')
     student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
     fetchProgress = 50
     print(fetchProgress)
 
     # Generated data on webcasts and attendance
-    student_attention = await fetchGoogleSheet(4, 'Sheet1')
+    student_attention = fetchGoogleSheet(4, 'Sheet1')
 
     # Generated data on webcasts/tutorial attendance/forum
-    main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
+    main_mockup = fetchGoogleSheet(3, 'mockup_for_main')
 
     # market basket analysis mockup
-    association_rules = await fetchGoogleSheet(4, 'Sheet4' )
+    association_rules = fetchGoogleSheet(4, 'Sheet4' )
     fetchProgress = 75
     print(fetchProgress)
 
@@ -198,8 +195,8 @@ async def fetchData():
     fetchProgress = 90
     print(fetchProgress)
 
-    module_descriptions = await fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
-    tags = await fetchFirebaseJSON_no("https://bt3103-jasminw.firebaseio.com/tags.json")
+    module_descriptions = fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+    tags = fetchFirebaseJSON_no("https://bt3103-jasminw.firebaseio.com/tags.json")
     fetchProgress = 100
     print("Done fetching data")
 
@@ -212,10 +209,7 @@ def callFetchData():
     Called when server is started, or when the
     Refresh data button is pressed in Faculty side.
     '''
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(fetchData())
-    loop.close()
+    threading.Thread(target=fetchData).start()
     return "{'ok': true}"
 
 ## below 2 functions generate tags firebase data
