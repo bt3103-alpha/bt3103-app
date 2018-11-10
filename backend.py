@@ -244,9 +244,9 @@ def fetch_student_attention():
     student_attention = fetchGoogleSheet(4, 'Sheet1')
     update_fetch_progress()
 
-def fetch_association_rules():
-    global association_rules
-    association_rules = fetchGoogleSheet(4, 'Sheet4' )
+def fetch_SEP():
+    global SEP
+    SEP = fetchGoogleSheet(4, 'Sheet5' )
     update_fetch_progress()
 
 def fetch_column_descriptions():
@@ -275,7 +275,7 @@ def fetchData():
         fetch_module_enrolment, fetch_program_enrolment, 
         fetch_student_fb_module, fetch_student_fb_teaching, 
         fetch_main_mockup, fetch_student_attention, 
-        fetch_association_rules, fetch_column_descriptions, 
+        fetch_SEP, fetch_column_descriptions, 
         fetch_module_descriptions, fetch_tags
     ]
 
