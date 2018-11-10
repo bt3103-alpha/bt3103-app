@@ -3,7 +3,9 @@ const Student = {
     data() {
         return {
             token: '',
-            student: {}
+            information: {},
+            curr_modules: [], 
+            past_modules: []
         }
     }, 
     created() {
@@ -24,27 +26,44 @@ const Student = {
                     return resp.json();
                 })
                 .then((json) => {
-                    this.student = json;
+                    this.information = json.information;
+                    this.curr_modules = json.curr_modules;
+                    this.past_modules = json.past_modules;
                 })
             this.name = '';
         }
     }, 
     template: `
-        <div class='module-page'>
-            <div class='container' v-if='Object.keys(student).length > 0'>
-                <h1>{{name}} <code>({{token}})</code></h1>
-                <table class='table'>
-                    <tbody>
-                        <tr v-for='item in student'>
-                            <td><strong>{{item.name}}</strong> &nbsp; &ndash; &nbsp; <i>{{item.description}}</i></td>
-                            <td style='white-space:nowrap;'>{{item.value}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div>
-                    <h2>Modules Taken</h2>
+        <div class='module-page' style='margin-bottom: 48px;'>
+            <transition name='fade'>
+                <div class='container' v-if='Object.keys(information).length > 0'>
+                    <h1>{{name}} <code>({{token}})</code></h1>
+                    <h2>Student Information</h2>
+                    <table class='table'>
+                        <tbody>
+                            <tr v-for='item in information'>
+                                <td><strong>{{item.name}}</strong> &nbsp; &ndash; &nbsp; <i>{{item.description}}</i></td>
+                                <td style='white-space:nowrap;'>{{item.value}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div v-if='curr_modules.length > 0'>
+                        <h2>Modules being taken this semester:</h2>
+                        <div class='chart-rows'>
+                            <router-link :to='"/"+module.module_code' tag='div' v-for='module in curr_modules' class='module-card' :key='module.module_code'>
+                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                            </router-link>
+                        </div>
+                    </div>
+
+                    <div v-if='past_modules.length > 0'>
+                        <h2>Past Modules</h2>
+                    </div> 
+
+
                 </div>
-            </div>
+            </transition>
         </div>
     `
 }

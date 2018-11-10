@@ -115,6 +115,28 @@ html, body {
     text-align:center;
 }
 
+/* student side */
+.module-title {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.module-card {
+    padding: 8px 12px;
+    margin: 6px;
+    background-color: #ddd;
+    width: calc(20% - 8px);
+    float:left;
+    cursor: pointer;
+    border-radius: 4px;
+    box-shadow: 1px 1px 8px -1px rgba(0,0,0,0.4);
+    transition: 0.5s background-color;
+}
+
+.module-card:hover {
+    background-color: #ccc;
+}
+
 /* Charts / tooltip */
 
 #chartjs-tooltip {

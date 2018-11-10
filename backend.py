@@ -89,7 +89,7 @@ def fetchGoogleSheet(url_num, sheet_name):
     r = requests.get("https://docs.google.com/spreadsheets/d/" +
                      url+"/gviz/tq?tqx=out:csv&sheet="+sheet_name)
     strio = StringIO(r.text)
-    return pd.read_csv(strio)
+    return pd.read_csv(strio).dropna(axis=1, how='all')
 
 
 def fetchFirebase(url):
@@ -957,5 +957,16 @@ def get_student_info(token):
             'value': str(subset.loc[var_name])
         }
         results.append(result)
+    
+    subset_modules = module_enrolment[module_enrolment['token'] == token].copy()
+    subset_modules.drop(['token', 'academic_career'], axis=1, inplace=True)
+    subset_modules.fillna('-', inplace=True)
+    subset_modules.sort_values('term', ascending=False, inplace=True)
+    curr_modules = subset_modules[subset_modules['term'] == max(subset_modules['term'])][['module_code', 'course_title']].drop_duplicates()
+    past_modules = subset_modules[subset_modules['term'] != max(subset_modules['term'])]
 
-    return jsonify(results)
+    return jsonify({
+        'information': results, 
+        'curr_modules': curr_modules.to_dict('records'),
+        'past_modules': past_modules.to_dict('records')
+    })
