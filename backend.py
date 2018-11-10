@@ -965,6 +965,9 @@ def get_student_info(token):
     curr_modules = subset_modules[subset_modules['term'] == max(subset_modules['term'])][['module_code', 'course_title']].drop_duplicates()
     past_modules = subset_modules[subset_modules['term'] != max(subset_modules['term'])]
 
+    if past_modules.shape[0] > 0:
+        print('found')
+
     return jsonify({
         'information': results, 
         'curr_modules': curr_modules.to_dict('records'),

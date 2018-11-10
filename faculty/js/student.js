@@ -1,5 +1,5 @@
 const Student = {
-    props: ['show_extra_data'],
+    props: ['show_extra_data', 'modules'],
     data() {
         return {
             token: '',
@@ -51,9 +51,12 @@ const Student = {
                     <div v-if='curr_modules.length > 0'>
                         <h2>Modules being taken this semester:</h2>
                         <div class='chart-rows'>
-                            <router-link :to='"/"+module.module_code' tag='div' v-for='module in curr_modules' class='module-card' :key='module.module_code'>
+                            <router-link :to='"/"+module.module_code' tag='div' v-for='module in curr_modules' v-if='modules.indexOf(module.module_code) > -1' class='module-card module-card-owned' :key='module.module_code'>
                                 <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
                             </router-link>
+                            <div v-for='module in curr_modules' v-if='modules.indexOf(module.module_code) == -1' class='module-card' :key='module.module_code'>
+                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                            </div>
                         </div>
                     </div>
 

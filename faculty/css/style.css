@@ -73,17 +73,17 @@ html, body {
     justify-content: center;
     /* align-items: center; */
 }
+
 .module-page .overview-module-code {
     font-size: 24px;
     letter-spacing: 6px;
     color: #777;
-
 }
+
 .overview-module-code-tag {
     text-align: center;
     margin-bottom: 32px;
     position: relative;
-
 }
 
 
@@ -127,14 +127,18 @@ html, body {
     background-color: #ddd;
     width: calc(20% - 8px);
     float:left;
-    cursor: pointer;
     border-radius: 4px;
     box-shadow: 1px 1px 8px -1px rgba(0,0,0,0.4);
     transition: 0.5s background-color;
 }
 
-.module-card:hover {
-    background-color: #ccc;
+.module-card-owned {
+    background-color: rgb(255, 166, 0);
+    cursor: pointer;
+}
+
+.module-card-owned:hover {
+    background-color: rgb(255, 195, 85);
 }
 
 /* Charts / tooltip */
