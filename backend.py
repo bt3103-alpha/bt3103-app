@@ -6,7 +6,7 @@ import numpy as np
 from io import StringIO
 import re
 import json
-import threading
+import threading, time
 
 backend = Blueprint('backend', __name__)
 url_path = "/bt3103-app"
@@ -24,9 +24,12 @@ newData = {}
 student_fb_module = None
 student_fb_teaching = None
 association_rules = None
+column_descriptions = None
 module_names = {}
 fetchProgress = 0
 tags = {}
+
+currently_fetching = False
 
 
 grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
@@ -139,41 +142,13 @@ def getScore(x):
         return 0
     return np.nan
 
+def calculate_cap():
+    # Calculate cap
+    global program_enrolment
 
-def fetchData():
-    '''
-    Fetch and process all the data that we need.
-    '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, association_rules, student_fb_module, student_fb_teaching, tags
-
-    print("Fetching data")
-    fetchProgress = 0
-
-    # Each row = 1 student taking 1 module
-    module_enrolment = fetchGoogleSheet(1, "module_enrolment")
-    # Each row = 1 student in 1 semester
-    program_enrolment = fetchGoogleSheet(1, 'program_enrolment')
-    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
-    fetchProgress = 25
-    print(fetchProgress)
-
-    student_fb_module = fetchGoogleSheet(2, 'student_feedback_module')
-    student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
-    student_fb_teaching = fetchGoogleSheet(2, 'student_feedback_teaching')
-    student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
-    fetchProgress = 50
-    print(fetchProgress)
-
-    # Generated data on webcasts and attendance
-    student_attention = fetchGoogleSheet(4, 'Sheet1')
-
-    # Generated data on webcasts/tutorial attendance/forum
-    main_mockup = fetchGoogleSheet(3, 'mockup_for_main')
-
-    # market basket analysis mockup
-    association_rules = fetchGoogleSheet(4, 'Sheet4' )
-    fetchProgress = 75
-    print(fetchProgress)
+    while module_enrolment is None or program_enrolment is None or student_attention is None:
+        # Try again later
+        time.sleep(2)
 
     cap = module_enrolment[['module_credits', 'final_grade', 'token']].copy()
     cap['grade'] = cap['final_grade'].apply(getScore)
@@ -186,18 +161,97 @@ def fetchData():
     cap['CAP'] = cap['score'] / cap['module_credits']
     cap = cap[['CAP']]
 
-    fetchProgress = 85
-    print(fetchProgress)
-
     program_enrolment = program_enrolment.join(cap, on='token').join(
         student_attention.set_index('token'), on='token')
 
-    fetchProgress = 90
-    print(fetchProgress)
+counter = 0
+total_fetch = 1
 
+def update_fetch_progress():
+    global counter
+    counter += 1
+    progress = int(counter / total_fetch * 100)
+    print("Progress: " + str(progress) + "% done")
+
+def fetch_module_enrolment():
+    global module_enrolment
+    module_enrolment = fetchGoogleSheet(1, "module_enrolment")
+    calculate_cap()
+    update_fetch_progress()
+
+def fetch_program_enrolment():
+    global program_enrolment
+    program_enrolment = fetchGoogleSheet(1, 'program_enrolment')
+    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
+    update_fetch_progress()
+
+def fetch_student_fb_module():
+    global student_fb_module
+    student_fb_module = fetchGoogleSheet(2, 'student_feedback_module')
+    student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
+    update_fetch_progress()
+
+def fetch_student_fb_teaching():
+    global student_fb_teaching
+    student_fb_teaching = fetchGoogleSheet(2, 'student_feedback_teaching')
+    student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
+    update_fetch_progress()
+
+def fetch_main_mockup():
+    global main_mockup
+    main_mockup = fetchGoogleSheet(3, 'mockup_for_main')
+    update_fetch_progress()
+
+def fetch_student_attention():
+    global student_attention
+    student_attention = fetchGoogleSheet(4, 'Sheet1')
+    update_fetch_progress()
+
+def fetch_association_rules():
+    global association_rules
+    association_rules = fetchGoogleSheet(4, 'Sheet4' )
+    update_fetch_progress()
+
+def fetch_column_descriptions():
+    global column_descriptions
+    column_descriptions = fetchGoogleSheet(4, 'catalog').set_index('var_name')
+    update_fetch_progress()
+
+def fetch_module_descriptions():
+    global module_descriptions
     module_descriptions = fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+    update_fetch_progress()
+
+def fetch_tags():
+    global tags
     tags = fetchFirebaseJSON_no("https://bt3103-jasminw.firebaseio.com/tags.json")
-    fetchProgress = 100
+    update_fetch_progress()
+
+def fetchData():
+    '''
+    Fetch and process all the data that we need.
+    '''
+    global total_fetch
+
+    print("Fetching data...")
+    functions = [
+        fetch_module_enrolment, fetch_program_enrolment, 
+        fetch_student_fb_module, fetch_student_fb_teaching, 
+        fetch_main_mockup, fetch_student_attention, 
+        fetch_association_rules, fetch_column_descriptions, 
+        fetch_module_descriptions, fetch_tags
+    ]
+
+    total_fetch = len(functions)
+
+    threads = []
+    for func in functions:
+        threads.append(threading.Thread(target=func))
+        threads[-1].start()
+
+    for thread in threads:
+        thread.join()
+
     print("Done fetching data")
 
 
@@ -209,7 +263,7 @@ def callFetchData():
     Called when server is started, or when the
     Refresh data button is pressed in Faculty side.
     '''
-    threading.Thread(target=fetchData).start()
+    fetchData()
     return "{'ok': true}"
 
 ## below 2 functions generate tags firebase data
