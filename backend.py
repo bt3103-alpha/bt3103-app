@@ -146,43 +146,6 @@ def calculate_cap():
     # Calculate cap
     global program_enrolment
 
-async def fetchData():
-    '''
-    Fetch and process all the data that we need.
-
-    We use asyncio to free the server up to respond to other requests
-    while running this function.
-    '''
-    global fetchProgress, module_enrolment, program_enrolment, mockedup_data, student_attention, module_descriptions, main_mockup, SEP, student_fb_module, student_fb_teaching, tags
-
-    print("Fetching data")
-    fetchProgress = 0
-
-    # Each row = 1 student taking 1 module
-    module_enrolment = await fetchGoogleSheet(1, "module_enrolment")
-    # Each row = 1 student in 1 semester
-    program_enrolment = await fetchGoogleSheet(1, 'program_enrolment')
-    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
-    fetchProgress = 25
-    print(fetchProgress)
-
-    student_fb_module = await fetchGoogleSheet(2, 'student_feedback_module')
-    student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
-    student_fb_teaching = await fetchGoogleSheet(2, 'student_feedback_teaching')
-    student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
-    fetchProgress = 50
-    print(fetchProgress)
-
-    # Generated data on webcasts and attendance
-    student_attention = await fetchGoogleSheet(4, 'Sheet1')
-
-    # Generated data on webcasts/tutorial attendance/forum
-    main_mockup = await fetchGoogleSheet(3, 'mockup_for_main')
-
-    # SEP Mockup
-    SEP = await fetchGoogleSheet(4, 'Sheet5' )
-    fetchProgress = 75
-    print(fetchProgress)
     while module_enrolment is None or program_enrolment is None or student_attention is None:
         # Try again later
         time.sleep(2)

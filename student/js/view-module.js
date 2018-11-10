@@ -67,7 +67,7 @@ window.onload = function () {
             module_fb_ratingRounded: 0,
             module_fb_ratingCount: 0,
             module_fb_array: [],
-            module_fb_arrayPercent: [0,0,0,0,0],
+            module_fb_arrayPercent: [0, 0, 0, 0, 0],
             PU_schools: []
         },
         created() {
@@ -84,70 +84,70 @@ window.onload = function () {
                 });
 
             if (this.module_code != null) {
-            // fetch module details and module name
-            // fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
-            fetch("/bt3103-app/backend/module_description/" + this.module_code)
-                .then(response => {
-                    return response.json();
-                })
-                .then(json => {
-                    this.module_name = json.title;
-                    this.module_description = json.description;
-                    this.tag_arr = json.tags;
+                // fetch module details and module name
+                // fetch("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+                fetch("/bt3103-app/backend/module_description/" + this.module_code)
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(json => {
+                        this.module_name = json.title;
+                        this.module_description = json.description;
+                        this.tag_arr = json.tags;
 
-                    getPrereqs(this.module_code);
+                        getPrereqs(this.module_code);
 
-                });
-            fetch('/bt3103-app/backend/student/SEP/' + this.module_code)
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(json => {
-                    vuethis.PU_schools = json;
-                });
+                    });
+                fetch('/bt3103-app/backend/student/SEP/' + this.module_code)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(json => {
+                        vuethis.PU_schools = json;
+                    });
 
-            fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(json) {
-                    vuethis.module_fb = json.data
-                    if (vuethis.module_fb) {
-                      vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
-                      vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
-                      vuethis.module_fb_ratingCount = json.mRating['total'];
-                      vuethis.module_fb_array = json.mRating['array'];
-                      wordcloud(json.goodText,"#goodCloud", ['#2ab400','#8add77']);
-                      wordcloud(json.badText,"#badCloud", ['#c90707', '#fca9a9']);
-                      for(var i = 0, length = vuethis.module_fb_array.length; i < length; i++){
-                          vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i]/json.mRating['num_feedback'])*100;
-                      }
-                    }
-                });
+                fetch("/bt3103-app/backend/student/view-module/feedbackM/" + this.module_code)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (json) {
+                        vuethis.module_fb = json.data
+                        if (vuethis.module_fb) {
+                            vuethis.module_fb_ratingAverage = json.mRating['average'].toFixed(2);
+                            vuethis.module_fb_ratingRounded = roundHalf(json.mRating['average']);
+                            vuethis.module_fb_ratingCount = json.mRating['total'];
+                            vuethis.module_fb_array = json.mRating['array'];
+                            wordcloud(json.goodText, "#goodCloud", ['#2ab400', '#8add77']);
+                            wordcloud(json.badText, "#badCloud", ['#c90707', '#fca9a9']);
+                            for (var i = 0, length = vuethis.module_fb_array.length; i < length; i++) {
+                                vuethis.module_fb_arrayPercent[i] = (vuethis.module_fb_array[i] / json.mRating['num_feedback']) * 100;
+                            }
+                        }
+                    });
 
-            fetch("/bt3103-app/backend/student/view-module/feedbackT/" + this.module_code)
-                .then(function(response) {
-                    return response.json();
-                })
-                .then(function(json) {
-                    // Update faculties
-                    vuethis.teaching_fb = json.data;
-                    console.log(json.data);
-                    console.log('teaching')
-                    const a = [1,2,3,4,5]
-                    if (vuethis.teaching_fb) {
-                      vuethis.tAbility = donutChart("tAbility", ["SA","A","N","D","SD"],json.tAbility);
-                      vuethis.tTimely = donutChart("tTimely", ["SA","A","N","D","SD"],json.tTimely);
-                      vuethis.tInterest = donutChart("tInterest", ["SA","A","N","D","SD"],json.tInterest);
-                    }
-                });
+                fetch("/bt3103-app/backend/student/view-module/feedbackT/" + this.module_code)
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (json) {
+                        // Update faculties
+                        vuethis.teaching_fb = json.data;
+                        console.log(json.data);
+                        console.log('teaching')
+                        const a = [1, 2, 3, 4, 5]
+                        if (vuethis.teaching_fb) {
+                            vuethis.tAbility = donutChart("tAbility", ["SA", "A", "N", "D", "SD"], json.tAbility);
+                            vuethis.tTimely = donutChart("tTimely", ["SA", "A", "N", "D", "SD"], json.tTimely);
+                            vuethis.tInterest = donutChart("tInterest", ["SA", "A", "N", "D", "SD"], json.tInterest);
+                        }
+                    });
             }
         }
     });
 }
 
 function roundHalf(num) {
-    return Math.round(num*2)/2;
+    return Math.round(num * 2) / 2;
 }
 
 function treeStuff(treeData) {
@@ -172,7 +172,7 @@ function treeStuff(treeData) {
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     root = treeData;
-    root.x0 = height/2
+    root.x0 = height / 2
     root.y0 = width
     update(root);
 
@@ -279,87 +279,87 @@ function treeStuff(treeData) {
 // wordcloud font size uses text count
 // cannot be too small, need to inflate/scale numbers
 function checkSize(listword) {
-  var count5 = 0;
-  var count10 = 0;
-  var i;
-  for (i=0; i<listword.length; i++) {
-    if (listword[i].size < 5) {count5++;}
-    else if (listword[i].size < 10) {count10++;}
+    var count5 = 0;
+    var count10 = 0;
+    var i;
+    for (i = 0; i < listword.length; i++) {
+        if (listword[i].size < 5) { count5++; }
+        else if (listword[i].size < 10) { count10++; }
 
-  }
-  if (count5 > 5) {
-    for (i=0; i<listword.length; i++) {
-      listword[i].size = listword[i].size * 7.5
     }
-  } else if (count10 > 5) {
-    for (i=0; i<listword.length; i++) {
-      listword[i].size = listword[i].size * 5.5
+    if (count5 > 5) {
+        for (i = 0; i < listword.length; i++) {
+            listword[i].size = listword[i].size * 7.5
+        }
+    } else if (count10 > 5) {
+        for (i = 0; i < listword.length; i++) {
+            listword[i].size = listword[i].size * 5.5
+        }
     }
-  }
 }
 
 
 // student feeback wordcloud
 function wordcloud(listword, id, colorRange) {
-  var width = 300;
-  var height = 200;
-  var fill = ['#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7','#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7','#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7'];
-  var fill2 = d3.scale.linear()
-  .domain([0, 5])
-  .range(colorRange);
+    var width = 300;
+    var height = 200;
+    var fill = ['#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7', '#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7', '#9CC0E7', '#EEEEEE', '#FCFCFC', "FAEACB", '#F7DBD7'];
+    var fill2 = d3.scale.linear()
+        .domain([0, 5])
+        .range(colorRange);
 
-  checkSize(listword);
+    checkSize(listword);
 
-  d3.layout.cloud()
-    .size([width, height])
-    .words(listword)
-    .rotate(function() {
-      return ~~(Math.random() * 1) * 90;
-    })
-    .fontSize(function(d) {
-      return d.size;
-    })
-    .on("end", drawSkillCloud)
-    .start();
+    d3.layout.cloud()
+        .size([width, height])
+        .words(listword)
+        .rotate(function () {
+            return ~~(Math.random() * 1) * 90;
+        })
+        .fontSize(function (d) {
+            return d.size;
+        })
+        .on("end", drawSkillCloud)
+        .start();
 
-  // Finally implement `drawSkillCloud`, which performs the D3 drawing:
-  // apply D3.js drawing API
-  function drawSkillCloud(words) {
-      d3.select(id).append("svg")
-          .attr("width", width)
-          .attr("height", height)
-          .append("g")
-          .attr("transform", "translate(" + ~~(width / 2) + "," + ~~(height / 2) + ")")
-          .selectAll("text")
-          .data(words)
-          .enter().append("text")
-          .style("font-size", function(d) {
-              return d.size + "px";
-          })
-          .style("-webkit-touch-callout", "none")
-          .style("-webkit-user-select", "none")
-          .style("-khtml-user-select", "none")
-          .style("-moz-user-select", "none")
-          .style("-ms-user-select", "none")
-          .style("user-select", "none")
-          .style("cursor", "default")
-          .style("font-family", "Arial")
-          .style("fill", function(d, i) {
-              return fill2(i);
-          })
-          .attr("text-anchor", "middle")
-          .attr("transform", function(d) {
-              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-          })
-          .text(function(d) {
-              return d.text;
-          });
-  }
-  // set the viewbox to content bounding box (zooming in on the content, effectively trimming whitespace)
-      var svg = document.getElementsByTagName("svg")[0];
-      var bbox = svg.getBBox();
-      var viewBox = [bbox.x, bbox.y, bbox.width, bbox.height].join(" ");
-      svg.setAttribute("viewBox", viewBox);
+    // Finally implement `drawSkillCloud`, which performs the D3 drawing:
+    // apply D3.js drawing API
+    function drawSkillCloud(words) {
+        d3.select(id).append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", "translate(" + ~~(width / 2) + "," + ~~(height / 2) + ")")
+            .selectAll("text")
+            .data(words)
+            .enter().append("text")
+            .style("font-size", function (d) {
+                return d.size + "px";
+            })
+            .style("-webkit-touch-callout", "none")
+            .style("-webkit-user-select", "none")
+            .style("-khtml-user-select", "none")
+            .style("-moz-user-select", "none")
+            .style("-ms-user-select", "none")
+            .style("user-select", "none")
+            .style("cursor", "default")
+            .style("font-family", "Arial")
+            .style("fill", function (d, i) {
+                return fill2(i);
+            })
+            .attr("text-anchor", "middle")
+            .attr("transform", function (d) {
+                return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function (d) {
+                return d.text;
+            });
+    }
+    // set the viewbox to content bounding box (zooming in on the content, effectively trimming whitespace)
+    var svg = document.getElementsByTagName("svg")[0];
+    var bbox = svg.getBBox();
+    var viewBox = [bbox.x, bbox.y, bbox.width, bbox.height].join(" ");
+    svg.setAttribute("viewBox", viewBox);
 }
 
 function donutChart(id, labels = [], dat_a) {
@@ -387,26 +387,17 @@ function donutChart(id, labels = [], dat_a) {
             animation: {
                 animateScale: true
             },
-            legend: {display: false},
+            legend: { display: false },
             scales: {
-              yAxes: [{
-                display: false,
-                gridLines: {display: false}
-              }],
-              xAxes: [ {
-                gridLines: {display: false}
-              }]
+                yAxes: [{
+                    display: false,
+                    gridLines: { display: false }
+                }],
+                xAxes: [{
+                    gridLines: { display: false }
+                }]
             }
 
         }
     });
 }
-
-// function searchUni(results){
-//     let resultsDiv = document.getElementById("uni-module");
-//     resultsDiv.innerHTML = "";
-//     for (let key in results) {
-//         console.log(key);
-//         resultsDiv.innerHTML += key['PU'] + " - " + key['MC']
-//     }
-//   }
