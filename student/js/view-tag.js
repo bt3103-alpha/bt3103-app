@@ -27,8 +27,21 @@ function searchMod(results){
 }
 
 window.onload = function () {
+    const db = firebase
+        .initializeApp({
+            databaseURL: "https://bt3103-jasminw.firebaseio.com"
+        })
+        .database();
+
+    var tags_ref = db.ref("tags");
     app = new Vue({
         el: "#app",
+        firebase: {
+          tag_dict_db: {
+              source: db.ref("tags"),
+              asObject: true
+          }
+        },
         data: {
             name: "",
             mod_list_all: {},
@@ -36,7 +49,8 @@ window.onload = function () {
             tag_modules: [],
             one_tag_result: {},
             mod_list_filtered: {},
-            tag_count: 0
+            tag_count: 0,
+            tag_dict_vue: {},
         },
         created() {
             let url = new URL(window.location.href);
@@ -52,6 +66,7 @@ window.onload = function () {
                     this.name = json.name;
                 });
             if (vuethis.tag_name != null) {
+
               // Fetch tags
               function getModList() {
                 return fetch("/bt3103-app/backend/student/view-tag/" + vuethis.tag_name)
@@ -95,9 +110,28 @@ window.onload = function () {
                     temp_dict[temp_arr[j]] = vuethis.mod_list_all[temp_arr[j]];
                   }
                   vuethis.mod_list_filtered = temp_dict;
-                  searchMod(vuethis.mod_list_filtered)
+                  searchMod(vuethis.mod_list_filtered);
+                  vuethis.increment(vuethis.tag_name, vuethis);
                 })
             }
+        },
+        methods: {
+          increment: function(tag_name, vuethis) {
+            vuethis.tag_count++;
+            tags_ref.child(tag_name).child('count').set(
+              vuethis.tag_count
+            )
+            fetch('/bt3103-app/backend/student/view-tag/count/' + tag_name, {
+              method: 'post',
+              body: JSON.stringify({
+                count: vuethis.tag_count
+              }),
+              headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+              }
+            })
+          }
         }
     });
 }
