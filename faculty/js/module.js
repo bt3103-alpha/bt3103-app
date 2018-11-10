@@ -316,8 +316,6 @@ const ModuleAcademics = {
                     
                 
                 })
-            console.log('attendance')
-            console.log(JSON.stringify(vue.Jsondata['all'].attendance_cap))
             return vue.Jsondata
 
             },
@@ -527,7 +525,7 @@ Vue.component('module-enrolment-table', {
             </thead>
             <tbody>
                 <tr v-for='row in data'>
-                    <td><router-link :to='"/view-student/"+row.token' class='btn btn-outline-primary'>{{row.token}}</router-link></td>
+                    <td><router-link :to='"/view-student/"+row.token' class='btn btn-outline-primary' data-dismiss="modal">{{row.token}}</router-link></td>
                     <td>{{row.faculty_descr}}</td>
                     <td>{{row.academic_plan_descr}}</td>
                     <td>{{row.academic_load_descr}} {{row.academic_career}}</td>
