@@ -4,9 +4,9 @@ import requests
 import pandas as pd
 import numpy as np
 from io import StringIO
-import asyncio
 import re
 import json
+import threading, time
 
 backend = Blueprint('backend', __name__)
 url_path = "/bt3103-app"
@@ -24,9 +24,12 @@ newData = {}
 student_fb_module = None
 student_fb_teaching = None
 SEP = None
+column_descriptions = None
 module_names = {}
 fetchProgress = 0
 tags = {}
+
+currently_fetching = False
 
 
 grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
@@ -55,7 +58,7 @@ def fetchPrereqs(module_code):
 def fetchPrereqsEndpoint(module_code):
     return jsonify(fetchPrereqs(module_code))
 
-async def fetchGoogleSheet(url_num, sheet_name):
+def fetchGoogleSheet(url_num, sheet_name):
     '''
     Reads in the Google spreadsheet, returning it as a Pandas dataframe.
 
@@ -86,10 +89,10 @@ async def fetchGoogleSheet(url_num, sheet_name):
     r = requests.get("https://docs.google.com/spreadsheets/d/" +
                      url+"/gviz/tq?tqx=out:csv&sheet="+sheet_name)
     strio = StringIO(r.text)
-    return pd.read_csv(strio)
+    return pd.read_csv(strio).dropna(axis=1, how='all')
 
 
-async def fetchFirebase(url):
+def fetchFirebase(url):
     '''
     Reads in a Firebase URL, and returns the data as a Pandas dataframe.
 
@@ -100,11 +103,11 @@ async def fetchFirebase(url):
     return pd.DataFrame.from_records(r.json())
 
 
-async def fetchFirebaseJSON(url):
+def fetchFirebaseJSON(url):
     r = requests.get(url)
     return pd.DataFrame.from_dict(r.json(), orient='index')
 
-async def fetchFirebaseJSON_no(url):
+def fetchFirebaseJSON_no(url):
     r = requests.get(url)
     return r.json()
 
@@ -139,6 +142,9 @@ def getScore(x):
         return 0
     return np.nan
 
+def calculate_cap():
+    # Calculate cap
+    global program_enrolment
 
 async def fetchData():
     '''
@@ -177,6 +183,9 @@ async def fetchData():
     SEP = await fetchGoogleSheet(4, 'Sheet5' )
     fetchProgress = 75
     print(fetchProgress)
+    while module_enrolment is None or program_enrolment is None or student_attention is None:
+        # Try again later
+        time.sleep(2)
 
     cap = module_enrolment[['module_credits', 'final_grade', 'token']].copy()
     cap['grade'] = cap['final_grade'].apply(getScore)
@@ -189,18 +198,97 @@ async def fetchData():
     cap['CAP'] = cap['score'] / cap['module_credits']
     cap = cap[['CAP']]
 
-    fetchProgress = 85
-    print(fetchProgress)
-
     program_enrolment = program_enrolment.join(cap, on='token').join(
         student_attention.set_index('token'), on='token')
 
-    fetchProgress = 90
-    print(fetchProgress)
+counter = 0
+total_fetch = 1
 
-    module_descriptions = await fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
-    tags = await fetchFirebaseJSON_no("https://bt3103-jasminw.firebaseio.com/tags.json")
-    fetchProgress = 100
+def update_fetch_progress():
+    global counter
+    counter += 1
+    progress = int(counter / total_fetch * 100)
+    print("Progress: " + str(progress) + "% done")
+
+def fetch_module_enrolment():
+    global module_enrolment
+    module_enrolment = fetchGoogleSheet(1, "module_enrolment")
+    calculate_cap()
+    update_fetch_progress()
+
+def fetch_program_enrolment():
+    global program_enrolment
+    program_enrolment = fetchGoogleSheet(1, 'program_enrolment')
+    program_enrolment.columns = [x.lower() for x in program_enrolment.columns]
+    update_fetch_progress()
+
+def fetch_student_fb_module():
+    global student_fb_module
+    student_fb_module = fetchGoogleSheet(2, 'student_feedback_module')
+    student_fb_module = student_fb_module.dropna(axis=1, how='all').dropna()
+    update_fetch_progress()
+
+def fetch_student_fb_teaching():
+    global student_fb_teaching
+    student_fb_teaching = fetchGoogleSheet(2, 'student_feedback_teaching')
+    student_fb_teaching = student_fb_teaching.dropna(axis=1, how='all').dropna()
+    update_fetch_progress()
+
+def fetch_main_mockup():
+    global main_mockup
+    main_mockup = fetchGoogleSheet(3, 'mockup_for_main')
+    update_fetch_progress()
+
+def fetch_student_attention():
+    global student_attention
+    student_attention = fetchGoogleSheet(4, 'Sheet1')
+    update_fetch_progress()
+
+def fetch_association_rules():
+    global association_rules
+    association_rules = fetchGoogleSheet(4, 'Sheet4' )
+    update_fetch_progress()
+
+def fetch_column_descriptions():
+    global column_descriptions
+    column_descriptions = fetchGoogleSheet(4, 'catalog').set_index('var_name')
+    update_fetch_progress()
+
+def fetch_module_descriptions():
+    global module_descriptions
+    module_descriptions = fetchFirebaseJSON("https://bt3103-alpha-student.firebaseio.com/module_descriptions.json")
+    update_fetch_progress()
+
+def fetch_tags():
+    global tags
+    tags = fetchFirebaseJSON_no("https://bt3103-jasminw.firebaseio.com/tags.json")
+    update_fetch_progress()
+
+def fetchData():
+    '''
+    Fetch and process all the data that we need.
+    '''
+    global total_fetch
+
+    print("Fetching data...")
+    functions = [
+        fetch_module_enrolment, fetch_program_enrolment, 
+        fetch_student_fb_module, fetch_student_fb_teaching, 
+        fetch_main_mockup, fetch_student_attention, 
+        fetch_association_rules, fetch_column_descriptions, 
+        fetch_module_descriptions, fetch_tags
+    ]
+
+    total_fetch = len(functions)
+
+    threads = []
+    for func in functions:
+        threads.append(threading.Thread(target=func))
+        threads[-1].start()
+    
+    for thread in threads:
+        thread.join()
+    
     print("Done fetching data")
 
 
@@ -212,10 +300,7 @@ def callFetchData():
     Called when server is started, or when the
     Refresh data button is pressed in Faculty side.
     '''
-    asyncio.set_event_loop(asyncio.new_event_loop())
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(fetchData())
-    loop.close()
+    fetchData()
     return "{'ok': true}"
 
 ## below 2 functions generate tags firebase data
@@ -470,7 +555,7 @@ def getModuleGrades(module_code = None, program_subset=None):
 @backend.route(url_path+'/backend/faculty/academics/byfac/<module_code>')
 def moduleAcademicsFac(module_code):
     program_current = program_current_term(module_code)
-    program_past = program_past_terms(module_code)[['faculty_descr','attendance', 'CAP', 'webcast']].dropna()
+    program_past = program_past_terms(module_code)[['token', 'faculty_descr','attendance', 'CAP', 'webcast']].dropna()
     module_current = module_current_term(module_code)
     module_past = module_past_terms(module_code)
     faculties = program_current['faculty_descr'].unique()
@@ -537,19 +622,23 @@ def moduleAcademicsFac(module_code):
         results[faculties[i]]['semester_workload'] = countsAsDict(module_counts, 0)
 
         results[faculties[i]]['attendance_cap'] = []
+        results[faculties[i]]['attendance_cap_students'] = []
         results[faculties[i]]['webcast_cap'] = []
+        results[faculties[i]]['webcast_cap_students'] = []
         fac_set_past = program_past[program_past['faculty_descr'] == faculties[i]]
 
-        for k in range(fac_set_past.shape[0]):
-            student = fac_set_past.iloc[k]
+        for k in range(fac_set.shape[0]):
+            student = fac_set.iloc[k]
             results[faculties[i]]['attendance_cap'].append({
                 'x': float(student['attendance']),
                 'y': float(student['CAP'])
             })
+            results[faculties[i]]['attendance_cap_students'].append(student['token'])
             results[faculties[i]]['webcast_cap'].append({
                 'x': float(student['webcast']),
                 'y': float(student['CAP'])
             })
+            results[faculties[i]]['webcast_cap_students'].append(student['token'])
 
         # Fetch grades for prereqs
         prereqs = fetchPrereqs(module_code)
@@ -625,18 +714,22 @@ def moduleAcademicsFac(module_code):
     results["all"]['semester_workload'] = countsAsDict(module_counts, 0)
 
     results["all"]['attendance_cap'] = []
+    results["all"]['attendance_cap_students'] = []
     results["all"]['webcast_cap'] = []
+    results["all"]['webcast_cap_students'] = []
 
-    for i in range(program_past.shape[0]):
-        student = program_past.iloc[i]
+    for i in range(program_current.shape[0]):
+        student = program_current.iloc[i]
         results["all"]['attendance_cap'].append({
             'x': float(student['attendance']),
             'y': float(student['CAP'])
         })
+        results["all"]['attendance_cap_students'].append(student["token"])
         results["all"]['webcast_cap'].append({
             'x': float(student['webcast']),
             'y': float(student['CAP'])
         })
+        results["all"]['webcast_cap_students'].append(student["token"])
 
     # Fetch grades for prereqs
     prereqs = fetchPrereqs(module_code)
@@ -892,3 +985,47 @@ def getSEPUni(module_code):
             result.append(curr)
     sortedlist = sorted(result, key=lambda elem:(elem['PU'], elem['MC']))
     return jsonify(sortedlist)
+
+
+@backend.route(url_path+'/backend/faculty/student/<token>')
+def get_student_info(token):
+    subset = program_enrolment[program_enrolment['token'] == token]#.dropna(axis=1)
+    subset = subset[subset['term'] == max(subset['term'])]
+    # subset.drop(['token', 'term', 'faculty_code', 'academic_plan', 'academic_plan_type', 'academic_subplan1', 'academic_program', 'admit_term', 'degree', 'program_status', 'degree_checkout_status'], axis=1, inplace=True)
+    subset = subset.iloc[0].copy()
+    subset['CAP'] = "{:.2f}".format(subset['CAP'])
+    subset['attendance'] = subset['attendance'].astype(str)
+    subset['webcast'] = subset['webcast'].astype(str)
+    subset['attendance'] = subset['attendance'] + '%'
+    subset['webcast'] = subset['webcast'] + '%'
+
+    results = []
+    for var_name in subset.index:
+        if var_name not in column_descriptions.index:
+            # Remove those columns we don't want
+            continue
+        if pd.isnull(subset.loc[var_name]):
+            continue
+        column = column_descriptions.loc[var_name]
+        result = {
+            'name': column['full_name'],
+            'description': column['description'], 
+            'value': str(subset.loc[var_name])
+        }
+        results.append(result)
+    
+    subset_modules = module_enrolment[module_enrolment['token'] == token].copy()
+    subset_modules.drop(['token', 'academic_career'], axis=1, inplace=True)
+    subset_modules.fillna('-', inplace=True)
+    subset_modules.sort_values('term', ascending=False, inplace=True)
+    curr_modules = subset_modules[subset_modules['term'] == max(subset_modules['term'])][['module_code', 'course_title']].drop_duplicates()
+    past_modules = subset_modules[subset_modules['term'] != max(subset_modules['term'])]
+
+    if past_modules.shape[0] > 0:
+        print('found')
+
+    return jsonify({
+        'information': results, 
+        'curr_modules': curr_modules.to_dict('records'),
+        'past_modules': past_modules.to_dict('records')
+    })

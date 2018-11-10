@@ -11,7 +11,11 @@ const routes = [
             { path: "enrolment", component: ModuleEnrolment },
             { path: "", redirect: "demographics" }
         ]
-    },
+    }, 
+    { 
+        path: "/view-student/:student", 
+        component: Student
+    }, 
     { path: "/", component: Dashboard },
     { path: "*", redirect: "/" }
 ];
@@ -63,24 +67,25 @@ window.onload = function() {
                 poll_status = setInterval(checkRefreshStatus, 500);
             }, 
             get_module_data: function() {
-                var vue = this;
-                console.log(this.$route.params.module);
+                if (this.$route.params.module != undefined) {
+                    var vue = this;
 
-                fetch('/bt3103-app/backend/prereqs/' + this.$route.params.module)
-                    .then((response) => {
-                        return response.json();
-                    })
-                    .then((json) => {
-                        vue.module_prereqs = json;
-                    })
+                    fetch('/bt3103-app/backend/prereqs/' + this.$route.params.module)
+                        .then((response) => {
+                            return response.json();
+                        })
+                        .then((json) => {
+                            vue.module_prereqs = json;
+                        })
 
-                fetch("/bt3103-app/backend/faculty/enrolment/" + this.$route.params.module)
-                    .then(function(response) {
-                        return response.json();
-                    })
-                    .then(function(json) {
-                        vue.student_enrolment = json;
-                    });
+                    fetch("/bt3103-app/backend/faculty/enrolment/" + this.$route.params.module)
+                        .then(function(response) {
+                            return response.json();
+                        })
+                        .then(function(json) {
+                            vue.student_enrolment = json;
+                        });
+                }
             }
         }, 
         mounted() {

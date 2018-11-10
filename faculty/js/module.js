@@ -220,8 +220,7 @@ const ModuleAcademics = {
     watch: {
         // whenever selected changes, this function will run
         selected: function (newSelected, oldSelected) {
-          this.buildCharts();
-
+            this.updateCharts();
         }
       },
     methods: {
@@ -251,9 +250,7 @@ const ModuleAcademics = {
         },
 
         buildCharts: function() {
-            filter = this.selected;
             this.display = false;
-
 
             this.currGradesChart = barChart(
                 "currGradesChart",
@@ -284,14 +281,19 @@ const ModuleAcademics = {
                 "Webcast Watch Rate",
                 "CAP"
             );
+            this.updateCharts();
+            this.display = true;
+        },
+
+        updateCharts: function() {
             this.updateCurrentGrades();
             this.updatePastGrades();
             this.updatePredictedStudents();
             this.updateSemesterWorkload();
             this.updateAttnWeb();
             this.updatePrereqCharts();
-            this.display = true;
-        },
+        }, 
+
         fetchData: async function() {
             var vue = this;
             await fetch("/bt3103-app/backend/faculty/academics/byfac/" + this.$route.params.module)
@@ -309,13 +311,8 @@ const ModuleAcademics = {
                     for (var key in json){
                         vue.filters.push(key)
                     }
-
-
-                    
                 
                 })
-            console.log('attendance')
-            console.log(JSON.stringify(vue.Jsondata['all'].attendance_cap))
             return vue.Jsondata
 
             },
@@ -355,11 +352,13 @@ const ModuleAcademics = {
         updateAttnWeb: function(){
             var vue = this;
             filter = vue.selected;
-            vue.attendanceCapChart.data.datasets[0].data =
-            vue.Jsondata[filter].attendance_cap;
+            vue.attendanceCapChart.data.datasets[0].data = vue.Jsondata[filter].attendance_cap;
+            vue.attendanceCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].attendance_cap_students;
             vue.attendanceCapChart.update();
-            vue.webcastCapChart.data.datasets[0].data =
-            vue.Jsondata[filter].webcast_cap;
+
+    
+            vue.webcastCapChart.data.datasets[0].data = vue.Jsondata[filter].webcast_cap;
+            vue.webcastCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].webcast_cap_students;
             vue.webcastCapChart.update();
 
         },
@@ -386,9 +385,9 @@ const ModuleAcademics = {
                     ]
                 );
                 vue.prereqCharts[i].data.datasets[0].data =
-                vue.Jsondata[filter].prereqs[i].grades.counts;
+                    vue.Jsondata[filter].prereqs[i].grades.counts;
                 vue.prereqCharts[i].data.datasets[0].tooltips =
-                vue.Jsondata[filter].prereqs[i].grades.students;
+                    vue.Jsondata[filter].prereqs[i].grades.students;
                 vue.prereqCharts[i].update();
             }
 
@@ -525,7 +524,7 @@ Vue.component('module-enrolment-table', {
             </thead>
             <tbody>
                 <tr v-for='row in data'>
-                    <td>{{row.token}}</td>
+                    <td><router-link :to='"/view-student/"+row.token' class='btn btn-outline-primary' data-dismiss="modal">{{row.token}}</router-link></td>
                     <td>{{row.faculty_descr}}</td>
                     <td>{{row.academic_plan_descr}}</td>
                     <td>{{row.academic_load_descr}} {{row.academic_career}}</td>

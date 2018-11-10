@@ -310,6 +310,10 @@ h3 {
     opacity: 0.6;
 }
 
+#show-extra-data {
+    margin-right: 6px;
+}
+
 /* Search Box stuff */
 
 .search_results {
