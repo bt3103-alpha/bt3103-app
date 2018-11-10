@@ -122,6 +122,7 @@ const ModuleDemographics = {
                 .then(function(json) {
                     vue.grades = json.grades;
                     vue.degrees = json.degrees;
+                    console.log(JSON.stringify(json.degrees))
 
                     // Update years
                     vue.yearsChart.data.datasets[0].data = json.years;
@@ -139,7 +140,19 @@ const ModuleDemographics = {
                     // Update academic careers
                     vue.updateChart(vue.academicLoadChart, json.academic_load);
                 });
-        }
+        },
+        showStudents(listofStudents){
+            results =[]
+            for(let j=0; j< app.student_enrolment.length;j++){
+                if(listofStudents.includes(app.student_enrolment[j].token)){
+                    results.push(app.student_enrolment[j]);
+                }
+            }
+            app.studentFilter = results;
+            $("#studentModal").modal();
+
+            }
+
     },
     watch: {
         $route(to, from) {
@@ -180,7 +193,7 @@ const ModuleDemographics = {
                 </thead>
                 <tbody>
                     <tr v-for='degree in degrees'>
-                        <td>{{degree[0]}}</td>
+                        <td v-on:click= showStudents(degree[2])>{{degree[0]}}</td>
                         <td>{{degree[1]}}</td>
                     </tr>
                 </tbody>
@@ -224,6 +237,17 @@ const ModuleAcademics = {
         }
       },
     methods: {
+        showStudents(listofStudents){
+            results =[]
+            for(let j=0; j< app.student_enrolment.length;j++){
+                if(listofStudents.includes(app.student_enrolment[j].token)){
+                    results.push(app.student_enrolment[j]);
+                }
+            }
+            app.studentFilter = results;
+            $("#studentModal").modal();
+
+            },
         updatePrereqsTags: async function (prereqList) {
             const vue = this;
             for (var i = 0; i < vue.prereqs.length; i++) {
@@ -468,7 +492,7 @@ const ModuleAcademics = {
                             </thead>
                             <tbody>
                                 <tr v-for='student in predicted_scores_good'>
-                                    <td>{{student[0]}}</td>
+                                    <td v-on:click= showStudents(student[0])>{{student[0]}}</td>
                                     <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
                                     <td>
                                         <span class='badge badge-light' v-for='module in student[2]' style='margin-right: 3px;'>{{module.code}}</span>
