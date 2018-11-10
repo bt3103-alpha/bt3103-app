@@ -220,8 +220,7 @@ const ModuleAcademics = {
     watch: {
         // whenever selected changes, this function will run
         selected: function (newSelected, oldSelected) {
-          this.buildCharts();
-
+            this.updateCharts();
         }
       },
     methods: {
@@ -251,9 +250,7 @@ const ModuleAcademics = {
         },
 
         buildCharts: function() {
-            filter = this.selected;
             this.display = false;
-
 
             this.currGradesChart = barChart(
                 "currGradesChart",
@@ -284,14 +281,19 @@ const ModuleAcademics = {
                 "Webcast Watch Rate",
                 "CAP"
             );
+            this.updateCharts();
+            this.display = true;
+        },
+
+        updateCharts: function() {
             this.updateCurrentGrades();
             this.updatePastGrades();
             this.updatePredictedStudents();
             this.updateSemesterWorkload();
             this.updateAttnWeb();
             this.updatePrereqCharts();
-            this.display = true;
-        },
+        }, 
+
         fetchData: async function() {
             var vue = this;
             await fetch("/bt3103-app/backend/faculty/academics/byfac/" + this.$route.params.module)
@@ -386,9 +388,9 @@ const ModuleAcademics = {
                     ]
                 );
                 vue.prereqCharts[i].data.datasets[0].data =
-                vue.Jsondata[filter].prereqs[i].grades.counts;
+                    vue.Jsondata[filter].prereqs[i].grades.counts;
                 vue.prereqCharts[i].data.datasets[0].tooltips =
-                vue.Jsondata[filter].prereqs[i].grades.students;
+                    vue.Jsondata[filter].prereqs[i].grades.students;
                 vue.prereqCharts[i].update();
             }
 
