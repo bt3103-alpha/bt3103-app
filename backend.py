@@ -981,14 +981,23 @@ def get_student_info(token):
     subset_modules.drop(['token', 'academic_career'], axis=1, inplace=True)
     subset_modules.fillna('-', inplace=True)
     subset_modules.sort_values('term', ascending=False, inplace=True)
-    curr_modules = subset_modules[subset_modules['term'] == max(subset_modules['term'])][['module_code', 'course_title']].drop_duplicates()
-    past_modules = subset_modules[subset_modules['term'] != max(subset_modules['term'])]
+    curr_modules = subset_modules[subset_modules['term'] == max(subset_modules['term'])][['module_code', 'course_title']].drop_duplicates().to_dict('records')
+    past_modules = subset_modules[subset_modules['term'] != max(subset_modules['term'])].to_dict('records')
 
-    if past_modules.shape[0] > 0:
-        print('found')
+    for mod in curr_modules:
+        nusmods_name = ''
+        if mod['module_code'] in module_descriptions.index:
+            nusmods_name = module_descriptions.loc[mod['module_code']]['title']
+        mod['nusmods_name'] = nusmods_name
+        
+    for mod in past_modules:
+        nusmods_name = ''
+        if mod['module_code'] in module_descriptions.index:
+            nusmods_name = module_descriptions.loc[mod['module_code']]['title']
+        mod['nusmods_name'] = nusmods_name
 
     return jsonify({
         'information': results, 
-        'curr_modules': curr_modules.to_dict('records'),
-        'past_modules': past_modules.to_dict('records')
+        'curr_modules': curr_modules,
+        'past_modules': past_modules
     })

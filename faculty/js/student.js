@@ -5,7 +5,8 @@ const Student = {
             token: '',
             information: {},
             curr_modules: [], 
-            past_modules: []
+            past_modules: [], 
+            extra_data: ['Attendance Rate', 'Webcast Rate'], 
         }
     }, 
     created() {
@@ -41,8 +42,12 @@ const Student = {
                     <h2>Student Information</h2>
                     <table class='table'>
                         <tbody>
-                            <tr v-for='item in information'>
-                                <td><strong>{{item.name}}</strong> &nbsp; &ndash; &nbsp; <i>{{item.description}}</i></td>
+                            <tr v-for='item in information' v-if='(extra_data.indexOf(item.name) > -1 && show_extra_data) || extra_data.indexOf(item.name) == -1'>
+                                <td>
+                                    <strong>{{item.name}}</strong> &nbsp; &ndash; &nbsp; 
+                                    <i>{{item.description}}</i>&nbsp;
+                                    <span v-if='extra_data.indexOf(item.name) > -1' class='badge badge-warning'>mocked up data</span>
+                                </td>
                                 <td style='white-space:nowrap;'>{{item.value}}</td>
                             </tr>
                         </tbody>
@@ -52,27 +57,34 @@ const Student = {
                         <h2>Modules being taken this semester:</h2>
                         <div class='chart-rows'>
                             <router-link :to='"/"+module.module_code' tag='div' v-for='module in curr_modules' v-if='modules.indexOf(module.module_code) > -1' class='module-card module-card-owned' :key='module.module_code'>
-                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                                <div v-if='show_extra_data' class='module-title'>{{module.module_code}} - {{module.nusmods_name}}</div>
+                                <div v-else class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
                             </router-link>
                             <div v-for='module in curr_modules' v-if='modules.indexOf(module.module_code) == -1' class='module-card' :key='module.module_code'>
-                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                                <div v-if='show_extra_data' class='module-title'>{{module.module_code}} - {{module.nusmods_name}}</div>
+                                <div v-else class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
                             </div>
                         </div>
+                        <div v-if='show_extra_data'>(Module names <span class='badge badge-success'>third-party data</span>)</div>
                     </div>
 
                     <div v-if='past_modules.length > 0'>
                         <h2>Past Modules</h2>
                         <div class='chart-rows'>
                             <router-link :to='"/"+module.module_code' tag='div' v-for='module in past_modules' v-if='modules.indexOf(module.module_code) > -1' class='module-card module-card-owned' :key='module.module_code'>
-                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                                <div v-if='show_extra_data' class='module-title'>{{module.module_code}} - {{module.nusmods_name}}</div>
+                                <div v-else class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
                                 <p>Taken in {{module.term}}<br />Final grade: {{module.final_grade}}</p>
                             </router-link>
                             <div v-for='module in past_modules' v-if='modules.indexOf(module.module_code) == -1' class='module-card' :key='module.module_code'>
-                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                                <div v-if='show_extra_data' class='module-title'>{{module.module_code}} - {{module.nusmods_name}}</div>
+                                <div v-else class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
                                 <p>Taken in {{module.term}}<br />Final grade: {{module.final_grade}}</p>
                             </div>
                         </div>
+                        <div v-if='show_extra_data'>(Module names <span class='badge badge-success'>third-party data</span>)</div>
                     </div> 
+
 
 
                 </div>
