@@ -62,6 +62,16 @@ const Student = {
 
                     <div v-if='past_modules.length > 0'>
                         <h2>Past Modules</h2>
+                        <div class='chart-rows'>
+                            <router-link :to='"/"+module.module_code' tag='div' v-for='module in past_modules' v-if='modules.indexOf(module.module_code) > -1' class='module-card module-card-owned' :key='module.module_code'>
+                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                                <p>Taken in {{module.term}}<br />Final grade: {{module.final_grade}}</p>
+                            </router-link>
+                            <div v-for='module in past_modules' v-if='modules.indexOf(module.module_code) == -1' class='module-card' :key='module.module_code'>
+                                <div class='module-title'>{{module.module_code}} - {{module.course_title}}</div>
+                                <p>Taken in {{module.term}}<br />Final grade: {{module.final_grade}}</p>
+                            </div>
+                        </div>
                     </div> 
 
 
