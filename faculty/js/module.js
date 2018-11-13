@@ -103,7 +103,7 @@ const ModuleDemographics = {
             "facultiesChart",
             "rgba(100, 155, 255, 0.6)"
         );
-        this.academicCareerChart = donutChart("academicCareerChart");
+        //this.academicCareerChart = donutChart("academicCareerChart");
         this.academicLoadChart = donutChart("academicLoadChart");
     },
     methods: {
@@ -131,11 +131,12 @@ const ModuleDemographics = {
                     // Update faculties
                     vue.updateChart(vue.facultiesChart, json.faculty);
 
+                    /**
                     // Update academic careers
                     vue.updateChart(
                         vue.academicCareerChart,
                         json.academic_career
-                    );
+                    );**/
 
                     // Update academic careers
                     vue.updateChart(vue.academicLoadChart, json.academic_load);
@@ -166,11 +167,12 @@ const ModuleDemographics = {
             <p>Your current students are made up of:</p>
             <canvas id="yearsChart" width="100" height="70"></canvas>
         </div>
-        <div class='demographic-chart card'>
+        <!-- Remove Academic Careers due to feedback -->
+        <!--<div class='demographic-chart card'>
             <h2>Academic careers of incoming students</h2>
             <p>Your current students are:</p>
             <canvas id="academicCareerChart" width="100" height="70"></canvas>
-        </div>
+        </div>-->
         <div class='demographic-chart card'>
             <h2>Academic load of incoming students</h2>
             <p>Your current students are:</p>
@@ -316,7 +318,7 @@ const ModuleAcademics = {
             this.updateSemesterWorkload();
             this.updateAttnWeb();
             this.updatePrereqCharts();
-        }, 
+        },
 
         fetchData: async function() {
             var vue = this;
@@ -335,7 +337,7 @@ const ModuleAcademics = {
                     for (var key in json){
                         vue.filters.push(key)
                     }
-                
+
                 })
             return vue.Jsondata
 
@@ -355,7 +357,7 @@ const ModuleAcademics = {
             filter = vue.selected;
             vue.pastGradesChart.data.datasets[0].data = vue.Jsondata[filter].grades.counts;
             vue.pastGradesChart.data.datasets[0].tooltips = vue.Jsondata[filter].grades.students;
-            vue.pastGradesChart.update();   
+            vue.pastGradesChart.update();
         },
 
         updateSemesterWorkload: function(){
@@ -380,7 +382,7 @@ const ModuleAcademics = {
             vue.attendanceCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].attendance_cap_students;
             vue.attendanceCapChart.update();
 
-    
+
             vue.webcastCapChart.data.datasets[0].data = vue.Jsondata[filter].webcast_cap;
             vue.webcastCapChart.data.datasets[0].tooltips = vue.Jsondata[filter].webcast_cap_students;
             vue.webcastCapChart.update();
@@ -430,7 +432,7 @@ const ModuleAcademics = {
                 <option disabled value="">Filter by</option>
                 <option v-for='filter in filters'>
                     {{ filter}}
-                </option>    
+                </option>
             </select>
             <span>Filter by: {{ selected }}</span>
             </div>
@@ -529,7 +531,7 @@ const ModuleAcademics = {
 };
 
 Vue.component('module-enrolment-table', {
-    props: ['data', 'show_extra_data', 'prereqs'], 
+    props: ['data', 'show_extra_data', 'prereqs'],
     template: `
         <table class='table table-hover' v-if='data.length > 0'>
             <thead class='thead-light'>
