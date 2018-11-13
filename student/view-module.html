@@ -211,6 +211,8 @@
             </div>
             <div>
                 <h2>Partner Universities Offering this Module</h2>
+                <div v-if='show_extra_data'>
+                <div v-if='PU_schools.length>0'>
                 <table class="table table-sm table-hover col-9">
                     <thead class='thead-light'>
                         <tr>
@@ -225,6 +227,9 @@
                         </tr>
                     </tbody>
                 </table>
+                </div>
+                <div v-else>There are no available mappings for this module.</div>
+            </div>
             </div>
         </transition>
         <!-- Modal -->

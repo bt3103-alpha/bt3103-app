@@ -36,11 +36,11 @@ const Dashboard = {
 
     template:
     `<div class='container module-page'>
-        <h1> Overview of Modules</h1>
+        <h1> Your Teaching Modules</h1>
         <div class='chart-rows'>
             <div class='wide-chart card' v-for='mod in modules_info'>
                 <div class = "row">
-                    <div class='col-12 overview-module-code-tag'>            
+                    <div class='col-12 overview-module-code-tag'>
                     <router-link :to='"/"+mod["module_code"]' class='overview-module-code'>{{mod["module_code"]}}</router-link>
                     </div>
                 </div>
