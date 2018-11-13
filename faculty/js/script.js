@@ -42,7 +42,10 @@ function updateRefreshStatus(json) {
 window.onload = function() {
     const router = new VueRouter({
         routes,
-        linkActiveClass: "active"
+        linkActiveClass: "active", 
+        scrollBehavior (to, from, savedPosition) {
+            return { x: 0, y: 0 }
+        }
     });
 
     app = new Vue({

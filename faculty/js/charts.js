@@ -153,6 +153,13 @@ function scatterChart(id, colour, xLabel, yLabel, tooltipData = []) {
                     }
                 ]
             },
+            hover : {
+                onHover: function(e) {
+                    var point = this.getElementAtEvent(e);
+                    if (point.length) e.target.style.cursor = 'pointer';
+                    else e.target.style.cursor = 'default';
+                }
+            }, 
             tooltips: {
                 enabled: false,
                 custom: function(tooltipModel) {
