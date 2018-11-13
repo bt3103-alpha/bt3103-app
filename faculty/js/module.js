@@ -122,7 +122,6 @@ const ModuleDemographics = {
                 .then(function(json) {
                     vue.grades = json.grades;
                     vue.degrees = json.degrees;
-                    console.log(JSON.stringify(json.degrees))
 
                     // Update years
                     vue.yearsChart.data.datasets[0].data = json.years;
@@ -192,8 +191,8 @@ const ModuleDemographics = {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for='degree in degrees'>
-                        <td v-on:click= showStudents(degree[2])>{{degree[0]}}</td>
+                    <tr v-for='degree in degrees' v-on:click= showStudents(degree[2]) style='cursor:pointer;'>
+                        <td>{{degree[0]}}</td>
                         <td>{{degree[1]}}</td>
                     </tr>
                 </tbody>
@@ -220,6 +219,7 @@ const ModuleAcademics = {
             prereqs: [],
             prereqsTags:{},
             prereqCharts: {},
+            module_tag_counts: [], 
             display: false // whether we should display the charts
         };
     },
@@ -322,20 +322,19 @@ const ModuleAcademics = {
             var vue = this;
             await fetch("/bt3103-app/backend/faculty/academics/byfac/" + this.$route.params.module)
                 .then(function(response) {
-
                     return response.json();
-
                 })
                 .then(function(json) {
                     vue.Jsondata = json;
-                    //console.log(JSON.stringify(vue.Jsondata['BIZ'].curr_grades_students))
                     vue.prereqs = json['all'].prereqs;
                     vue.updatePrereqsTags(vue.prereqs);
                     // Get all the faculties + all into selected list
                     for (var key in json){
                         vue.filters.push(key)
                     }
-                
+
+                    // Store the tag counts
+                    vue.module_tag_counts = json.tags
                 })
             return vue.Jsondata
 
@@ -343,7 +342,6 @@ const ModuleAcademics = {
         updateCurrentGrades: function(){
             var vue = this;
             filter = vue.selected;
-            //console.log(JSON.stringify(vue.Jsondata))
             vue.currGradesChart.data.datasets[0].data = vue.Jsondata[filter].curr_grades;
             vue.currGradesChart.data.datasets[0].tooltips = vue.Jsondata[filter].curr_grades_students;
             vue.currGradesChart.update();
@@ -426,13 +424,12 @@ const ModuleAcademics = {
         </div>
         <div v-bind:class='["chart-rows", display ? "" : "hide"]'>
         <div class = 'container-fluid'>
-            <select v-model="selected" >
-                <option disabled value="">Filter by</option>
+            Filter by
+            <select v-model="selected" class='form-control' style='width: unset; display: inline; margin-left: 6px;' >
                 <option v-for='filter in filters'>
                     {{ filter}}
                 </option>    
             </select>
-            <span>Filter by: {{ selected }}</span>
             </div>
             <div class='demographic-chart card'>
                 <h2>CAP of incoming students</h2>
@@ -448,6 +445,13 @@ const ModuleAcademics = {
                 <h2>Semester Workload</h2>
                 <p>Your current students are currently taking this number of modules this semester:</p>
                 <canvas id="semesterWorkloadChart" width="100" height="70"></canvas>
+            </div>
+            <div class='demographic-chart card' v-if='module_tag_counts.length > 0'>
+                <h2>Tag Interest</h2>
+                <p>Students are interested in:</p>
+                <div>
+                    <span v-for='tag in module_tag_counts' class='badge badge-light' style='margin-right: 6px'>{{tag.tag}} ({{tag.count}})</span>
+                </div>
             </div>
             <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
                 <h2>Attendance vs CAP</h2>
@@ -474,7 +478,7 @@ const ModuleAcademics = {
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
                 <button :id='prereq.module_code + "-header"' class='btn btn-outline-info' style='margin-top: 12px;'> Hover for more information on {{prereq.module_code}}</button>
             </div>
-            <div class='wide-chart card'>
+            <div class='demographic-chart card'>
                 <h2>Predicted Students To Lookout For</h2>
                 <p>A statistical model was run to predict which students may fare better or worse than the average.
                 This is based on historical data, by comparing past students' grades and which modules they have
@@ -491,8 +495,8 @@ const ModuleAcademics = {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for='student in predicted_scores_good'>
-                                    <td v-on:click= showStudents(student[0])>{{student[0]}}</td>
+                                <tr v-on:click= showStudents(student[0]) style='cursor:pointer;' v-for='student in predicted_scores_good'>
+                                    <td>{{student[0]}}</td>
                                     <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
                                     <td>
                                         <span class='badge badge-light' v-for='module in student[2]' style='margin-right: 3px;'>{{module.code}}</span>
@@ -512,7 +516,7 @@ const ModuleAcademics = {
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for='student in predicted_scores_bad'>
+                                <tr v-on:click= showStudents(student[0]) style='cursor:pointer;' v-for='student in predicted_scores_bad'>
                                     <td>{{student[0]}}</td>
                                     <td style='text-align:right;'>{{student[1].toFixed(2)}}</td>
                                     <td>
@@ -531,7 +535,7 @@ const ModuleAcademics = {
 Vue.component('module-enrolment-table', {
     props: ['data', 'show_extra_data', 'prereqs'], 
     template: `
-        <table class='table table-hover' v-if='data.length > 0'>
+        <table class='table' v-if='data.length > 0'>
             <thead class='thead-light'>
                 <tr>
                     <th>Token</th>

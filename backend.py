@@ -737,6 +737,8 @@ def moduleAcademicsFac(module_code):
     results['all']['pred_scores_good'] = sorted(good_student_scores, key = lambda x: -x[1])
     results['all']['pred_scores_bad'] = sorted(bad_student_scores, key = lambda x: x[1])
 
+    results['tags'] = get_faculty_tag_counts(module_code)
+
     return jsonify(results)
 
 @backend.route(url_path+'/backend/faculty/academics/<module_code>')
@@ -949,6 +951,12 @@ def getSEPUni(module_code):
     sortedlist = sorted(result, key=lambda elem:(elem['PU'], elem['MC']))
     return jsonify(sortedlist)
 
+def get_faculty_tag_counts(module_code):
+    results = []
+    for tag, value in tags.items():
+        if 'modules' in value and module_code in value['modules']:
+            results.append({'tag': tag, 'count': value['count']})
+    return sorted(results, key = lambda x: x['count'], reverse = True)
 
 @backend.route(url_path+'/backend/faculty/student/<token>')
 def get_student_info(token):
