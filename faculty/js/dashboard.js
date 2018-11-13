@@ -36,7 +36,7 @@ const Dashboard = {
 
     template:
     `<div class='container module-page'>
-        <h1> Teaching Modules</h1>
+        <h1> Your Teaching Modules</h1>
         <div class='chart-rows'>
             <div class='wide-chart card' v-for='mod in modules_info'>
                 <div class = "row">
