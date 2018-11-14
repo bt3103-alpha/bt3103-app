@@ -1,0 +1,304 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Server &#8212; Ultimods  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Student Portal" href="student.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="server">
+<h1>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h1>
+<p>The Flask code is split into 2 files:</p>
+<ul class="simple">
+<li><code class="docutils literal notranslate"><span class="pre">server.py</span></code> – Entry point for the Flask app, handles serving the static files</li>
+<li><code class="docutils literal notranslate"><span class="pre">backend.py</span></code> – Serves endpoints for dynamic data</li>
+</ul>
+<div class="section" id="server-py">
+<h2>server.py<a class="headerlink" href="#server-py" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">server.py</span></code> file serves the static pages, and expects Vue (on the static pages)
+to poll the backend for information.</p>
+<span class="target" id="module-server"></span><dl class="function">
+<dt id="server.index">
+<code class="descclassname">server.</code><code class="descname">index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the welcome page</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.facultyIndex">
+<code class="descclassname">server.</code><code class="descname">facultyIndex</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#facultyIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.facultyIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the faculty portal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.studentIndex">
+<code class="descclassname">server.</code><code class="descname">studentIndex</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#studentIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.studentIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the student portal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.helpIndex">
+<code class="descclassname">server.</code><code class="descname">helpIndex</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#helpIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.helpIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the Sphinx documentation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.add_header">
+<code class="descclassname">server.</code><code class="descname">add_header</code><span class="sig-paren">(</span><em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#add_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.add_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add headers to force the browser to not cache static files.
+To make it easier for development, can be safely removed
+in production.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="backend-py">
+<h2>backend.py<a class="headerlink" href="#backend-py" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">backend.py</span></code> file prepares the data needed and exposes the data to the
+frontend via REST endpoints.</p>
+<span class="target" id="module-backend"></span><dl class="function">
+<dt id="backend.fetchPrereqs">
+<code class="descclassname">backend.</code><code class="descname">fetchPrereqs</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchPrereqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchPrereqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches a list of prerequisites for a given module_code.</p>
+<p>Uses nusmods’ API. Returns an empty list of module is not found.</p>
+<p>Parameters:
+module_code – string, module code</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.fetchGoogleSheet">
+<code class="descclassname">backend.</code><code class="descname">fetchGoogleSheet</code><span class="sig-paren">(</span><em>url_num</em>, <em>sheet_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchGoogleSheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchGoogleSheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in the Google spreadsheet, returning it as a Pandas dataframe.</p>
+<p>Parameters:
+url_num: integer, representing which ‘part’ (1 or 2) the sheet belongs to
+sheet_name: string, name of sheet to pull data from</p>
+<p>References <a class="reference external" href="https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/">https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.fetchFirebase">
+<code class="descclassname">backend.</code><code class="descname">fetchFirebase</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchFirebase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchFirebase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in a Firebase URL, and returns the data as a Pandas dataframe.</p>
+<p>Parameters:
+url: string, Firebase URL</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getScore">
+<code class="descclassname">backend.</code><code class="descname">getScore</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getScore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getScore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the numeric grade of a grade.</p>
+<p>Returns nan if grade is not found (e.g. S/U)</p>
+<p>Parameters:
+x – string, letter grade</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.fetchData">
+<code class="descclassname">backend.</code><code class="descname">fetchData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch and process all the data that we need.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.callFetchData">
+<code class="descclassname">backend.</code><code class="descname">callFetchData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#callFetchData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.callFetchData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to start fetching data</p>
+<p>Called when server is started, or when the
+Refresh data button is pressed in Faculty side.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.fetchDataStatus">
+<code class="descclassname">backend.</code><code class="descname">fetchDataStatus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchDataStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchDataStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches the current status of data fetching (as an integer from 0 to 100)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.countsAsDict">
+<code class="descclassname">backend.</code><code class="descname">countsAsDict</code><span class="sig-paren">(</span><em>df</em>, <em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#countsAsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.countsAsDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a column, does a value count, and returns a dict</p>
+<p>E.g. <code class="docutils literal notranslate"><span class="pre">{'labels':</span> <span class="pre">['A',</span> <span class="pre">'B'],</span> <span class="pre">'counts':</span> <span class="pre">[2,</span> <span class="pre">4],</span> <span class="pre">'tokens':</span> <span class="pre">['Token1',</span> <span class="pre">'Token2']}</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>- Pandas dataframe</strong> (<em>df</em>) – Dataframe that contains the data to be counted</li>
+<li><strong>- string</strong> (<em>column_name</em>) – Name of the column to be counted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary with keys ‘labels’, ‘counts’, and ‘students’,
+with each value being a list</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.countsAsLists">
+<code class="descclassname">backend.</code><code class="descname">countsAsLists</code><span class="sig-paren">(</span><em>df</em>, <em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#countsAsLists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.countsAsLists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a column, does a value count, returns as nested lists</p>
+<p>E.g. [[“A”, 1, [‘Token1’, ‘Token2’]], [“B”, 2, [‘Token3’]]]</p>
+<p>Parameters:
+x - Pandas Series</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.module_all_terms">
+<code class="descclassname">backend.</code><code class="descname">module_all_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#module_all_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.module_all_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns all module_enrolments for a given module_code</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.module_current_term">
+<code class="descclassname">backend.</code><code class="descname">module_current_term</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#module_current_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.module_current_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the latest semester’s module_enrolments for a given module_code</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.module_past_terms">
+<code class="descclassname">backend.</code><code class="descname">module_past_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#module_past_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.module_past_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the previous semesters’ module_enrolments for a given module_code</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.program_current_term">
+<code class="descclassname">backend.</code><code class="descname">program_current_term</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#program_current_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.program_current_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the program_enrolment for students currently taking a particular module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.program_past_terms">
+<code class="descclassname">backend.</code><code class="descname">program_past_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#program_past_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.program_past_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the program_enrolment for students who previously took the module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.mainOverview">
+<code class="descclassname">backend.</code><code class="descname">mainOverview</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#mainOverview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.mainOverview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches all relevant details to display on main page for a given module_code</p>
+<p>Parameters:
+module_code - string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.moduleDemographics">
+<code class="descclassname">backend.</code><code class="descname">moduleDemographics</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#moduleDemographics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.moduleDemographics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetches all demographic data to be displayed for a given module_code.</p>
+<p>Parameters:
+module_code - string</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getModuleGrades">
+<code class="descclassname">backend.</code><code class="descname">getModuleGrades</code><span class="sig-paren">(</span><em>module_code=None</em>, <em>program_subset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getModuleGrades"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getModuleGrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns grades. Can filter by module_code and/or a list of tokens</p>
+<p>Parameters:
+module_code - optional string, return only grades with this module_code
+program_subset - optional Pandas DataFrame, return only grades belonging to those who are in this dataframe</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Ultimods</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#server-py">server.py</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-py">backend.py</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="student.html">Student Portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faculty.html">Faculty Portal</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="getting_started.html" title="previous chapter">Getting Started</a></li>
+      <li>Next: <a href="student.html" title="next chapter">Student Portal</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/server.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

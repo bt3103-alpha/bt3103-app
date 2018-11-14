@@ -320,10 +320,21 @@ def countsAsDict(df, column_name):
     '''
     Takes in a column, does a value count, and returns a dict
 
-    E.g. {'labels': ['A', 'B'], 'counts': [2, 4], 'tokens': ['Token1', 'Token2']}
+    E.g. ``{'labels': ['A', 'B'], 'counts': [2, 4], 'tokens': ['Token1', 'Token2']}``
 
-    Parameters:
-    x - Pandas Series
+    Parameters
+    ----------
+    df - Pandas dataframe
+        Dataframe that contains the data to be counted
+    column_name - string
+        Name of the column to be counted
+    
+    Returns
+    -------
+    dict
+        A dictionary with keys 'labels', 'counts', and 'students', 
+        with each value being a list
+
     '''
     counts = df[column_name].value_counts()
     labels = [x for x in counts.index]
