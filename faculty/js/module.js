@@ -5,6 +5,9 @@ async function getModuleInfo(module_code) {
         })
 }
 
+/**
+ * Root element that loads all module-related data
+ */
 const Module = {
     props: ["show_extra_data", 'student_enrolment', 'module_prereqs'],
     data() {
@@ -21,6 +24,11 @@ const Module = {
         }
     },
     methods: {
+        /**
+         * Get the title of the module, given it's code
+         * Called when first created, and then whenever 
+         * the route changes. 
+         */
         updateModuleInfo: function() {
             const vue = this;
             getModuleInfo(this.$route.params.module)
@@ -52,34 +60,11 @@ const Module = {
     </div>`
 };
 
-function donutChart(id, labels = []) {
-    return new Chart(document.getElementById(id), {
-        type: "pie",
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: "No. of students",
-                    data: [],
-                    backgroundColor: [
-                        "rgba(54, 162, 235, 0.6)",
-                        "rgba(255, 99, 132, 0.6)",
-                        "rgba(75, 192, 192, 0.6)",
-                        "rgba(255, 206, 86, 0.6)"
-                    ]
-                }
-            ]
-        },
-        options: {
-            cutoutPercentage: 50,
-            rotation: 0.5 * Math.PI,
-            animation: {
-                animateScale: true
-            }
-        }
-    });
-}
-
+/**
+ * Loaded by the Demographics tab. 
+ * 
+ * Pulls data from the /backend/faculty/demographics/ endpoint.
+ */
 const ModuleDemographics = {
     data() {
         return {

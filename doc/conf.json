@@ -1,0 +1,5 @@
+{
+    "source": {
+        "include": ["../faculty/js/", "../student/js/"]
+    }
+}

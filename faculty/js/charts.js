@@ -1,3 +1,10 @@
+/**
+ * Creates a bar chart at a given ``div``
+ * @param {string} id HTML id of div to place chart in
+ * @param {string} colour Colour of bar chart columns
+ * @param {list} labels X axis labels (optional)
+ * @param {list} tooltipData Data to display as tooltips
+ */
 function barChart(id, colour, labels = [], tooltipData = []) {
     
     var dataset = {
@@ -115,6 +122,14 @@ function barChart(id, colour, labels = [], tooltipData = []) {
     });
 }
 
+/**
+ * Creates a scatter plot at a given ``div``
+ * @param {string} id HTML id of ``div`` to place chart in
+ * @param {string} colour Colour of points in plot
+ * @param {string} xLabel Label of x axis
+ * @param {string} yLabel Label of y axis
+ * @param {list} tooltipData Data to display as tooltips
+ */
 function scatterChart(id, colour, xLabel, yLabel, tooltipData = []) {
     var dataset = {
         label: "No. of students",
@@ -233,6 +248,34 @@ function scatterChart(id, colour, xLabel, yLabel, tooltipData = []) {
 
                 $("#studentModal").modal();
                 
+            }
+        }
+    });
+}
+
+function donutChart(id, labels = []) {
+    return new Chart(document.getElementById(id), {
+        type: "pie",
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "No. of students",
+                    data: [],
+                    backgroundColor: [
+                        "rgba(54, 162, 235, 0.6)",
+                        "rgba(255, 99, 132, 0.6)",
+                        "rgba(75, 192, 192, 0.6)",
+                        "rgba(255, 206, 86, 0.6)"
+                    ]
+                }
+            ]
+        },
+        options: {
+            cutoutPercentage: 50,
+            rotation: 0.5 * Math.PI,
+            animation: {
+                animateScale: true
             }
         }
     });

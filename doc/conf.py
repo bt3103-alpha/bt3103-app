@@ -46,9 +46,12 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx.ext.napoleon',
+    'sphinx_js'
 ]
 
 autodoc_member_order = 'bysource'
+js_source_path = '..'
+jsdoc_config_path = 'conf.json'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
