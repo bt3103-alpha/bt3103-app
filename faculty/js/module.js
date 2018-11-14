@@ -332,7 +332,9 @@ const ModuleAcademics = {
                     vue.updatePrereqsTags(vue.prereqs);
                     // Get all the faculties + all into selected list
                     for (var key in json){
-                        vue.filters.push(key)
+                        if (key != 'tags') {
+                            vue.filters.push(key);
+                        }
                     }
 
                     // Store the tag counts
@@ -452,7 +454,7 @@ const ModuleAcademics = {
                 <h2>Tag Interest</h2>
                 <p>Students are interested in:</p>
                 <div>
-                    <span v-for='tag in module_tag_counts' class='badge badge-light' style='margin-right: 6px'>{{tag.tag}} ({{tag.count}})</span>
+                    <span v-for='tag in module_tag_counts' class='badge badge-light' style='margin: 3px; white-space: unset;'>{{tag.tag}} ({{tag.count}})</span>
                 </div>
             </div>
             <div :class='["demographic-chart", "card", show_extra_data ? "":"hide"]'>
@@ -480,7 +482,7 @@ const ModuleAcademics = {
                 <canvas :id='"prereqGradesChart"+prereq.module_code' width='100' height='70'></canvas>
                 <button :id='prereq.module_code + "-header"' class='btn btn-outline-info' style='margin-top: 12px;'> Hover for more information on {{prereq.module_code}}</button>
             </div>
-            <div class='demographic-chart card'>
+            <div class='wide-chart card'>
                 <h2>Predicted Students To Lookout For</h2>
                 <p>A statistical model was run to predict which students may fare better or worse than the average.
                 This is based on historical data, by comparing past students' grades and which modules they have

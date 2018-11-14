@@ -63,7 +63,7 @@ html, body {
 }
 
 .module-page .wide-chart {
-    width: calc(50% - 16px);
+    width: calc(66% - 16px);
 }
 
 .module-page .chart-rows {
