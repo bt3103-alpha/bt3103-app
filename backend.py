@@ -621,7 +621,7 @@ def moduleAcademicsFac(module_code):
         bad_student_scores = []
         for l in range(module_current.shape[0]):
             student = module_current.iloc[l]
-            if student['token'] in fac_set['token']:
+            if student['token'] in list(fac_set['token']):
                 scores = []
                 influencing_modules = []
                 # Iterate through all modules this student has taken
