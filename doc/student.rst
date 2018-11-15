@@ -62,7 +62,7 @@ View Module Page
 
 .. js:autofunction:: view-module.wordcloud
 
-.. js:autofunction:: view-module.donutChart
+.. js:autofunction:: view-module.barReviewChart
 
 
 
