@@ -52,8 +52,8 @@ View Module Page
 .. js:autofunction:: view-module.searchModules
 
 
-**Charts and Diagrams used include:**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Charts and Diagrams used include**
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. js:autofunction:: view-module.treeStuff
 
