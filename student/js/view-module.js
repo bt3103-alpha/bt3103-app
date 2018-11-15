@@ -161,9 +161,9 @@ window.onload = function () {
                         console.log('teaching')
                         const a = [1, 2, 3, 4, 5]
                         if (vuethis.teaching_fb) {
-                            vuethis.tAbility = donutChart("tAbility", ["SA", "A", "N", "D", "SD"], json.tAbility);
-                            vuethis.tTimely = donutChart("tTimely", ["SA", "A", "N", "D", "SD"], json.tTimely);
-                            vuethis.tInterest = donutChart("tInterest", ["SA", "A", "N", "D", "SD"], json.tInterest);
+                            vuethis.tAbility = barReviewChart("tAbility", ["SA", "A", "N", "D", "SD"], json.tAbility);
+                            vuethis.tTimely = barReviewChart("tTimely", ["SA", "A", "N", "D", "SD"], json.tTimely);
+                            vuethis.tInterest = barReviewChart("tInterest", ["SA", "A", "N", "D", "SD"], json.tInterest);
                         }
                     });
             }
@@ -396,12 +396,12 @@ function wordcloud(listword, id, colorRange) {
 }
 
 /**
- * Creates a donut chart at a given ``div``
+ * Creates a bar Review Chart chart at a given ``div``
  * @param {list} id HTML id of div to place chart in
  * @param {list} labels List of labels
  * @param {list} data  Values
  */
-function donutChart(id, labels = [], dat_a) {
+function barReviewChart(id, labels = [], dat_a) {
     return new Chart(document.getElementById(id), {
         type: "bar",
         data: {
