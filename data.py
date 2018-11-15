@@ -28,7 +28,7 @@ grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
 
 def fetchPrereqs(module_code):
     '''
-    Fetches a list of prerequisites for a given module code. Uses nusmods' API.
+    Fetch a list of prerequisites for a given module code. Uses nusmods' API.
 
     Parameters
     ----------

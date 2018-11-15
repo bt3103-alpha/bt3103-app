@@ -25,7 +25,7 @@ to poll the backend for information.
 Backend (``backend.py``)
 ------------------------
 
-The *backend.py* file fetch the data needed (by calling :func:`data.fetchData()`) and exposes the data to the 
+The *backend.py* file fetches the data needed (by calling :func:`data.fetchData()`) and exposes the data to the 
 frontend via REST endpoints. 
 
 .. automodule:: backend
