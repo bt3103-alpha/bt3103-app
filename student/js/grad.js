@@ -6,15 +6,16 @@ class Module {
     }
 }
 
-class Requirement {
-    /**
+
+/**
      *
      * @param {list} details List of requirements to be met
-     * @param {int} req_num Number of the requirements that need to be met. Default: 1
+     * @param {integer} req_num Number of the requirements that need to be met. Default: 1
      * @param {string} field If applicable, what field to check for requirements (e.g. name, level). Default: name
      * @param {list} subset List of module names which have to fulfill the requirements
      * @param {list} ofWhichs List of further requirements that those who pass the first this requirement must fulfill
      */
+class Requirement {
     constructor(details, req_num, field, subset, ofWhichs) {
         this.details = details;
         this.req_num = req_num;
@@ -277,6 +278,9 @@ var modules = [];
 
 var app; // Vue app
 
+/**
+ * Function to display all requirements in a table
+*/
 function displayRequirements() {
 
     let tbl = document.getElementById("table_body");

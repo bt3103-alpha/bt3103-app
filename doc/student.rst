@@ -34,3 +34,12 @@ View Module Page
 .. js:autofunction:: view-module.wordcloud
 
 .. js:autofunction:: view-module.donutChart
+
+
+
+Graduation Progress Page
+------------------------
+
+.. js:autoclass:: grad.Requirement
+
+.. js:autofunction:: grad.displayRequirements
