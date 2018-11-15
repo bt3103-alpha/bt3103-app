@@ -36,8 +36,8 @@ to display the relevant information for a given ``module_code``.
     .. js:autofunction:: module.Module.methods.updateModuleInfo
 
     
-ModuleDemographics
-..................
+Module Demographics
+...................
 .. js:autoclass:: module.ModuleDemographics
     
     Calls :js:func:`barChart`, :js:func:`scatterChart` and :js:func:`donutChart`
@@ -45,8 +45,8 @@ ModuleDemographics
     .. js:autofunction:: ModuleDemographics.methods.updateChart
     .. js:autofunction:: ModuleDemographics.methods.showStudents
 
-ModuleAcademics
-..................
+Module Academics
+................
 
 .. js:autoclass:: module.ModuleAcademics
     
@@ -62,8 +62,8 @@ ModuleAcademics
     .. js:autofunction:: ModuleAcademics.methods.updatePrereqCharts
     .. js:autofunction:: ModuleAcademics.methods.buildCharts
 
-ModuleEnrolment
-..................
+Module Enrolment
+................
 .. js:autoclass:: module.ModuleEnrolment
     
 
