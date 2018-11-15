@@ -330,7 +330,7 @@ function checkSize(listword) {
 /**
  * Creates a wordcloud at a given ``div``
  * @param {list} listword List of words in the wordcloud
- * @param {list} id HTML id of div to place chart in
+ * @param {string} id HTML id of div to place chart in
  * @param {list} colorRange  List of colours in Hex Code
  */
 function wordcloud(listword, id, colorRange) {
@@ -397,7 +397,7 @@ function wordcloud(listword, id, colorRange) {
 
 /**
  * Creates a bar Review Chart chart at a given ``div``
- * @param {list} id HTML id of div to place chart in
+ * @param {string} id HTML id of div to place chart in
  * @param {list} labels List of labels
  * @param {list} data  Values
  */
