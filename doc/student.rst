@@ -52,16 +52,11 @@ View Module Page
 .. js:autofunction:: view-module.searchModules
 
 
-<<<<<<< HEAD
-**Charts and Diagrams used include**
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-=======
 Charts and Diagrams
 ^^^^^^^^^^^^^^^^^^^^
 
 These functions are used to display charts & diagrams 
 in the View Module page:
->>>>>>> e87d7bdcb66f31e3f866a318a31dd8fe610f6f1b
 
 .. js:autofunction:: view-module.treeStuff
 
