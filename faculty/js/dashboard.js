@@ -4,7 +4,12 @@ async function getMainModuleInfo(module_code) {
             return resp.json()
         })
 }
-
+/**
+ * Given a list of teaching modules, fetches all related information and displays 
+ * the summary of modules in the main page 
+ * 
+ * Pulls data from the /backend/faculty/main/ endpoint.
+ */
 const Dashboard = {
     props: ["modules"],
     data() {
@@ -15,13 +20,13 @@ const Dashboard = {
 
     },
     created() {
-        this.updateModuleInfo();
+        this.updateModuleInfoMain();
     },
     methods: {
-        updateModuleInfo: function () {
+        updateModuleInfoMain: function () {
             const vue = this;
             for (mod in this.modules) {
-                getMainModuleInfo(this.modules[mod]).then((resp) => {
+                getMainModuleInfoMain(this.modules[mod]).then((resp) => {
                     vue.modules_info.push(resp);
                 })
             }
