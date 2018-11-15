@@ -7,99 +7,343 @@
     <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Faculty Portal &#8212; Ultimods  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/agogo.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Student Portal" href="student.html" />
-   
-  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
-  
-  
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
+    <link rel="prev" title="Student Portal" href="student.html" /> 
   </head><body>
-  
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Ultimods  documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="student.html" title="Student Portal"
+             accesskey="P">previous</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
 
-    <div class="document">
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="faculty-portal">
 <h1>Faculty Portal<a class="headerlink" href="#faculty-portal" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module">
+<h2>Module<a class="headerlink" href="#module" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="module.Module">
+<em class="property">class </em><code class="descclassname">module.</code><code class="descname">Module</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.Module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root element that loads all module-related data</p>
+<p>Main placeholder for all faculty-related data.</p>
+<dl class="function">
+<dt id="module.Module.module.Module.methods.updateModuleInfo">
+<code class="descclassname">module.Module.module.Module.methods.</code><code class="descname">updateModuleInfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.Module.module.Module.methods.updateModuleInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the title of the module, given it’s code
+Called when first created, and then whenever
+the route changes.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="moduledemographics">
+<h2>ModuleDemographics<a class="headerlink" href="#moduledemographics" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="module.ModuleDemographics">
+<em class="property">class </em><code class="descclassname">module.</code><code class="descname">ModuleDemographics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleDemographics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by the Demographics tab.</p>
+<p>Pulls data from the /backend/faculty/demographics/ endpoint.</p>
+<p>Calls <a class="reference internal" href="#barChart" title="barChart"><code class="xref js js-func docutils literal notranslate"><span class="pre">barChart()</span></code></a>,:js:func:<cite>scatterChart</cite> and <a class="reference internal" href="#donutChart" title="donutChart"><code class="xref js js-func docutils literal notranslate"><span class="pre">donutChart()</span></code></a></p>
+<dl class="function">
+<dt id="module.ModuleDemographics.ModuleDemographics.methods.updateChart">
+<code class="descclassname">module.ModuleDemographics.ModuleDemographics.methods.</code><code class="descname">updateChart</code><span class="sig-paren">(</span><em>chart</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleDemographics.ModuleDemographics.methods.updateChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the charts at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>chart</strong> (<em>string</em>) – </li>
+<li><strong>data</strong> (<em>string</em>) – for the charts</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleDemographics.ModuleDemographics.methods.showStudents">
+<code class="descclassname">module.ModuleDemographics.ModuleDemographics.methods.</code><code class="descname">showStudents</code><span class="sig-paren">(</span><em>students</em><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleDemographics.ModuleDemographics.methods.showStudents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drilldown function to show more information on the students <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>students</strong> (<em>list</em>) – list shows the student modal</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="moduleacademics">
+<h2>ModuleAcademics<a class="headerlink" href="#moduleacademics" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="module.ModuleAcademics">
+<em class="property">class </em><code class="descclassname">module.</code><code class="descname">ModuleAcademics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by the Academic tab.</p>
+<p>Pulls data from the /backend/faculty/academics/byfac endpoint.</p>
+<p>Calls <a class="reference internal" href="#barChart" title="barChart"><code class="xref js js-func docutils literal notranslate"><span class="pre">barChart()</span></code></a> and <a class="reference internal" href="#scatterChart" title="scatterChart"><code class="xref js js-func docutils literal notranslate"><span class="pre">scatterChart()</span></code></a></p>
+<dl class="function">
+<dt id="module.ModuleAcademics.ModuleAcademics.methods.showStudents">
+<code class="descclassname">module.ModuleAcademics.ModuleAcademics.methods.</code><code class="descname">showStudents</code><span class="sig-paren">(</span><em>students</em><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.ModuleAcademics.methods.showStudents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drilldown function to show more information on the students <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>students</strong> (<em>list</em>) – list shows the student modal</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.ModuleAcademics.methods.updatePrereqsTags">
+<code class="descclassname">module.ModuleAcademics.ModuleAcademics.methods.</code><code class="descname">updatePrereqsTags</code><span class="sig-paren">(</span><em>prerequisites</em><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.ModuleAcademics.methods.updatePrereqsTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update any prerequisites tags at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>prerequisites</strong> (<em>list</em>) – list Also updates the tooltip that display the Prerequisites Tags</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.updateCurrentGrades">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">updateCurrentGrades</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.updateCurrentGrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Current Grades of Student for particular module</p>
+<p>add Current Grades data to be displayed on the charts</p>
+<p>addtooltip Data to display as tooltips in chart function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.updatePastGrades">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">updatePastGrades</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.updatePastGrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Past Grades of Student for particular module</p>
+<p>add Past Grades data to be displayed on the charts</p>
+<p>add tooltip Data to display as tooltips in chart function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.updateSemesterWorkload">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">updateSemesterWorkload</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.updateSemesterWorkload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Semester Workload of Student for particular module</p>
+<p>add Semester Workload data to be displayed on the charts</p>
+<p>add tooltip Data to display as tooltips in chart function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.updatePredictedStudents">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">updatePredictedStudents</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.updatePredictedStudents" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Predicted Students for particular module</p>
+<p>add Predicted Students data to be displayed on the charts</p>
+<p>add tooltip Data to display as tooltips in chart function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.updateAttnWeb">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">updateAttnWeb</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.updateAttnWeb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Attendance and Webcast Rates of Student for particular module</p>
+<p>add Attendance and Webcast Rates data to be displayed on the charts</p>
+<p>add tooltip Data to display as tooltips in chart function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.updatePrereqCharts">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">updatePrereqCharts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.updatePrereqCharts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update Prerequisites of Student for particular module</p>
+<p>add Prerequisites data to be displayed on the charts</p>
+<p>add tooltip Data to display as tooltips in chart function</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleAcademics.module.ModuleAcademics.methods.buildCharts">
+<code class="descclassname">module.ModuleAcademics.module.ModuleAcademics.methods.</code><code class="descname">buildCharts</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleAcademics.module.ModuleAcademics.methods.buildCharts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build All the Charts for Academics Dashboard using barChart() and scatterChart()</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="moduleenrolment">
+<h2>ModuleEnrolment<a class="headerlink" href="#moduleenrolment" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="module.ModuleEnrolment">
+<em class="property">class </em><code class="descclassname">module.</code><code class="descname">ModuleEnrolment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleEnrolment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by the Enrolment tab.</p>
+<p>Pulls data from the /backend/faculty/enrolment/ endpoint.</p>
+<p>Display the module enrolment table, the student modal</p>
+</dd></dl>
+
+</div>
+<div class="section" id="charts">
+<h2>Charts<a class="headerlink" href="#charts" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="barChart">
+<code class="descname">barChart</code><span class="sig-paren">(</span><em>id</em>, <em>colour</em>, <em>labels</em>, <em>tooltipData</em><span class="sig-paren">)</span><a class="headerlink" href="#barChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a bar chart at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<em>string</em>) – HTML id of div to place chart in</li>
+<li><strong>colour</strong> (<em>string</em>) – Colour of bar chart columns</li>
+<li><strong>labels</strong> (<em>list</em>) – X axis labels (optional)</li>
+<li><strong>tooltipData</strong> (<em>list</em>) – Data to display as tooltips</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scatterChart">
+<code class="descname">scatterChart</code><span class="sig-paren">(</span><em>id</em>, <em>colour</em>, <em>xLabel</em>, <em>yLabel</em>, <em>tooltipData</em><span class="sig-paren">)</span><a class="headerlink" href="#scatterChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a scatter plot at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<em>string</em>) – HTML id of <code class="docutils literal notranslate"><span class="pre">div</span></code> to place chart in</li>
+<li><strong>colour</strong> (<em>string</em>) – Colour of points in plot</li>
+<li><strong>xLabel</strong> (<em>string</em>) – Label of x axis</li>
+<li><strong>yLabel</strong> (<em>string</em>) – Label of y axis</li>
+<li><strong>tooltipData</strong> (<em>list</em>) – Data to display as tooltips</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="donutChart">
+<code class="descname">donutChart</code><span class="sig-paren">(</span><em>id</em>, <em>labels</em><span class="sig-paren">)</span><a class="headerlink" href="#donutChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a donut chart at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<em>string</em>) – HTML id of <code class="docutils literal notranslate"><span class="pre">div</span></code> to place chart in</li>
+<li><strong>labels</strong> (<em>list</em>) – (optional)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 </div>
 
 
           </div>
-          
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">Ultimods</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
+        </div>
+        <div class="sidebar">
+          <h3>Table Of Contents</h3>
+          <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
 <li class="toctree-l1"><a class="reference internal" href="student.html">Student Portal</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Faculty Portal</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Faculty Portal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module">Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moduledemographics">ModuleDemographics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moduleacademics">ModuleAcademics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moduleenrolment">ModuleEnrolment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#charts">Charts</a></li>
+</ul>
+</li>
 </ul>
 
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="student.html" title="previous chapter">Student Portal</a></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    </div>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+          <div role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+            </form>
+          </div>
         </div>
+        <div class="clearer"></div>
       </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="footer">
-      
-      
-      
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
-      
-      |
-      <a href="_sources/faculty.rst.txt"
-          rel="nofollow">Page source</a>
     </div>
 
-    
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigaton">
+            <a href="student.html" title="Student Portal"
+              >previous</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/faculty.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
 
-    
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.4.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
   </body>
 </html>

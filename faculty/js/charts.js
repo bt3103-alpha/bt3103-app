@@ -252,7 +252,11 @@ function scatterChart(id, colour, xLabel, yLabel, tooltipData = []) {
         }
     });
 }
-
+/**
+ * Creates a donut chart at a given ``div``
+ * @param {string} id HTML id of ``div`` to place chart in
+* @param {list} labels (optional)
+ */
 function donutChart(id, labels = []) {
     return new Chart(document.getElementById(id), {
         type: "pie",
