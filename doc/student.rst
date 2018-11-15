@@ -66,13 +66,13 @@ Module by Tags Page
 -------------------
 .. js:autofunction:: search-tag.searchtagjs
 
-.. js:autofunction:: search-tag.searchTags
+.. js:autofunction:: view-tag.searchTags
 
-.. js:autofunction:: search-tag.searchMod
+.. js:autofunction:: view-tag.searchMod
 
-.. js:autofunction:: search-tag.searchMod
+.. js:autofunction:: view-tag.searchMod
 
-.. js:autofunction:: search-tag.methods.increment
+.. js:autofunction:: view-tag.methods.increment
 
 
 Graduation Progress Page
