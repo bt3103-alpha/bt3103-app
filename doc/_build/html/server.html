@@ -110,28 +110,62 @@ module_code - string</p>
 <dl class="function">
 <dt id="data.fetchPrereqs">
 <code class="descclassname">data.</code><code class="descname">fetchPrereqs</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchPrereqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchPrereqs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetches a list of prerequisites for a given module_code.</p>
-<p>Uses nusmods’ API. Returns an empty list of module is not found.</p>
-<p>Parameters:
-module_code – string, module code</p>
+<dd><p>Fetches a list of prerequisites for a given module code. Uses nusmods’ API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Prerequisities for a given module code, returns an empty list of module is not found</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.fetchGoogleSheet">
 <code class="descclassname">data.</code><code class="descname">fetchGoogleSheet</code><span class="sig-paren">(</span><em>url_num</em>, <em>sheet_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchGoogleSheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchGoogleSheet" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads in the Google spreadsheet, returning it as a Pandas dataframe.</p>
-<p>Parameters:
-url_num: integer, representing which ‘part’ (1 or 2) the sheet belongs to
-sheet_name: string, name of sheet to pull data from</p>
-<p>References <a class="reference external" href="https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/">https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</a></p>
+<dd><p>Query data from Google spreadsheet.
+Data obtained from <a class="reference external" href="https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/">https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url_num</strong> (<em>integer</em>) – Representing which ‘part’ (1 or 2) the sheet belongs to</li>
+<li><strong>sheet_name</strong> (<em>string</em>) – Name of sheet to pull data from</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Results from Google spreadsheet</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Pandas dataframe</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.fetchFirebase">
 <code class="descclassname">data.</code><code class="descname">fetchFirebase</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchFirebase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchFirebase" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads in a Firebase URL, and returns the data as a Pandas dataframe.</p>
-<p>Parameters:
-url: string, Firebase URL</p>
+<dd><p>Query data from Firebase.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<em>string</em>) – Firebase URL</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Results from Firebase database</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas dataframe</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -143,29 +177,42 @@ url: string, Firebase URL</p>
 <dl class="function">
 <dt id="data.getScore">
 <code class="descclassname">data.</code><code class="descname">getScore</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#getScore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.getScore" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the numeric grade of a grade.</p>
-<p>Returns nan if grade is not found (e.g. S/U)</p>
-<p>Parameters:
-x – string, letter grade</p>
+<dd><p>Maps letter grade to numeric score.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>string</em>) – Letter grade</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Numeric grade of a grade, nan is grade is not found (eg. S/U)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.calculate_cap">
+<code class="descclassname">data.</code><code class="descname">calculate_cap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#calculate_cap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.calculate_cap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate CAP score for each student in the database after fetching module enrolment.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.countsAsDict">
 <code class="descclassname">data.</code><code class="descname">countsAsDict</code><span class="sig-paren">(</span><em>df</em>, <em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#countsAsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.countsAsDict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes in a column, does a value count, and returns a dict</p>
-<p>E.g. <code class="docutils literal notranslate"><span class="pre">{'labels':</span> <span class="pre">['A',</span> <span class="pre">'B'],</span> <span class="pre">'counts':</span> <span class="pre">[2,</span> <span class="pre">4],</span> <span class="pre">'tokens':</span> <span class="pre">['Token1',</span> <span class="pre">'Token2']}</span></code></p>
+<dd><p>Takes in a column, does a value count, and returns a dict.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- Pandas dataframe</strong> (<em>df</em>) – Dataframe that contains the data to be counted</li>
-<li><strong>- string</strong> (<em>column_name</em>) – Name of the column to be counted</li>
+<li><strong>df</strong> (<em>Pandas dataframe</em>) – Dataframe that contains the data to be counted</li>
+<li><strong>column_name</strong> (<em>string</em>) – Name of the column to be counted</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary with keys ‘labels’, ‘counts’, and ‘students’,
-with each value being a list</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary with keys ‘labels’, ‘counts’, and ‘students’ with each value being a list.</p>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
@@ -173,45 +220,125 @@ with each value being a list</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">countsAsDict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">],</span> <span class="s1">&#39;counts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s1">&#39;tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Token1&#39;</span><span class="p">,</span> <span class="s1">&#39;Token2&#39;</span><span class="p">]}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.countsAsLists">
 <code class="descclassname">data.</code><code class="descname">countsAsLists</code><span class="sig-paren">(</span><em>df</em>, <em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#countsAsLists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.countsAsLists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes in a column, does a value count, returns as nested lists</p>
-<p>E.g. [[“A”, 1, [‘Token1’, ‘Token2’]], [“B”, 2, [‘Token3’]]]</p>
-<p>Parameters:
-x - Pandas Series</p>
+<dd><p>Takes in a column, does a value count, returns as nested lists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>Pandas dataframe</em>) – Dataframe that contains the data to be counted</li>
+<li><strong>column_name</strong> (<em>string</em>) – Name of the column to be counted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A nested list where each sublist includes details of a label. Sublist consist of label name, count, and a list of students.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Pandas series</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">countsAsLists</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Token1&#39;</span><span class="p">,</span> <span class="s1">&#39;Token2&#39;</span><span class="p">]],</span> <span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Token3&#39;</span><span class="p">]]]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.module_all_terms">
 <code class="descclassname">data.</code><code class="descname">module_all_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#module_all_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.module_all_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns all module_enrolments for a given module_code</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">All module enrolments for a given module code</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.module_current_term">
 <code class="descclassname">data.</code><code class="descname">module_current_term</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#module_current_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.module_current_term" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the latest semester’s module_enrolments for a given module_code</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Latest semester’s module enrolments for a given module code</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.module_past_terms">
 <code class="descclassname">data.</code><code class="descname">module_past_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#module_past_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.module_past_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the previous semesters’ module_enrolments for a given module_code</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Previous semesters’ module enrolments for a given module code</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.program_current_term">
 <code class="descclassname">data.</code><code class="descname">program_current_term</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#program_current_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.program_current_term" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the program_enrolment for students currently taking a particular module</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Program enrolment for students currently taking a particular module</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="data.program_past_terms">
 <code class="descclassname">data.</code><code class="descname">program_past_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#program_past_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.program_past_terms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the program_enrolment for students who previously took the module</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Program enrolment for students who previously took the module</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

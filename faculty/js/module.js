@@ -92,6 +92,11 @@ const ModuleDemographics = {
         this.academicLoadChart = donutChart("academicLoadChart");
     },
     methods: {
+        /**
+        * Update the charts at a given ``div``
+        * @param {string} chart
+        * @param {string} data for the charts
+        */
         updateChart(chart, data) {
             chart.data.labels = data.labels;
             chart.data.datasets[0].data = data.counts;
@@ -126,6 +131,12 @@ const ModuleDemographics = {
                     vue.updateChart(vue.academicLoadChart, json.academic_load);
                 });
         },
+        /**
+        * Drilldown function to show more information on the students ``div``
+        * @param {list} students list
+        * 
+        * shows the student modal
+        */
         showStudents(listofStudents){
             results =[]
             for(let j=0; j< app.student_enrolment.length;j++){
@@ -188,7 +199,11 @@ const ModuleDemographics = {
     </div>
     </div>`
 };
-
+/**
+ * Loaded by the Academic tab. 
+ * 
+ * Pulls data from the /backend/faculty/academics/byfac endpoint.
+ */
 const ModuleAcademics = {
     props: ["show_extra_data"],
     data() {
@@ -224,6 +239,12 @@ const ModuleAcademics = {
         }
       },
     methods: {
+        /**
+        * Drilldown function to show more information on the students ``div``
+        * @param {list} students list
+        * 
+        * shows the student modal
+        */
         showStudents(listofStudents){
             results =[]
             for(let j=0; j< app.student_enrolment.length;j++){
@@ -235,6 +256,12 @@ const ModuleAcademics = {
             $("#studentModal").modal();
 
             },
+        /**
+        * Update any prerequisites tags at a given ``div``
+        * @param {list} prerequisites list
+        * 
+        * Also updates the tooltip that display the Prerequisites Tags
+        */
         updatePrereqsTags: async function (prereqList) {
             const vue = this;
             for (var i = 0; i < vue.prereqs.length; i++) {
@@ -259,7 +286,10 @@ const ModuleAcademics = {
                     });
                 };
         },
-
+        /**
+        * Build All the Charts for Academics Dashboard using barChart() and scatterChart()
+        * 
+        */
         buildCharts: function() {
             this.display = false;
 
@@ -328,6 +358,13 @@ const ModuleAcademics = {
             return vue.Jsondata
 
             },
+        /**
+        * Update Current Grades of Student for particular module
+        * 
+        * add Current Grades data to be displayed on the charts
+        * 
+        * addtooltip Data to display as tooltips in chart function
+        */
         updateCurrentGrades: function(){
             var vue = this;
             filter = vue.selected;
@@ -337,6 +374,13 @@ const ModuleAcademics = {
 
 
         },
+        /**
+        * Update Past Grades of Student for particular module
+        * 
+        * add Past Grades data to be displayed on the charts
+        * 
+        * add tooltip Data to display as tooltips in chart function
+        */
         updatePastGrades: function(){
             var vue = this;
             filter = vue.selected;
@@ -344,7 +388,13 @@ const ModuleAcademics = {
             vue.pastGradesChart.data.datasets[0].tooltips = vue.Jsondata[filter].grades.students;
             vue.pastGradesChart.update();
         },
-
+        /**
+        * Update Semester Workload of Student for particular module
+        * 
+        * add Semester Workload data to be displayed on the charts
+        * 
+        * add tooltip Data to display as tooltips in chart function
+        */
         updateSemesterWorkload: function(){
             var vue = this;
             filter = vue.selected;
@@ -354,12 +404,26 @@ const ModuleAcademics = {
             vue.semesterWorkloadChart.update();
 
         },
+        /**
+        * Update Predicted Students for particular module
+        * 
+        * add Predicted Students data to be displayed on the charts
+        * 
+        * add tooltip Data to display as tooltips in chart function
+        */
         updatePredictedStudents: function(){
             var vue = this;
             filter = vue.selected;
             vue.predicted_scores_good = vue.Jsondata[filter].pred_scores_good;
             vue.predicted_scores_bad = vue.Jsondata[filter].pred_scores_bad;
         },
+        /**
+        * Update Attendance and Webcast Rates of Student for particular module
+        * 
+        * add Attendance and Webcast Rates data to be displayed on the charts
+        * 
+        * add tooltip Data to display as tooltips in chart function
+        */
         updateAttnWeb: function(){
             var vue = this;
             filter = vue.selected;
@@ -373,6 +437,13 @@ const ModuleAcademics = {
             vue.webcastCapChart.update();
 
         },
+        /**
+        * Update Prerequisites of Student for particular module
+        * 
+        * add Prerequisites data to be displayed on the charts
+        * 
+        * add tooltip Data to display as tooltips in chart function
+        */
         updatePrereqCharts: function (){
             var vue = this;
             filter = vue.selected;
@@ -555,7 +626,14 @@ Vue.component('module-enrolment-table', {
             </tbody>
         </table>`
 })
-
+/**
+ * Loaded by the Enrolment tab. 
+ * 
+ * Pulls data from the /backend/faculty/enrolment/ endpoint.
+ * 
+ * Display the module enrolment table, the student modal
+ * 
+ */
 const ModuleEnrolment = {
     props: ["show_extra_data", 'student_enrolment', 'module_prereqs'],
     template: `

@@ -60,12 +60,17 @@
 
 <div class="viewcode-block" id="fetchPrereqs"><a class="viewcode-back" href="../server.html#data.fetchPrereqs">[docs]</a><span class="k">def</span> <span class="nf">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Fetches a list of prerequisites for a given module_code.</span>
+<span class="sd">    Fetches a list of prerequisites for a given module code. Uses nusmods&#39; API.</span>
 
-<span class="sd">    Uses nusmods&#39; API. Returns an empty list of module is not found.</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    module_code -- string, module code</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Prerequisities for a given module code, returns an empty list of module is not found</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">try</span><span class="p">:</span>
@@ -79,13 +84,20 @@
 
 <div class="viewcode-block" id="fetchGoogleSheet"><a class="viewcode-back" href="../server.html#data.fetchGoogleSheet">[docs]</a><span class="k">def</span> <span class="nf">fetchGoogleSheet</span><span class="p">(</span><span class="n">url_num</span><span class="p">,</span> <span class="n">sheet_name</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Reads in the Google spreadsheet, returning it as a Pandas dataframe.</span>
+<span class="sd">    Query data from Google spreadsheet.</span>
+<span class="sd">    Data obtained from https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    url_num: integer, representing which &#39;part&#39; (1 or 2) the sheet belongs to</span>
-<span class="sd">    sheet_name: string, name of sheet to pull data from</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url_num: integer</span>
+<span class="sd">        Representing which &#39;part&#39; (1 or 2) the sheet belongs to</span>
+<span class="sd">    sheet_name: string</span>
+<span class="sd">        Name of sheet to pull data from</span>
 
-<span class="sd">    References https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas dataframe</span>
+<span class="sd">        Results from Google spreadsheet</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">url_num</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
         <span class="c1"># Part 1</span>
@@ -113,10 +125,17 @@
 
 <div class="viewcode-block" id="fetchFirebase"><a class="viewcode-back" href="../server.html#data.fetchFirebase">[docs]</a><span class="k">def</span> <span class="nf">fetchFirebase</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Reads in a Firebase URL, and returns the data as a Pandas dataframe.</span>
+<span class="sd">    Query data from Firebase.</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    url: string, Firebase URL</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url: string</span>
+<span class="sd">        Firebase URL</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas dataframe</span>
+<span class="sd">        Results from Firebase database</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
@@ -202,10 +221,10 @@
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching data...&quot;</span><span class="p">)</span>
     <span class="n">functions</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">fetch_module_enrolment</span><span class="p">,</span> <span class="n">fetch_program_enrolment</span><span class="p">,</span> 
-        <span class="n">fetch_student_fb_module</span><span class="p">,</span> <span class="n">fetch_student_fb_teaching</span><span class="p">,</span> 
-        <span class="n">fetch_main_mockup</span><span class="p">,</span> <span class="n">fetch_student_attention</span><span class="p">,</span> 
-        <span class="n">fetch_SEP</span><span class="p">,</span> <span class="n">fetch_column_descriptions</span><span class="p">,</span> 
+        <span class="n">fetch_module_enrolment</span><span class="p">,</span> <span class="n">fetch_program_enrolment</span><span class="p">,</span>
+        <span class="n">fetch_student_fb_module</span><span class="p">,</span> <span class="n">fetch_student_fb_teaching</span><span class="p">,</span>
+        <span class="n">fetch_main_mockup</span><span class="p">,</span> <span class="n">fetch_student_attention</span><span class="p">,</span>
+        <span class="n">fetch_SEP</span><span class="p">,</span> <span class="n">fetch_column_descriptions</span><span class="p">,</span>
         <span class="n">fetch_module_descriptions</span><span class="p">,</span> <span class="n">fetch_tags</span>
     <span class="p">]</span>
 
@@ -215,20 +234,25 @@
     <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
         <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">func</span><span class="p">))</span>
         <span class="n">threads</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    
+
     <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
         <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-    
+
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done fetching data&quot;</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="getScore"><a class="viewcode-back" href="../server.html#data.getScore">[docs]</a><span class="k">def</span> <span class="nf">getScore</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the numeric grade of a grade.</span>
+<span class="sd">    Maps letter grade to numeric score.</span>
 
-<span class="sd">    Returns nan if grade is not found (e.g. S/U)</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: string</span>
+<span class="sd">        Letter grade</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    x -- string, letter grade</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Numeric grade of a grade, nan is grade is not found (eg. S/U)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A+&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">5</span>
@@ -252,7 +276,10 @@
         <span class="k">return</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
 
-<span class="k">def</span> <span class="nf">calculate_cap</span><span class="p">():</span>
+<div class="viewcode-block" id="calculate_cap"><a class="viewcode-back" href="../server.html#data.calculate_cap">[docs]</a><span class="k">def</span> <span class="nf">calculate_cap</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate CAP score for each student in the database after fetching module enrolment.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
     <span class="c1"># Calculate cap</span>
     <span class="k">global</span> <span class="n">program_enrolment</span>
 
@@ -272,27 +299,29 @@
     <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]]</span>
 
     <span class="n">program_enrolment</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">student_attention</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span>
+        <span class="n">student_attention</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="countsAsDict"><a class="viewcode-back" href="../server.html#data.countsAsDict">[docs]</a><span class="k">def</span> <span class="nf">countsAsDict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Takes in a column, does a value count, and returns a dict</span>
-
-<span class="sd">    E.g. ``{&#39;labels&#39;: [&#39;A&#39;, &#39;B&#39;], &#39;counts&#39;: [2, 4], &#39;tokens&#39;: [&#39;Token1&#39;, &#39;Token2&#39;]}``</span>
+<span class="sd">    Takes in a column, does a value count, and returns a dict.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df - Pandas dataframe</span>
+<span class="sd">    df: Pandas dataframe</span>
 <span class="sd">        Dataframe that contains the data to be counted</span>
-<span class="sd">    column_name - string</span>
+<span class="sd">    column_name: string</span>
 <span class="sd">        Name of the column to be counted</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
-<span class="sd">        A dictionary with keys &#39;labels&#39;, &#39;counts&#39;, and &#39;students&#39;, </span>
-<span class="sd">        with each value being a list</span>
+<span class="sd">        A dictionary with keys &#39;labels&#39;, &#39;counts&#39;, and &#39;students&#39; with each value being a list.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; countsAsDict(df, column_name)</span>
+<span class="sd">    &gt;&gt;&gt; {&#39;labels&#39;: [&#39;A&#39;, &#39;B&#39;], &#39;counts&#39;: [2, 4], &#39;tokens&#39;: [&#39;Token1&#39;, &#39;Token2&#39;]}</span>
 
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
@@ -307,12 +336,24 @@
 
 <div class="viewcode-block" id="countsAsLists"><a class="viewcode-back" href="../server.html#data.countsAsLists">[docs]</a><span class="k">def</span> <span class="nf">countsAsLists</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Takes in a column, does a value count, returns as nested lists</span>
+<span class="sd">    Takes in a column, does a value count, returns as nested lists.</span>
 
-<span class="sd">    E.g. [[&quot;A&quot;, 1, [&#39;Token1&#39;, &#39;Token2&#39;]], [&quot;B&quot;, 2, [&#39;Token3&#39;]]]</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df: Pandas dataframe</span>
+<span class="sd">        Dataframe that contains the data to be counted</span>
+<span class="sd">    column_name: string</span>
+<span class="sd">        Name of the column to be counted</span>
 
-<span class="sd">    Parameters:</span>
-<span class="sd">    x - Pandas Series</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        A nested list where each sublist includes details of a label. Sublist consist of label name, count, and a list of students.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; countsAsLists(df, column_name)</span>
+<span class="sd">    &gt;&gt;&gt; [[&quot;A&quot;, 1, [&#39;Token1&#39;, &#39;Token2&#39;]], [&quot;B&quot;, 2, [&#39;Token3&#39;]]]</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
     <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
@@ -324,14 +365,30 @@
 
 <div class="viewcode-block" id="module_all_terms"><a class="viewcode-back" href="../server.html#data.module_all_terms">[docs]</a><span class="k">def</span> <span class="nf">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns all module_enrolments for a given module_code</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        All module enrolments for a given module code</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">return</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">module_code</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="module_current_term"><a class="viewcode-back" href="../server.html#data.module_current_term">[docs]</a><span class="k">def</span> <span class="nf">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the latest semester&#39;s module_enrolments for a given module_code</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Latest semester&#39;s module enrolments for a given module code</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
 <span class="c1">#    return module_subset</span>
@@ -340,7 +397,15 @@
 
 <div class="viewcode-block" id="module_past_terms"><a class="viewcode-back" href="../server.html#data.module_past_terms">[docs]</a><span class="k">def</span> <span class="nf">module_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the previous semesters&#39; module_enrolments for a given module_code</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Previous semesters&#39; module enrolments for a given module code</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">module_subset</span><span class="p">[</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span></div>
@@ -348,7 +413,15 @@
 
 <div class="viewcode-block" id="program_current_term"><a class="viewcode-back" href="../server.html#data.program_current_term">[docs]</a><span class="k">def</span> <span class="nf">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the program_enrolment for students currently taking a particular module</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Program enrolment for students currently taking a particular module</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">module_current</span> <span class="o">=</span> <span class="n">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
     <span class="c1"># program_current = program_enrolment[program_enrolment.term == max(</span>
@@ -360,7 +433,15 @@
 
 <div class="viewcode-block" id="program_past_terms"><a class="viewcode-back" href="../server.html#data.program_past_terms">[docs]</a><span class="k">def</span> <span class="nf">program_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the program_enrolment for students who previously took the module</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Program enrolment for students who previously took the module</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
     <span class="n">program_subset</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="p">[</span><span class="n">program_enrolment</span><span class="o">.</span><span class="n">term</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span>
