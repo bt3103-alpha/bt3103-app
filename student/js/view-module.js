@@ -11,7 +11,7 @@ async function getModuleInfo(module_code) {
 }
 
 /**
- * Loaded by View Module Tab, to get pre-requistes of each module, as documented in nusmods API. 
+ * Loaded by view module tab, to get pre-requistes of each module, as documented in nusmods API. 
  * 
  * Pulls data from the /backend/student/view-module/ endpoint.
  */
@@ -26,7 +26,7 @@ async function getPrereqs(module_code) {
 }
 
 /**
- * Loaded by View Module Tab, to get the tags of each module. 
+ * Loaded by view module tab, to get the tags of each module. 
  * 
  * Pulls data from the /backend/module_description/ endpoint.
  */
@@ -38,7 +38,7 @@ async function getTags(module_code) {
 }
 
 /**
- * Loaded by View Module Tab, to get the partner university for each module. 
+ * Loaded by view module tab, to get the partner university for each module. 
  * 
  * Pulls data from the /backend/student/SEP/ endpoint.
  */
@@ -53,7 +53,7 @@ async function getSEPUni(module_code) {
 }
 
 /**
- * Loaded by View Module Tab, to get the partner university for each module. 
+ * Loaded by view module tab, to get the partner university for each module. 
  * 
  * Pulls data from the /backend/student/SEP/ endpoint.
  */
