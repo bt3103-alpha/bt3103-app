@@ -15,6 +15,7 @@ Faculty Portal
 
 Charts
 ------
+hello
 
 .. js:autofunction:: barChart
 .. js:autofunction:: scatterChart
