@@ -12,6 +12,16 @@ following which they'll be able to view more information on a particular
 Module. From the Module page, they are also able to view more information 
 on Students if they so wish. 
 
+Overview (``dashboard.js``)
+---------------------------
+
+The :js:class:`dashboard.Dashboard` class provides the summary of the Professor's teaching modules.
+
+
+.. js:autoclass:: dashboard.Dashboard
+
+
+
 Module (``module.js``)
 ----------------------
 

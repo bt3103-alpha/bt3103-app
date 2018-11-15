@@ -4,7 +4,12 @@ async function getMainModuleInfo(module_code) {
             return resp.json()
         })
 }
-
+/**
+ * Given a list of teaching modules, fetches all related information and displays 
+ * the summary of modules in the main page 
+ * 
+ * Pulls data from the /backend/faculty/main/ endpoint.
+ */
 const Dashboard = {
     props: ["modules"],
     data() {

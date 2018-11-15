@@ -7,8 +7,8 @@ body {
     min-height: 100vh;
 }
 
-body {
-    padding-bottom: 48px;
+.contain_foot{
+  min-height: 90vh;
 }
 
 #app > div {
