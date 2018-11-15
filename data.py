@@ -183,11 +183,16 @@ def fetch_tags():
 
 def fetchData():
     '''
-    Fetch and process all the data that we need.
+    Fetch and process all the data that we need. 
+
+    Helper function that starts a thread for each data source to be pulled. 
+    Is called when the server is first launched, and can be refreshed by 
+    calling http://localhost:5000/bt3103-app/backend/fetch_data
     '''
     global total_fetch
 
     print("Fetching data...")
+
     functions = [
         fetch_module_enrolment, fetch_program_enrolment,
         fetch_student_fb_module, fetch_student_fb_teaching,
