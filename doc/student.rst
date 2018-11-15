@@ -8,6 +8,35 @@ The student portal is made up of various html pages:
 * Graduation Progress - Track the modules that an individual has cleared in relation to his graduation requirements
 
 
+Home Page
+---------
+
+.. js:autofunction:: script.searchModules
+
+.. js:autofunction:: script.methods.sumMCs
+
+.. js:autofunction:: script.methods.changeGrade
+
+.. js:autofunction:: script.methods.calcCAP
+
+.. js:autofunction:: script.methods.resetInfo
+
+.. js:autofunction:: script.methods.syncModules
+
+.. js:autofunction:: script.methods.selectElective
+
+.. js:autofunction:: script.methods.remove
+
+.. js:autofunction:: script.methods.addRecommendation
+
+.. js:autofunction:: script.methods.swapGeneralMod
+
+
+
+
+
+
+
 View Module Page
 ----------------
 

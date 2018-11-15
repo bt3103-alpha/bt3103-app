@@ -1,3 +1,6 @@
+/**
+ * Searches for all modules on the page and links them to their respective view-module pages
+*/
 function searchModules(search_id) {
     let results = search(document.getElementById(search_id).value);
     let resultsDiv = document.getElementById(search_id+"_results");
@@ -180,7 +183,11 @@ window.onload = function() {
                     }
                 }
             },
+            /**
+            * Checks the MC for each module per semester and sums it
+            */
             sumMCs: function(mods) {
+                
                 if (mods != null) {
                     let sum = 0;
                     for (var i = 0; i < mods.length; i++) {
@@ -191,6 +198,9 @@ window.onload = function() {
                     return 0;
                 }
             },
+            /**
+            * Lets the user input the grade for each module
+            */
             changeGrade: function(input) {
                 let new_grade = input[0];
                 let sem_index = input[1];
@@ -206,7 +216,11 @@ window.onload = function() {
                     }
                 }
             },
+            /**
+            * Calculates cap of the individual, given the user's input grades and total number of graded modules
+            */
             calcCAP: function() {
+                
                 var capSum = 0;
                 var MCs = 0;
                 if (this.schedule[".value"] != null) {
@@ -233,7 +247,9 @@ window.onload = function() {
                     return "-";
                 }
             },
-
+            /**
+            * Resets the schedule to the default
+            */
             resetInfo: function() {
                 scheduleRef.remove();
                 suggestionsRef.remove();
@@ -241,7 +257,9 @@ window.onload = function() {
                 suggestionsRef.update($.extend({}, reset_suggestions));
                 this.fillMissingSemesters();
             },
-
+            /**
+            * Syncs the timetable with the latest timetable on firebase
+            */
             syncModules: function() {
                 // Sync with firebase
                 scheduleRef.update($.extend({}, this.schedule[".value"]));
@@ -300,6 +318,9 @@ window.onload = function() {
             }
         },
         methods: {
+            /**
+            * Adds module into timetable when selected on the recommended list
+            */
             selectElective: function() {
                 app.select_elective_display = true;
                 app.select_elective_semester = this.sem;
@@ -320,6 +341,9 @@ window.onload = function() {
                     app.select_elective_semester_item = this.module_index;
                 }
             },
+            /**
+            * Removes module into timetable when deleted
+            */
             remove: function() {
                 for (let i = 0; i < app.schedule[".value"][this.sem].length; i++) {
                     if (app.schedule[".value"][this.sem][i].name == this.name) {
@@ -343,6 +367,9 @@ window.onload = function() {
             <a href='#' v-on:click='addRecommendation(name, type)' class='module-add'><i class='fas fa-plus'></i></a>\
         </div>",
         methods: {
+            /**
+            * Adds module into recommendation list
+            */
             addRecommendation: function(name, type) {
                 // Get the module object that is being added
                 let suggestionIndex = app.recommendation_semester;
@@ -386,6 +413,11 @@ window.onload = function() {
             <a href='#' v-on:click='swapGeneralMod(name, type)' class='module-add'><i class='fas fa-plus'></i></a>\
         </div>",
         methods: {
+            /**
+            * Replaces general module with selected module when clicked
+            * Removes the selected module from suggestion list
+            * Calls syncModules
+            */
             swapGeneralMod: function(name, type) {
                 let mod =
                     app.schedule[".value"][app.select_elective_semester][
