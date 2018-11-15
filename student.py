@@ -1,6 +1,19 @@
 import data
 
 def getPrereqs(module_code):
+    '''
+    Fetch prerequisites of a module
+
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    dict
+        A nested dictionary with keys ``name``, ``parent``, and ``children``. Value of ``children`` is a list.
+    '''
     prereqs = data.fetchPrereqs(module_code)
     # name parent children
     final_list = {'name': module_code, 'parent': None, 'children': []}
@@ -11,6 +24,19 @@ def getPrereqs(module_code):
     return final_list
 
 def getTeachingFeedback(module_code):
+    '''
+    Fetch student reviews (teaching) of a professor
+
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    dict
+        A dictionary with keys ``data``, ``tAbility``, ``tTimely``, and ``tInterest``. Values of ``tAbility``, ``tTimely``, and ``tInterest`` are lists.
+    '''
     subset_student_fb_teaching = data.student_fb_teaching.loc[data.student_fb_teaching["mod_class_id"] == module_code]
     results = {'data':False, 'tAbility':0, 'tTimely':0, 'tInterest':0}
     results['tAbility'] = [0,0,0,0,0]
@@ -23,10 +49,23 @@ def getTeachingFeedback(module_code):
         results['tInterest'][row['t3']-1] += 1
     if sum(results['tAbility']) > 0:
         results['data'] = True
-    
+
     return results
 
 def getModuleFeedback(module_code):
+    '''
+    Fetch student reviews of a module
+
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    dict
+        A dictionary with keys ``data``, ``mRating``, ``goodText``, and ``badText``. Values of ``mRating``, ``goodText``, and ``badText`` are lists.
+    '''
     subset_student_fb_module = data.student_fb_module.loc[data.student_fb_module["mod_class_id"] == module_code]
     results = {'data':False, 'mRating':{}, 'goodText':[], 'badText':[]}
     results['mRating'] = {'num_feedback':0, 'total':0, 'average':0, 'array':[0,0,0,0,0]}
@@ -67,6 +106,19 @@ def getModuleFeedback(module_code):
     return results
 
 def getSEPUni(module_code):
+    '''
+    Fetch list of partner universities which can map particular module to
+
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    list
+        A list of objects with name of partner university as key, and module code of mapped module as value.
+    '''
     result = []
     for i in range(len(data.SEP)):
         row = data.SEP.iloc[i]
