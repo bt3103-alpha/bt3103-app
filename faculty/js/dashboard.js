@@ -20,13 +20,13 @@ const Dashboard = {
 
     },
     created() {
-        this.updateModuleInfoMain();
+        this.updateModuleInfo();
     },
     methods: {
-        updateModuleInfoMain: function () {
+        updateModuleInfo: function () {
             const vue = this;
             for (mod in this.modules) {
-                getMainModuleInfoMain(this.modules[mod]).then((resp) => {
+                getMainModuleInfo(this.modules[mod]).then((resp) => {
                     vue.modules_info.push(resp);
                 })
             }
