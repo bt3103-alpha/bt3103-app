@@ -7,15 +7,15 @@ There are three main 'views' for the Faculty portal:
 2. :js:class:`module.Module`
 3. :js:class:`student.Student`
 
-Users are first presented with the Dashboard when they log in, 
-following which they'll be able to view more information on a particular 
-Module. From the Module page, they are also able to view more information 
-on Students if they so wish. 
+Users are first presented with the Dashboard when they log in.
+Following which, they will be able to view more information about a particular 
+module. From the Module page, users are then able to view more information 
+on students. 
 
 Overview (``dashboard.js``)
 ---------------------------
 
-The :js:class:`dashboard.Dashboard` class provides the summary of the Professor's teaching modules.
+The :js:class:`dashboard.Dashboard` class provides the summary of the professor's teaching modules.
 
 
 .. js:autoclass:: dashboard.Dashboard
