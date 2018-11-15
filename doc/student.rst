@@ -1,11 +1,11 @@
 Student Portal
 ==============
-The student portal is made up of various html pages:
+The student portal is made up of four HTML pages:
 
-* Home Page - 4 Year Module Plan
-* View Module Page - Module Information
-* Module by Tags - Search for Modules by Tags
-* Graduation Progress - Track the modules that an individual has cleared in relation to his graduation requirements
+* :ref:`Home Page` -- 4-Year Module Plan
+* :ref:`View Module Page` -- Module Information
+* :ref:`Module by Tags Page` -- Search for Modules by Tags
+* :ref:`Graduation Progress Page` -- Track the modules that an individual has cleared in relation to his graduation requirements
 
 
 Home Page
@@ -52,8 +52,16 @@ View Module Page
 .. js:autofunction:: view-module.searchModules
 
 
+<<<<<<< HEAD
 **Charts and Diagrams used include**
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=======
+Charts and Diagrams
+^^^^^^^^^^^^^^^^^^^^
+
+These functions are used to display charts & diagrams 
+in the View Module page:
+>>>>>>> e87d7bdcb66f31e3f866a318a31dd8fe610f6f1b
 
 .. js:autofunction:: view-module.treeStuff
 
@@ -70,13 +78,14 @@ Module by Tags Page
 
 .. js:autofunction:: view-tag.searchMod
 
-.. js:autofunction:: view-tag.searchMod
-
 .. js:autofunction:: view-tag.methods.increment
 
 
 Graduation Progress Page
 ------------------------
+
+The Graduation Progress Page syncs with the :ref:`Home Page` to 
+automatically update the student's progress. 
 
 .. js:autoclass:: grad.Requirement
 

@@ -258,9 +258,9 @@ const ModuleAcademics = {
             },
         /**
         * Update any prerequisites tags at a given ``div``
-        * @param {list} prerequisites list
-        * 
         * Also updates the tooltip that display the Prerequisites Tags
+        * 
+        * @param {list} prerequisites list of prereqs
         */
         updatePrereqsTags: async function (prereqList) {
             const vue = this;
@@ -361,9 +361,9 @@ const ModuleAcademics = {
         /**
         * Update Current Grades of Student for particular module
         * 
-        * add Current Grades data to be displayed on the charts
+        * Add Current Grades data to be displayed on the charts
         * 
-        * addtooltip Data to display as tooltips in chart function
+        * Add tooltip data to display as tooltips in chart function
         */
         updateCurrentGrades: function(){
             var vue = this;
@@ -377,9 +377,9 @@ const ModuleAcademics = {
         /**
         * Update Past Grades of Student for particular module
         * 
-        * add Past Grades data to be displayed on the charts
+        * Add Past Grades data to be displayed on the charts
         * 
-        * add tooltip Data to display as tooltips in chart function
+        * Add tooltip Data to display as tooltips in chart function
         */
         updatePastGrades: function(){
             var vue = this;
@@ -391,9 +391,9 @@ const ModuleAcademics = {
         /**
         * Update Semester Workload of Student for particular module
         * 
-        * add Semester Workload data to be displayed on the charts
+        * Add Semester Workload data to be displayed on the charts
         * 
-        * add tooltip Data to display as tooltips in chart function
+        * Add tooltip Data to display as tooltips in chart function
         */
         updateSemesterWorkload: function(){
             var vue = this;
@@ -407,9 +407,9 @@ const ModuleAcademics = {
         /**
         * Update Predicted Students for particular module
         * 
-        * add Predicted Students data to be displayed on the charts
+        * Add Predicted Students data to be displayed on the charts
         * 
-        * add tooltip Data to display as tooltips in chart function
+        * Add tooltip Data to display as tooltips in chart function
         */
         updatePredictedStudents: function(){
             var vue = this;
@@ -420,9 +420,9 @@ const ModuleAcademics = {
         /**
         * Update Attendance and Webcast Rates of Student for particular module
         * 
-        * add Attendance and Webcast Rates data to be displayed on the charts
+        * Add Attendance and Webcast Rates data to be displayed on the charts
         * 
-        * add tooltip Data to display as tooltips in chart function
+        * Add tooltip Data to display as tooltips in chart function
         */
         updateAttnWeb: function(){
             var vue = this;
@@ -440,9 +440,9 @@ const ModuleAcademics = {
         /**
         * Update Prerequisites of Student for particular module
         * 
-        * add Prerequisites data to be displayed on the charts
+        * Add Prerequisites data to be displayed on the charts
         * 
-        * add tooltip Data to display as tooltips in chart function
+        * Add tooltip Data to display as tooltips in chart function
         */
         updatePrereqCharts: function (){
             var vue = this;

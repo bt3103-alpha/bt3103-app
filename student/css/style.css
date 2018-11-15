@@ -2,13 +2,22 @@
     display: none;
 }
 
-html,
-body {
-    min-height: 100vh;
+html {
+    height: 100%;
 }
 
-.contain_foot{
-  min-height: 90vh;
+body {
+    position: relative;
+    min-height: 100%;
+}
+
+.footer {
+    text-align: right; 
+    padding:10px;
+    position: absolute;
+    bottom:0;
+    right:0;
+    left:0;
 }
 
 #app > div {
