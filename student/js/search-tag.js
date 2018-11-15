@@ -9,6 +9,11 @@ fetch("https://bt3103-jasminw.firebaseio.com/tags.json")
       }
     );
 
+    /**
+     * Looks for tags in the firebase that matches the input text 
+     * @param {string} param input text that was searched
+     * @returns {list} list of tags that matches or contain the input text
+     */
 function searchtagjs(param) {
     let results = [];
 

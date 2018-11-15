@@ -32,13 +32,10 @@ Home Page
 .. js:autofunction:: script.methods.swapGeneralMod
 
 
-
-
-
-
-
 View Module Page
 ----------------
+
+.. js:autofunction:: search.search
 
 .. js:autofunction:: view-module.getModuleInfo
 
@@ -64,6 +61,10 @@ View Module Page
 
 .. js:autofunction:: view-module.donutChart
 
+
+Module by Tags Page
+-------------------
+.. js:autofunction:: search-tag.searchtagjs
 
 
 Graduation Progress Page

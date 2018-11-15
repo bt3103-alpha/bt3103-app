@@ -1,3 +1,6 @@
+    /**
+     * Looks for tag that was selected by user and links user to the view-tag page with the corresponding tag
+     */
 function searchTags() {
     let results = searchtagjs(document.getElementById("tag_search").value);
     let resultsDiv = document.getElementById("tag_search_results");
@@ -10,6 +13,9 @@ function searchTags() {
     }
 }
 
+/**
+ * 
+ */
 function searchMod(results){
   let resultsDiv = document.getElementById("mod_search_results");
   resultsDiv.innerHTML = "";

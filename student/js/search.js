@@ -15,6 +15,10 @@ fetch("https://api.nusmods.com/2018-2019/moduleList.json")
         }
     });
 
+    /**
+     * Looks for tags in the nusmods module list that matches the input module code by user
+     * @param {string} param input text that was searched
+     */
 function search(param) {
     let results = [];
 
