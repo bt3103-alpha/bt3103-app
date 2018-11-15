@@ -28,12 +28,17 @@ grades = {"A+": 5.0, "A": 5.0, "A-": 4.5, "B+": 4.0, "B": 3.5,
 
 def fetchPrereqs(module_code):
     '''
-    Fetches a list of prerequisites for a given module_code.
+    Fetches a list of prerequisites for a given module code. Uses nusmods' API.
 
-    Uses nusmods' API. Returns an empty list of module is not found.
+    Parameters
+    ----------
+    module_code: string
+        module code
 
-    Parameters:
-    module_code -- string, module code
+    Returns
+    -------
+    list
+        Prerequisities for a given module code, returns an empty list of module is not found
     '''
     results = []
     try:
@@ -47,13 +52,20 @@ def fetchPrereqs(module_code):
 
 def fetchGoogleSheet(url_num, sheet_name):
     '''
-    Reads in the Google spreadsheet, returning it as a Pandas dataframe.
+    Query data from Google spreadsheet.
+    Data obtained from https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/
 
-    Parameters:
-    url_num: integer, representing which 'part' (1 or 2) the sheet belongs to
-    sheet_name: string, name of sheet to pull data from
+    Parameters
+    ----------
+    url_num: integer
+        Representing which 'part' (1 or 2) the sheet belongs to
+    sheet_name: string
+        Name of sheet to pull data from
 
-    References https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/
+    Returns
+    -------
+    Pandas dataframe
+        Results from Google spreadsheet
     '''
     if url_num == 1:
         # Part 1
@@ -81,10 +93,17 @@ def fetchGoogleSheet(url_num, sheet_name):
 
 def fetchFirebase(url):
     '''
-    Reads in a Firebase URL, and returns the data as a Pandas dataframe.
+    Query data from Firebase.
 
-    Parameters:
-    url: string, Firebase URL
+    Parameters
+    ----------
+    url: string
+        Firebase URL
+
+    Returns
+    -------
+    Pandas dataframe
+        Results from Firebase database
     '''
     r = requests.get(url)
     return pd.DataFrame.from_records(r.json())
@@ -170,10 +189,10 @@ def fetchData():
 
     print("Fetching data...")
     functions = [
-        fetch_module_enrolment, fetch_program_enrolment, 
-        fetch_student_fb_module, fetch_student_fb_teaching, 
-        fetch_main_mockup, fetch_student_attention, 
-        fetch_SEP, fetch_column_descriptions, 
+        fetch_module_enrolment, fetch_program_enrolment,
+        fetch_student_fb_module, fetch_student_fb_teaching,
+        fetch_main_mockup, fetch_student_attention,
+        fetch_SEP, fetch_column_descriptions,
         fetch_module_descriptions, fetch_tags
     ]
 
@@ -183,20 +202,25 @@ def fetchData():
     for func in functions:
         threads.append(threading.Thread(target=func))
         threads[-1].start()
-    
+
     for thread in threads:
         thread.join()
-    
+
     print("Done fetching data")
 
 def getScore(x):
     '''
-    Returns the numeric grade of a grade.
+    Maps letter grade to numeric score.
 
-    Returns nan if grade is not found (e.g. S/U)
+    Parameters
+    ----------
+    x: string
+        Letter grade
 
-    Parameters:
-    x -- string, letter grade
+    Returns
+    -------
+    float
+        Numeric grade of a grade, nan is grade is not found (eg. S/U)
     '''
     if x == 'A' or x == 'A+':
         return 5
@@ -221,6 +245,9 @@ def getScore(x):
     return np.nan
 
 def calculate_cap():
+    '''
+    Calculate CAP score for each student in the database after fetching module enrolment.
+    '''
     # Calculate cap
     global program_enrolment
 
@@ -245,22 +272,24 @@ def calculate_cap():
 
 def countsAsDict(df, column_name):
     '''
-    Takes in a column, does a value count, and returns a dict
-
-    E.g. ``{'labels': ['A', 'B'], 'counts': [2, 4], 'tokens': ['Token1', 'Token2']}``
+    Takes in a column, does a value count, and returns a dict.
 
     Parameters
     ----------
-    df - Pandas dataframe
+    df: Pandas dataframe
         Dataframe that contains the data to be counted
-    column_name - string
+    column_name: string
         Name of the column to be counted
-    
+
     Returns
     -------
     dict
-        A dictionary with keys 'labels', 'counts', and 'students', 
-        with each value being a list
+        A dictionary with keys 'labels', 'counts', and 'students' with each value being a list.
+
+    Examples
+    --------
+    >>> countsAsDict(df, column_name)
+    >>> {'labels': ['A', 'B'], 'counts': [2, 4], 'tokens': ['Token1', 'Token2']}
 
     '''
     counts = df[column_name].value_counts()
@@ -275,12 +304,24 @@ def countsAsDict(df, column_name):
 
 def countsAsLists(df, column_name):
     '''
-    Takes in a column, does a value count, returns as nested lists
+    Takes in a column, does a value count, returns as nested lists.
 
-    E.g. [["A", 1, ['Token1', 'Token2']], ["B", 2, ['Token3']]]
+    Parameters
+    ----------
+    df: Pandas dataframe
+        Dataframe that contains the data to be counted
+    column_name: string
+        Name of the column to be counted
 
-    Parameters:
-    x - Pandas Series
+    Returns
+    -------
+    Pandas series
+        A nested list where each sublist includes details of a label. Sublist consist of label name, count, and a list of students.
+
+    Examples
+    --------
+    >>> countsAsLists(df, column_name)
+    >>> [["A", 1, ['Token1', 'Token2']], ["B", 2, ['Token3']]]
     '''
     counts = df[column_name].value_counts()
     result = []
@@ -292,14 +333,30 @@ def countsAsLists(df, column_name):
 
 def module_all_terms(module_code):
     '''
-    Returns all module_enrolments for a given module_code
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    Pandas series
+        All module enrolments for a given module code
     '''
     return module_enrolment[module_enrolment.module_code == module_code]
 
 
 def module_current_term(module_code):
     '''
-    Returns the latest semester's module_enrolments for a given module_code
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    Pandas series
+        Latest semester's module enrolments for a given module code
     '''
     module_subset = module_all_terms(module_code)
 #    return module_subset
@@ -308,7 +365,15 @@ def module_current_term(module_code):
 
 def module_past_terms(module_code):
     '''
-    Returns the previous semesters' module_enrolments for a given module_code
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    Pandas series
+        Previous semesters' module enrolments for a given module code
     '''
     module_subset = module_all_terms(module_code)
     return module_subset[module_subset.term != max(module_subset.term)]
@@ -316,7 +381,15 @@ def module_past_terms(module_code):
 
 def program_current_term(module_code):
     '''
-    Returns the program_enrolment for students currently taking a particular module
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    Pandas series
+        Program enrolment for students currently taking a particular module
     '''
     module_current = module_current_term(module_code)
     # program_current = program_enrolment[program_enrolment.term == max(
@@ -328,7 +401,15 @@ def program_current_term(module_code):
 
 def program_past_terms(module_code):
     '''
-    Returns the program_enrolment for students who previously took the module
+    Parameters
+    ----------
+    module_code: string
+        module code
+
+    Returns
+    -------
+    Pandas series
+        Program enrolment for students who previously took the module
     '''
     module_subset = module_all_terms(module_code)
     program_subset = program_enrolment[program_enrolment.term != max(
