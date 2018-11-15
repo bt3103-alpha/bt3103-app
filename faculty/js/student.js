@@ -1,3 +1,7 @@
+/**
+ * Given a student token, fetches all related information on this student 
+ * and displays it in a single page. 
+ */
 const Student = {
     props: ['show_extra_data', 'modules'],
     data() {
