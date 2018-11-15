@@ -1,16 +1,18 @@
 Server
 ======
 
-The Flask code is split into four files:
+The Flask code is split into five files:
 
-1. *server.py* -- Entry point for the Flask app, handles serving the static files
-2. *backend.py* -- Foundation for the backend endpoints
-3. *data.py* -- Handles the fetching of data from external sources, and processing them
-4. *student.py* -- Functions called by student endpoints
-5. *faculty.py* -- Functions called by faculty endpoints
+1. :ref:`server_page` -- Entry point for the Flask app, handles serving the static files
+2. :ref:`backend_page` -- Foundation for the backend endpoints
+3. :ref:`data_page` -- Handles the fetching of data from external sources, and processing them
+4. :ref:`student_page` -- Functions called by student endpoints
+5. :ref:`faculty_page` -- Functions called by faculty endpoints
 
-Server Entry Point
-------------------
+.. _server_page: 
+
+Server Entry Point (``server.py``)
+----------------------------------
 
 The *server.py* file serves the static pages, and expects Vue (on the static pages)
 to poll the backend for information. 
@@ -18,31 +20,37 @@ to poll the backend for information.
 .. automodule:: server
     :members:
 
-Backend
-----------
+.. _backend_page: 
 
-The *backend.py* file prepares the data needed and exposes the data to the 
+Backend (``backend.py``)
+------------------------
+
+The *backend.py* file fetch the data needed (by calling :func:`data.fetchData()`) and exposes the data to the 
 frontend via REST endpoints. 
 
 .. automodule:: backend
     :members:
 
-Data Downloading & Processing
------------------------------
+.. _data_page:
+
+Data Downloading & Processing (``data.py``)
+-------------------------------------------
 
 .. automodule:: data
     :members:
 
+.. _student_page:
 
-Student Functions
------------------
+Student Functions (``student.py``)
+----------------------------------
 
 .. automodule:: student
     :members:
 
+.. _faculty_page:
 
-Faculty Functions
------------------
+Faculty Functions (``faculty.py``)
+-----------------------------------
 
 .. automodule:: faculty
     :members:
