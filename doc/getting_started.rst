@@ -28,6 +28,7 @@ Launching the server
 
     $ python app.py
 
-* Point your browser to http://localhost:5000/bt3103-app/
+* If successful, you should see "Fetching data...", followed by a progress update as the server downloads the data required. 
+* After the data has been fully loaded, point your browser to http://localhost:5000/bt3103-app/.
 
 .. _Python: https://www.python.org/downloads/
