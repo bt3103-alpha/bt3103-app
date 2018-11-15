@@ -9,7 +9,7 @@
     <title>Faculty Portal &#8212; Ultimods  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
@@ -28,40 +28,92 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <div class="section" id="faculty-portal">
 <h1>Faculty Portal<a class="headerlink" href="#faculty-portal" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="module.Module">
+<em class="property">class </em><code class="descclassname">module.</code><code class="descname">Module</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.Module" title="Permalink to this definition">¶</a></dt>
+<dd><p>Root element that loads all module-related data</p>
+<p>Main placeholder for all faculty-related data.</p>
+<dl class="function">
+<dt id="module.Module.module.Module.methods.updateModuleInfo">
+<code class="descclassname">module.Module.module.Module.methods.</code><code class="descname">updateModuleInfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.Module.module.Module.methods.updateModuleInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the title of the module, given it’s code
+Called when first created, and then whenever
+the route changes.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="module.ModuleDemographics">
+<code class="descclassname">module.</code><code class="descname">ModuleDemographics</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#module.ModuleDemographics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by the Demographics tab.</p>
+<p>Pulls data from the /backend/faculty/demographics/ endpoint.</p>
+<p>Calls <a class="reference internal" href="#barChart" title="barChart"><code class="xref js js-func docutils literal notranslate"><span class="pre">barChart()</span></code></a> and <a class="reference internal" href="#scatterChart" title="scatterChart"><code class="xref js js-func docutils literal notranslate"><span class="pre">scatterChart()</span></code></a> and <code class="xref js js-func docutils literal notranslate"><span class="pre">donutChart()</span></code></p>
+</dd></dl>
+
+<div class="section" id="charts">
+<h2>Charts<a class="headerlink" href="#charts" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="barChart">
+<code class="descname">barChart</code><span class="sig-paren">(</span><em>id</em>, <em>colour</em>, <em>labels</em>, <em>tooltipData</em><span class="sig-paren">)</span><a class="headerlink" href="#barChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a bar chart at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<em>string</em>) – HTML id of div to place chart in</li>
+<li><strong>colour</strong> (<em>string</em>) – Colour of bar chart columns</li>
+<li><strong>labels</strong> (<em>list</em>) – X axis labels (optional)</li>
+<li><strong>tooltipData</strong> (<em>list</em>) – Data to display as tooltips</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scatterChart">
+<code class="descname">scatterChart</code><span class="sig-paren">(</span><em>id</em>, <em>colour</em>, <em>xLabel</em>, <em>yLabel</em>, <em>tooltipData</em><span class="sig-paren">)</span><a class="headerlink" href="#scatterChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a scatter plot at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<em>string</em>) – HTML id of <code class="docutils literal notranslate"><span class="pre">div</span></code> to place chart in</li>
+<li><strong>colour</strong> (<em>string</em>) – Colour of points in plot</li>
+<li><strong>xLabel</strong> (<em>string</em>) – Label of x axis</li>
+<li><strong>yLabel</strong> (<em>string</em>) – Label of y axis</li>
+<li><strong>tooltipData</strong> (<em>list</em>) – Data to display as tooltips</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 </div>
 
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="index.html">Ultimods</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="student.html">Student Portal</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Faculty Portal</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Faculty Portal</a><ul>
+<li><a class="reference internal" href="#charts">Charts</a></li>
 </ul>
-
+</li>
+</ul>
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -70,6 +122,13 @@
   </ul></li>
 </ul>
 </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/faculty.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <div class="searchformwrapper">
@@ -90,8 +149,8 @@
       
       
       
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
       <a href="_sources/faculty.rst.txt"

@@ -9,7 +9,7 @@
     <title>backend &#8212; Ultimods  documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
@@ -27,8 +27,6 @@
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          
-
           <div class="body" role="main">
             
   <h1>Source code for backend</h1><div class="highlight"><pre>
@@ -42,251 +40,16 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">threading</span><span class="o">,</span> <span class="nn">time</span>
 
+<span class="kn">import</span> <span class="nn">data</span>
+<span class="kn">import</span> <span class="nn">student</span>
+<span class="kn">import</span> <span class="nn">faculty</span>
+
 <span class="n">backend</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;backend&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
 <span class="n">url_path</span> <span class="o">=</span> <span class="s2">&quot;/bt3103-app&quot;</span>
 
-<span class="n">module_enrolment</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">program_enrolment</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">mockedup_data</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">main_mockup</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">student_attention</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">student_attention_cap</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">cap</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">module_descriptions</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">module_descriptions_DICT</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">newData</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">student_fb_module</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">student_fb_teaching</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">SEP</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">column_descriptions</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="n">module_names</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">fetchProgress</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">tags</span> <span class="o">=</span> <span class="p">{}</span>
-
-<span class="n">currently_fetching</span> <span class="o">=</span> <span class="kc">False</span>
-
-
-<span class="n">grades</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A+&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;A-&quot;</span><span class="p">:</span> <span class="mf">4.5</span><span class="p">,</span> <span class="s2">&quot;B+&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
-          <span class="s2">&quot;B-&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">&quot;C+&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;D+&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
-
-<div class="viewcode-block" id="fetchPrereqs"><a class="viewcode-back" href="../server.html#backend.fetchPrereqs">[docs]</a><span class="k">def</span> <span class="nf">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Fetches a list of prerequisites for a given module_code.</span>
-
-<span class="sd">    Uses nusmods&#39; API. Returns an empty list of module is not found.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    module_code -- string, module code</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">j</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="s2">&quot;https://api.nusmods.com/2018-2019/modules/&quot;</span><span class="o">+</span><span class="n">module_code</span><span class="o">+</span><span class="s2">&quot;/index.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-        <span class="n">prereqs</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Prerequisite&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">results</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[A-Z]{2,3}[0-9]</span><span class="si">{4}</span><span class="s1">[A-Z]?&#39;</span><span class="p">,</span> <span class="n">prereqs</span><span class="p">)</span>
-    <span class="k">except</span><span class="p">:</span>
-        <span class="k">pass</span>
-    <span class="k">return</span> <span class="n">results</span></div>
-
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/prereqs/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">fetchPrereqsEndpoint</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
-
-<div class="viewcode-block" id="fetchGoogleSheet"><a class="viewcode-back" href="../server.html#backend.fetchGoogleSheet">[docs]</a><span class="k">def</span> <span class="nf">fetchGoogleSheet</span><span class="p">(</span><span class="n">url_num</span><span class="p">,</span> <span class="n">sheet_name</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Reads in the Google spreadsheet, returning it as a Pandas dataframe.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    url_num: integer, representing which &#39;part&#39; (1 or 2) the sheet belongs to</span>
-<span class="sd">    sheet_name: string, name of sheet to pull data from</span>
-
-<span class="sd">    References https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">url_num</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># Part 1</span>
-        <span class="c1">## Prof copy</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;14dZQ5XLFG5-1NNGYTgclrTXlkEUiSWWiOCdkjNZaAfQ&quot;</span>
-        <span class="c1">## cloned copy</span>
-        <span class="c1">## url = &quot;1fODgXoBY44uq2B2KA-M-eWYv0LKOQ0To0etvAdHZhsc&quot;</span>
-    <span class="k">elif</span> <span class="n">url_num</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="c1"># Part 2</span>
-        <span class="c1">## Prof copy</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;1lFR0Og8mFUzJNZkzC1Lr9Z7KHaG_X8bV--VfV-FH64Y&quot;</span>
-        <span class="c1">## cloned copy</span>
-        <span class="c1">## url = &quot;1arssfIN-m6i0575a9R2FBnwWQmYOcfTAUcJ2q6wodJQ&quot;</span>
-    <span class="k">elif</span> <span class="n">url_num</span> <span class="o">==</span><span class="mi">3</span><span class="p">:</span>
-        <span class="c1"># Vienna&#39;s mock up for main page (including module code, num of stu, num of webcasts watch halfway, unviewed forum, tut attendance)</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;16Sw9yRsyMrFZDXGKNQe3gG34Sj3Y_8jqOzjCXszJQB8&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># Sam&#39;s mockup</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;15YQSuRO3TohlqFiF8v3oxFNpr9VoBxgOs6ihhUMCigU&quot;</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://docs.google.com/spreadsheets/d/&quot;</span> <span class="o">+</span>
-                     <span class="n">url</span><span class="o">+</span><span class="s2">&quot;/gviz/tq?tqx=out:csv&amp;sheet=&quot;</span><span class="o">+</span><span class="n">sheet_name</span><span class="p">)</span>
-    <span class="n">strio</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">strio</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="fetchFirebase"><a class="viewcode-back" href="../server.html#backend.fetchFirebase">[docs]</a><span class="k">def</span> <span class="nf">fetchFirebase</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Reads in a Firebase URL, and returns the data as a Pandas dataframe.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    url: string, Firebase URL</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
-
-
-<span class="k">def</span> <span class="nf">fetchFirebaseJSON</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">fetchFirebaseJSON_no</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
-
-<div class="viewcode-block" id="getScore"><a class="viewcode-back" href="../server.html#backend.getScore">[docs]</a><span class="k">def</span> <span class="nf">getScore</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the numeric grade of a grade.</span>
-
-<span class="sd">    Returns nan if grade is not found (e.g. S/U)</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    x -- string, letter grade</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A+&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">5</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A-&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">4.5</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;B+&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">4</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">3.5</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;B-&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">3</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;C+&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">2.5</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">2</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;D+&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mf">1.5</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
-    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
-
-<span class="k">def</span> <span class="nf">calculate_cap</span><span class="p">():</span>
-    <span class="c1"># Calculate cap</span>
-    <span class="k">global</span> <span class="n">program_enrolment</span>
-
-    <span class="k">while</span> <span class="n">module_enrolment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">program_enrolment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">student_attention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># Try again later</span>
-        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-
-    <span class="n">cap</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">,</span> <span class="s1">&#39;final_grade&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;grade&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;final_grade&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">getScore</span><span class="p">)</span>
-    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
-    <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;final_grade&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;grade&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span>
-    <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-
-    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span>
-    <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]]</span>
-
-    <span class="n">program_enrolment</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">student_attention</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span>
-
-<span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">total_fetch</span> <span class="o">=</span> <span class="mi">1</span>
-
-<span class="k">def</span> <span class="nf">update_fetch_progress</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">counter</span>
-    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="n">progress</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">counter</span> <span class="o">/</span> <span class="n">total_fetch</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Progress: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">% d</span><span class="s2">one&quot;</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">fetch_module_enrolment</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">module_enrolment</span>
-    <span class="n">module_enrolment</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;module_enrolment&quot;</span><span class="p">)</span>
-    <span class="n">calculate_cap</span><span class="p">()</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_program_enrolment</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">program_enrolment</span>
-    <span class="n">program_enrolment</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;program_enrolment&#39;</span><span class="p">)</span>
-    <span class="n">program_enrolment</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">program_enrolment</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_student_fb_module</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">student_fb_module</span>
-    <span class="n">student_fb_module</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;student_feedback_module&#39;</span><span class="p">)</span>
-    <span class="n">student_fb_module</span> <span class="o">=</span> <span class="n">student_fb_module</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_student_fb_teaching</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">student_fb_teaching</span>
-    <span class="n">student_fb_teaching</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;student_feedback_teaching&#39;</span><span class="p">)</span>
-    <span class="n">student_fb_teaching</span> <span class="o">=</span> <span class="n">student_fb_teaching</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_main_mockup</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">main_mockup</span>
-    <span class="n">main_mockup</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;mockup_for_main&#39;</span><span class="p">)</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_student_attention</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">student_attention</span>
-    <span class="n">student_attention</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Sheet1&#39;</span><span class="p">)</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_SEP</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">SEP</span>
-    <span class="n">SEP</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Sheet5&#39;</span> <span class="p">)</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_column_descriptions</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">column_descriptions</span>
-    <span class="n">column_descriptions</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;catalog&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;var_name&#39;</span><span class="p">)</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_module_descriptions</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">module_descriptions</span>
-    <span class="n">module_descriptions</span> <span class="o">=</span> <span class="n">fetchFirebaseJSON</span><span class="p">(</span><span class="s2">&quot;https://bt3103-alpha-student.firebaseio.com/module_descriptions.json&quot;</span><span class="p">)</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<span class="k">def</span> <span class="nf">fetch_tags</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">tags</span>
-    <span class="n">tags</span> <span class="o">=</span> <span class="n">fetchFirebaseJSON_no</span><span class="p">(</span><span class="s2">&quot;https://bt3103-jasminw.firebaseio.com/tags.json&quot;</span><span class="p">)</span>
-    <span class="n">update_fetch_progress</span><span class="p">()</span>
-
-<div class="viewcode-block" id="fetchData"><a class="viewcode-back" href="../server.html#backend.fetchData">[docs]</a><span class="k">def</span> <span class="nf">fetchData</span><span class="p">():</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Fetch and process all the data that we need.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">global</span> <span class="n">total_fetch</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching data...&quot;</span><span class="p">)</span>
-    <span class="n">functions</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">fetch_module_enrolment</span><span class="p">,</span> <span class="n">fetch_program_enrolment</span><span class="p">,</span> 
-        <span class="n">fetch_student_fb_module</span><span class="p">,</span> <span class="n">fetch_student_fb_teaching</span><span class="p">,</span> 
-        <span class="n">fetch_main_mockup</span><span class="p">,</span> <span class="n">fetch_student_attention</span><span class="p">,</span> 
-        <span class="n">fetch_SEP</span><span class="p">,</span> <span class="n">fetch_column_descriptions</span><span class="p">,</span> 
-        <span class="n">fetch_module_descriptions</span><span class="p">,</span> <span class="n">fetch_tags</span>
-    <span class="p">]</span>
-
-    <span class="n">total_fetch</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">)</span>
-
-    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
-        <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">func</span><span class="p">))</span>
-        <span class="n">threads</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-    
-    <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
-        <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-    
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done fetching data&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="callFetchData"><a class="viewcode-back" href="../server.html#backend.callFetchData">[docs]</a><span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/fetch_data&#39;</span><span class="p">)</span>
@@ -297,7 +60,7 @@
 <span class="sd">    Called when server is started, or when the</span>
 <span class="sd">    Refresh data button is pressed in Faculty side.</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">fetchData</span><span class="p">()</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">fetchData</span><span class="p">()</span>
     <span class="k">return</span> <span class="s2">&quot;{&#39;ok&#39;: true}&quot;</span></div>
 
 <span class="c1">## below 2 functions generate tags firebase data</span>
@@ -307,7 +70,7 @@
 <span class="sd">    newData = {}</span>
 <span class="sd">    temp = {&#39;hello&#39;:{&#39;count&#39;: 23, &#39;mods&#39;: [&#39;w&#39;,&#39;r&#39;]}}</span>
 
-<span class="sd">    for module, value in module_descriptions_DICT.items():</span>
+<span class="sd">    for module, value in data.module_descriptions_DICT.items():</span>
 <span class="sd">        if &#39;tags&#39; in value:</span>
 <span class="sd">            for tag in value[&#39;tags&#39;]:</span>
 <span class="sd">                tag_lower = tag.lower()</span>
@@ -316,7 +79,7 @@
 <span class="sd">                else:</span>
 <span class="sd">                    newData[tag_lower] = {&#39;count&#39;: 0, &#39;modules&#39;: [module]}</span>
 <span class="sd">    print()</span>
-<span class="sd">    for tag, descr in newData.items():</span>
+<span class="sd">    for tag, descr in newdata.items():</span>
 <span class="sd">        print(1)</span>
 <span class="sd">        resp = requests.put(url=url+tag+&#39;.json&#39;,</span>
 <span class="sd">                    data=json.dumps(descr)) # turn json (dict) to data format (string)</span>
@@ -331,118 +94,27 @@
 <span class="sd">    print(resp)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="c1"># General endpoints</span>
+
 <div class="viewcode-block" id="fetchDataStatus"><a class="viewcode-back" href="../server.html#backend.fetchDataStatus">[docs]</a><span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/fetch_data/status&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">fetchDataStatus</span><span class="p">():</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Fetches the current status of data fetching (as an integer from 0 to 100)</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="n">fetchProgress</span><span class="p">})</span></div>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;progress&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">fetchProgress</span><span class="p">})</span></div>
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/module_description/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">fetchModuleDescription</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">module_descriptions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">module_code</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">module_descriptions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">module_code</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
     <span class="k">except</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;tags&#39;</span><span class="p">:</span> <span class="p">[]}</span>
     <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">:</span>
         <span class="n">result</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="c1">#temp = dict((el,0) for el in result[&#39;tags&#39;])</span>
-    <span class="c1">#result[&#39;tags&#39;] = temp</span>
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
-<div class="viewcode-block" id="countsAsDict"><a class="viewcode-back" href="../server.html#backend.countsAsDict">[docs]</a><span class="k">def</span> <span class="nf">countsAsDict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Takes in a column, does a value count, and returns a dict</span>
 
-<span class="sd">    E.g. ``{&#39;labels&#39;: [&#39;A&#39;, &#39;B&#39;], &#39;counts&#39;: [2, 4], &#39;tokens&#39;: [&#39;Token1&#39;, &#39;Token2&#39;]}``</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    df - Pandas dataframe</span>
-<span class="sd">        Dataframe that contains the data to be counted</span>
-<span class="sd">    column_name - string</span>
-<span class="sd">        Name of the column to be counted</span>
-<span class="sd">    </span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        A dictionary with keys &#39;labels&#39;, &#39;counts&#39;, and &#39;students&#39;, </span>
-<span class="sd">        with each value being a list</span>
-
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">]</span>
-    <span class="n">students</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-        <span class="n">students</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">tokens</span><span class="p">))</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span> <span class="s1">&#39;counts&#39;</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span> <span class="s1">&#39;students&#39;</span><span class="p">:</span> <span class="n">students</span><span class="p">}</span></div>
-
-
-<div class="viewcode-block" id="countsAsLists"><a class="viewcode-back" href="../server.html#backend.countsAsLists">[docs]</a><span class="k">def</span> <span class="nf">countsAsLists</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Takes in a column, does a value count, returns as nested lists</span>
-
-<span class="sd">    E.g. [[&quot;A&quot;, 1, [&#39;Token1&#39;, &#39;Token2&#39;]], [&quot;B&quot;, 2, [&#39;Token3&#39;]]]</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    x - Pandas Series</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">tokens</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)])</span>
-    <span class="k">return</span> <span class="n">result</span></div>
-
-
-<div class="viewcode-block" id="module_all_terms"><a class="viewcode-back" href="../server.html#backend.module_all_terms">[docs]</a><span class="k">def</span> <span class="nf">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns all module_enrolments for a given module_code</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">return</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">module_code</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="module_current_term"><a class="viewcode-back" href="../server.html#backend.module_current_term">[docs]</a><span class="k">def</span> <span class="nf">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the latest semester&#39;s module_enrolments for a given module_code</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-<span class="c1">#    return module_subset</span>
-    <span class="k">return</span> <span class="n">module_subset</span><span class="p">[</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span></div>
-
-
-<div class="viewcode-block" id="module_past_terms"><a class="viewcode-back" href="../server.html#backend.module_past_terms">[docs]</a><span class="k">def</span> <span class="nf">module_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the previous semesters&#39; module_enrolments for a given module_code</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">module_subset</span><span class="p">[</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span></div>
-
-
-<div class="viewcode-block" id="program_current_term"><a class="viewcode-back" href="../server.html#backend.program_current_term">[docs]</a><span class="k">def</span> <span class="nf">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the program_enrolment for students currently taking a particular module</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">module_current</span> <span class="o">=</span> <span class="n">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="c1"># program_current = program_enrolment[program_enrolment.term == max(</span>
-        <span class="c1"># program_enrolment.term)]</span>
-    <span class="n">program_current</span> <span class="o">=</span> <span class="n">module_current</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">program_enrolment</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">program_current</span></div>
-
-
-<div class="viewcode-block" id="program_past_terms"><a class="viewcode-back" href="../server.html#backend.program_past_terms">[docs]</a><span class="k">def</span> <span class="nf">program_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns the program_enrolment for students who previously took the module</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">program_subset</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="p">[</span><span class="n">program_enrolment</span><span class="o">.</span><span class="n">term</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span>
-        <span class="n">program_enrolment</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span>
-    <span class="n">program_subset</span> <span class="o">=</span> <span class="n">module_subset</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">program_subset</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">program_subset</span></div>
+<span class="c1"># Faculty endpoints</span>
 
 <div class="viewcode-block" id="mainOverview"><a class="viewcode-back" href="../server.html#backend.mainOverview">[docs]</a><span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/main/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">mainOverview</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
@@ -452,636 +124,70 @@
 <span class="sd">    Parameters:</span>
 <span class="sd">    module_code - string</span>
 <span class="sd">    &#39;&#39;&#39;</span>
-    <span class="c1">#results = {}</span>
-    <span class="c1">#print(main_mockup.head())</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="n">main_mockup</span><span class="p">[</span><span class="n">main_mockup</span><span class="p">[</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">main_mockup</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">main_mockup</span><span class="p">[</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="c1">#results[module_code] = [row[&#39;number of students&#39;],</span>
-    <span class="c1">#row[&#39;number of webcasts unfinished&#39;],</span>
-    <span class="c1">#row[&#39;unviewed forum&#39;],</span>
-    <span class="c1">#row[&#39;tutorial attendance&#39;]]</span>
     <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">row</span><span class="p">)</span></div>
 
 
-
-
-<div class="viewcode-block" id="moduleDemographics"><a class="viewcode-back" href="../server.html#backend.moduleDemographics">[docs]</a><span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/demographics/&lt;module_code&gt;&#39;</span><span class="p">)</span>
+<span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/demographics/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">moduleDemographics</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Fetches all demographic data to be displayed for a given module_code.</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    module_code - string</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="n">program_current</span> <span class="o">=</span> <span class="n">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-
-    <span class="c1"># Fetch program information about current students</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;degrees&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsLists</span><span class="p">(</span><span class="n">program_current</span><span class="p">,</span> <span class="s1">&#39;academic_plan_descr&#39;</span><span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;academic_career&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsDict</span><span class="p">(</span><span class="n">program_current</span><span class="p">,</span> <span class="s1">&#39;academic_career&#39;</span><span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;faculty&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsDict</span><span class="p">(</span><span class="n">program_current</span><span class="p">,</span> <span class="s1">&#39;faculty_descr&#39;</span><span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;academic_load&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsDict</span><span class="p">(</span><span class="n">program_current</span><span class="p">,</span> <span class="s1">&#39;academic_load_descr&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Count of years of current students</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">years</span> <span class="o">=</span> <span class="p">(</span><span class="mf">18.1</span> <span class="o">-</span> <span class="p">(</span><span class="n">program_current</span><span class="o">.</span><span class="n">admit_term</span> <span class="o">/</span> <span class="mi">100</span><span class="p">)</span>
-             <span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
-    <span class="k">for</span> <span class="n">year</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">years</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;years&quot;</span><span class="p">][</span><span class="nb">min</span><span class="p">(</span><span class="n">year</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">count</span>
-
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">faculty</span><span class="o">.</span><span class="n">demographics</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
 
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/enrolment/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">moduleEnrolment</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">program_current</span> <span class="o">=</span> <span class="n">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">faculty</span><span class="o">.</span><span class="n">enrolment</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
 
-    <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;.2f&#39;</span><span class="p">))</span>
-    <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;.2f&#39;</span><span class="p">))</span>
-    <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;.2f&#39;</span><span class="p">))</span>
-
-    <span class="c1"># For each student token, check which of the prereqs they have done</span>
-    <span class="c1"># and their grades for it</span>
-    <span class="n">prereqs</span> <span class="o">=</span> <span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">getPrereqGrades</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
-        <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-
-        <span class="n">modules_taken</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[(</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">token</span> <span class="o">==</span> <span class="n">token</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">module_code</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">prereqs</span><span class="p">))]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">modules_taken</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">code</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span>
-            <span class="n">grade</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;original_letter_grade&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">grade</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span><span class="p">:</span>
-                <span class="n">grade</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
-            <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="n">grade</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
-
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">=</span> <span class="n">text</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;, &quot;</span> <span class="o">+</span> <span class="n">text</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
-
-        <span class="k">return</span> <span class="n">output</span>
-
-    <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">program_current</span><span class="o">.</span><span class="n">token</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">getPrereqGrades</span><span class="p">)</span>
-    <span class="n">program_current</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">program_current</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">))</span>
-
-
-<div class="viewcode-block" id="getModuleGrades"><a class="viewcode-back" href="../server.html#backend.getModuleGrades">[docs]</a><span class="k">def</span> <span class="nf">getModuleGrades</span><span class="p">(</span><span class="n">module_code</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">program_subset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Returns grades. Can filter by module_code and/or a list of tokens</span>
-
-<span class="sd">    Parameters:</span>
-<span class="sd">    module_code - optional string, return only grades with this module_code</span>
-<span class="sd">    program_subset - optional Pandas DataFrame, return only grades belonging to those who are in this dataframe</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">if</span> <span class="n">module_code</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_enrolment</span>
-
-    <span class="c1"># Filter to a specific subset of tokens, if specified</span>
-    <span class="k">if</span> <span class="n">program_subset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_subset</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">program_subset</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
-
-    <span class="n">subset_grades</span> <span class="o">=</span> <span class="n">module_subset</span><span class="o">.</span><span class="n">final_grade</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-    <span class="n">counts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">students</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">grade</span> <span class="ow">in</span> <span class="n">grades</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="n">counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">subset_grades</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">grade</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
-        <span class="n">students</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">module_subset</span><span class="p">[</span><span class="n">module_subset</span><span class="o">.</span><span class="n">final_grade</span> <span class="o">==</span> <span class="n">grade</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]))</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;counts&quot;</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span> <span class="s2">&quot;students&quot;</span><span class="p">:</span> <span class="n">students</span><span class="p">}</span></div>
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/academics/byfac/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">moduleAcademicsFac</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">program_current</span> <span class="o">=</span> <span class="n">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">program_past</span> <span class="o">=</span> <span class="n">program_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)[[</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;faculty_descr&#39;</span><span class="p">,</span><span class="s1">&#39;attendance&#39;</span><span class="p">,</span> <span class="s1">&#39;CAP&#39;</span><span class="p">,</span> <span class="s1">&#39;webcast&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="n">module_current</span> <span class="o">=</span> <span class="n">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">module_past</span> <span class="o">=</span> <span class="n">module_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">faculties</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;faculty_descr&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-
-    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="c1">#create the same data as module Academics but added a new key of unique faculties</span>
-    <span class="c1"># and the value will be the same data but filtered by faculties</span>
-    <span class="c1">#also added an All key after the faculties keys so that we can display everything also</span>
-
-    <span class="c1"># Some statistical analysis part 1 for module_influence_scores</span>
-
-    <span class="n">module_influence_scores</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">module_past</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">student</span> <span class="o">=</span> <span class="n">module_past</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">marks</span> <span class="o">=</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;final_marks&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">module_past</span><span class="p">[</span><span class="s1">&#39;final_marks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">marks</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="c1"># For each student, we go through what modules they&#39;ve taken, and assign the module their score</span>
-        <span class="n">modules_taken</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-                                         <span class="o">==</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">modules_taken</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">module</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="p">:</span>
-                <span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">marks</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">module_influence_scores</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="c1">#A for loop for separation of faculties will all the other variables(curr grades etc)</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">faculties</span><span class="p">)):</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;curr_grades&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;curr_grades_students&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]]</span>
-        <span class="n">fac_set</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[</span><span class="n">program_current</span><span class="p">[</span><span class="s1">&#39;faculty_descr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-         <span class="c1"># Fetch a count of past grades</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;grades&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getModuleGrades</span><span class="p">(</span><span class="n">program_subset</span><span class="o">=</span><span class="n">fac_set</span><span class="p">)</span>
-        <span class="c1"># Calculate the grade distribution of current students</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fac_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">grade</span> <span class="o">=</span> <span class="n">fac_set</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span>
-            <span class="n">token</span> <span class="o">=</span> <span class="n">fac_set</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">5</span>
-            <span class="k">if</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mf">4.5</span><span class="p">:</span>
-                <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
-                <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mf">3.5</span><span class="p">:</span>
-                <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">2</span>
-            <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">3</span>
-            <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">4</span>
-
-            <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;curr_grades&quot;</span><span class="p">][</span><span class="n">grade_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;curr_grades_students&quot;</span><span class="p">][</span><span class="n">grade_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
-
-        <span class="c1"># Count number of modules that each student is doing this semester</span>
-        <span class="n">students</span> <span class="o">=</span> <span class="n">fac_set</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-        <span class="n">module_counts</span> <span class="o">=</span> <span class="n">students</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">term</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
-        <span class="n">module_counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">module_counts</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;semester_workload&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsDict</span><span class="p">(</span><span class="n">module_counts</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;attendance_cap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;attendance_cap_students&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;webcast_cap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;webcast_cap_students&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">fac_set_past</span> <span class="o">=</span> <span class="n">program_past</span><span class="p">[</span><span class="n">program_past</span><span class="p">[</span><span class="s1">&#39;faculty_descr&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
-
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">fac_set</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">student</span> <span class="o">=</span> <span class="n">fac_set</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;attendance_cap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]),</span>
-                <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-            <span class="p">})</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;attendance_cap_students&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">])</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;webcast_cap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]),</span>
-                <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-            <span class="p">})</span>
-            <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;webcast_cap_students&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">])</span>
-
-        <span class="c1"># Fetch grades for prereqs</span>
-        <span class="n">prereqs</span> <span class="o">=</span> <span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">prereq</span> <span class="ow">in</span> <span class="n">prereqs</span><span class="p">:</span>
-            <span class="n">prereq_data</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s1">&#39;module_code&#39;</span><span class="p">:</span> <span class="n">prereq</span><span class="p">,</span>
-                <span class="s1">&#39;grades&#39;</span><span class="p">:</span> <span class="n">getModuleGrades</span><span class="p">(</span><span class="n">prereq</span><span class="p">,</span> <span class="n">fac_set</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]])</span>
-            <span class="p">}</span>
-
-            <span class="c1"># Only append if we have found students who took this prereq</span>
-            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prereq_data</span><span class="p">[</span><span class="s1">&#39;grades&#39;</span><span class="p">][</span><span class="s1">&#39;counts&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prereq_data</span><span class="p">)</span>
-
-        <span class="c1">#Statistical analysis part 2 (to find good and bad students for each fac)</span>
-        <span class="n">good_student_scores</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">bad_student_scores</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">module_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">student</span> <span class="o">=</span> <span class="n">module_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">fac_set</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]):</span>
-                <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">influencing_modules</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="c1"># Iterate through all modules this student has taken</span>
-                <span class="c1"># If they are in the list, add to his &#39;score&#39;</span>
-                <span class="n">modules_taken</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-                                                <span class="o">==</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">modules_taken</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-                    <span class="n">module</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="p">:</span>
-                        <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">])</span>
-                        <span class="n">influencing_modules</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">],</span> <span class="s2">&quot;.2f&quot;</span><span class="p">)})</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">good_student_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">influencing_modules</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">bad_student_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">influencing_modules</span><span class="p">])</span>
-
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;pred_scores_good&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">good_student_scores</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">results</span><span class="p">[</span><span class="n">faculties</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s1">&#39;pred_scores_bad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bad_student_scores</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">faculty</span><span class="o">.</span><span class="n">academics</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
 
 
-    <span class="c1"># last key will be all (display everything)</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s2">&quot;curr_grades&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s2">&quot;curr_grades_students&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">program_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">grade</span> <span class="o">=</span> <span class="n">program_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span>
-        <span class="n">token</span> <span class="o">=</span> <span class="n">program_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-        <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">5</span>
-        <span class="k">if</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mf">4.5</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mf">3.5</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">3</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/student/&lt;token&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_student_info</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">faculty</span><span class="o">.</span><span class="n">student_info</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
 
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="s2">&quot;curr_grades&quot;</span><span class="p">][</span><span class="n">grade_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="s2">&quot;curr_grades_students&quot;</span><span class="p">][</span><span class="n">grade_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
-<span class="c1"># Fetch a count of past grades</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;grades&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getModuleGrades</span><span class="p">(</span><span class="n">program_subset</span><span class="o">=</span><span class="n">program_current</span><span class="p">)</span>
 
-    <span class="c1"># Count number of modules that each student is doing this semester</span>
-    <span class="n">students</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-    <span class="n">module_counts</span> <span class="o">=</span> <span class="n">students</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">term</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
-    <span class="n">module_counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">module_counts</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;semester_workload&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsDict</span><span class="p">(</span><span class="n">module_counts</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;attendance_cap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;attendance_cap_students&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;webcast_cap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;webcast_cap_students&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">program_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">student</span> <span class="o">=</span> <span class="n">program_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;attendance_cap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]),</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-        <span class="p">})</span>
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;attendance_cap_students&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;webcast_cap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]),</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-        <span class="p">})</span>
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">][</span><span class="s1">&#39;webcast_cap_students&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s2">&quot;token&quot;</span><span class="p">])</span>
-
-    <span class="c1"># Fetch grades for prereqs</span>
-    <span class="n">prereqs</span> <span class="o">=</span> <span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">prereq</span> <span class="ow">in</span> <span class="n">prereqs</span><span class="p">:</span>
-        <span class="n">prereq_data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;module_code&#39;</span><span class="p">:</span> <span class="n">prereq</span><span class="p">,</span>
-            <span class="s1">&#39;grades&#39;</span><span class="p">:</span> <span class="n">getModuleGrades</span><span class="p">(</span><span class="n">prereq</span><span class="p">,</span> <span class="n">program_current</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]])</span>
-        <span class="p">}</span>
-
-        <span class="c1"># Only append if we have found students who took this prereq</span>
-        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prereq_data</span><span class="p">[</span><span class="s1">&#39;grades&#39;</span><span class="p">][</span><span class="s1">&#39;counts&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prereq_data</span><span class="p">)</span>
-
-    <span class="c1"># Some statistical analysis!</span>
-
-    <span class="c1"># Now for all prospective students, we look at what modules they have taken and calculate a score</span>
-    <span class="n">good_student_scores</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">bad_student_scores</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">module_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">student</span> <span class="o">=</span> <span class="n">module_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">influencing_modules</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># Iterate through all modules this student has taken</span>
-        <span class="c1"># If they are in the list, add to his &#39;score&#39;</span>
-        <span class="n">modules_taken</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-                                         <span class="o">==</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">modules_taken</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="p">:</span>
-                <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">])</span>
-                <span class="n">influencing_modules</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">],</span> <span class="s2">&quot;.2f&quot;</span><span class="p">)})</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">good_student_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">influencing_modules</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">bad_student_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">influencing_modules</span><span class="p">])</span>
-
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="s1">&#39;pred_scores_good&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">good_student_scores</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;all&#39;</span><span class="p">][</span><span class="s1">&#39;pred_scores_bad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bad_student_scores</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tags&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_faculty_tag_counts</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-
-<span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/academics/&lt;module_code&gt;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">moduleAcademics</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">program_current</span> <span class="o">=</span> <span class="n">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">program_past</span> <span class="o">=</span> <span class="n">program_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)[[</span><span class="s1">&#39;attendance&#39;</span><span class="p">,</span> <span class="s1">&#39;CAP&#39;</span><span class="p">,</span> <span class="s1">&#39;webcast&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-    <span class="n">module_current</span> <span class="o">=</span> <span class="n">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">module_past</span> <span class="o">=</span> <span class="n">module_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-
-    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="c1"># Calculate the grade distribution of current students</span>
-
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;curr_grades&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s2">&quot;curr_grades_students&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">program_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">grade</span> <span class="o">=</span> <span class="n">program_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span>
-        <span class="n">token</span> <span class="o">=</span> <span class="n">program_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-        <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">5</span>
-        <span class="k">if</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mf">4.5</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mf">3.5</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">2</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">3</span>
-        <span class="k">elif</span> <span class="n">grade</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">grade_index</span> <span class="o">=</span> <span class="mi">4</span>
-
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;curr_grades&quot;</span><span class="p">][</span><span class="n">grade_index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;curr_grades_students&quot;</span><span class="p">][</span><span class="n">grade_index</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">token</span><span class="p">))</span>
-
-    <span class="c1"># Fetch a count of past grades</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;grades&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">getModuleGrades</span><span class="p">(</span><span class="n">program_subset</span><span class="o">=</span><span class="n">program_current</span><span class="p">)</span>
-
-    <span class="c1"># Count number of modules that each student is doing this semester</span>
-    <span class="n">students</span> <span class="o">=</span> <span class="n">program_current</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-    <span class="n">module_counts</span> <span class="o">=</span> <span class="n">students</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">term</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">size</span><span class="p">()</span>
-    <span class="n">module_counts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">module_counts</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;semester_workload&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">countsAsDict</span><span class="p">(</span><span class="n">module_counts</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;attendance_cap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;webcast_cap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">program_past</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">student</span> <span class="o">=</span> <span class="n">program_past</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;attendance_cap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]),</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-        <span class="p">})</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;webcast_cap&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]),</span>
-            <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-        <span class="p">})</span>
-
-    <span class="c1"># Fetch grades for prereqs</span>
-    <span class="n">prereqs</span> <span class="o">=</span> <span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">prereq</span> <span class="ow">in</span> <span class="n">prereqs</span><span class="p">:</span>
-        <span class="n">prereq_data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;module_code&#39;</span><span class="p">:</span> <span class="n">prereq</span><span class="p">,</span>
-            <span class="s1">&#39;grades&#39;</span><span class="p">:</span> <span class="n">getModuleGrades</span><span class="p">(</span><span class="n">prereq</span><span class="p">,</span> <span class="n">program_current</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]])</span>
-        <span class="p">}</span>
-
-        <span class="c1"># Only append if we have found students who took this prereq</span>
-        <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">prereq_data</span><span class="p">[</span><span class="s1">&#39;grades&#39;</span><span class="p">][</span><span class="s1">&#39;counts&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;prereqs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prereq_data</span><span class="p">)</span>
-
-    <span class="c1"># Some statistical analysis!</span>
-
-    <span class="n">module_influence_scores</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">module_past</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">student</span> <span class="o">=</span> <span class="n">module_past</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">marks</span> <span class="o">=</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;final_marks&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">module_past</span><span class="p">[</span><span class="s1">&#39;final_marks&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">marks</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">continue</span>
-        <span class="c1"># For each student, we go through what modules they&#39;ve taken, and assign the module their score</span>
-        <span class="n">modules_taken</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-                                         <span class="o">==</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">modules_taken</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">module</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">:</span>
-                <span class="k">continue</span>
-            <span class="k">if</span> <span class="n">module</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="p">:</span>
-                <span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">marks</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">module_influence_scores</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-    <span class="c1"># Now for all prospective students, we look at what modules they have taken and calculate a score</span>
-    <span class="n">good_student_scores</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">bad_student_scores</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">module_current</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-        <span class="n">student</span> <span class="o">=</span> <span class="n">module_current</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">influencing_modules</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># Iterate through all modules this student has taken</span>
-        <span class="c1"># If they are in the list, add to his &#39;score&#39;</span>
-        <span class="n">modules_taken</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
-                                         <span class="o">==</span> <span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span>
-        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">modules_taken</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
-            <span class="n">module</span> <span class="o">=</span> <span class="n">modules_taken</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">module_influence_scores</span><span class="p">:</span>
-                <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">])</span>
-                <span class="n">influencing_modules</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;code&#39;</span><span class="p">:</span> <span class="n">module</span><span class="p">,</span> <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="n">module_influence_scores</span><span class="p">[</span><span class="n">module</span><span class="p">],</span> <span class="s2">&quot;.2f&quot;</span><span class="p">)})</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">good_student_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">influencing_modules</span><span class="p">])</span>
-        <span class="k">elif</span> <span class="n">score</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">bad_student_scores</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">student</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">],</span> <span class="n">score</span><span class="p">,</span> <span class="n">influencing_modules</span><span class="p">])</span>
-
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;pred_scores_good&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">good_student_scores</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;pred_scores_bad&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">bad_student_scores</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="c1"># Student endpoints</span>
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/student/view-module/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">getPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">prereqs</span> <span class="o">=</span> <span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
-    <span class="c1"># name parent children</span>
-    <span class="n">final_list</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">module_code</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">:</span> <span class="p">[]}</span>
-    <span class="k">for</span> <span class="n">prereq</span> <span class="ow">in</span> <span class="n">prereqs</span><span class="p">:</span>
-        <span class="n">toAdd</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">prereq</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="n">module_code</span><span class="p">}</span>
-        <span class="n">final_list</span><span class="p">[</span><span class="s1">&#39;children&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toAdd</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">final_list</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="n">getPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
+
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/student/view-module/feedbackT/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">getTeachingFeedback</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">subset_student_fb_teaching</span> <span class="o">=</span> <span class="n">student_fb_teaching</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">student_fb_teaching</span><span class="p">[</span><span class="s2">&quot;mod_class_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;tAbility&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tTimely&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tInterest&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tAbility&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tTimely&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tInterest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset_student_fb_teaching</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">subset_student_fb_teaching</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tAbility&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tTimely&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tInterest&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;t3&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;tAbility&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="n">getTeachingFeedback</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
+
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/student/view-module/feedbackM/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">getModuleFeedback</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">subset_student_fb_module</span> <span class="o">=</span> <span class="n">student_fb_module</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">student_fb_module</span><span class="p">[</span><span class="s2">&quot;mod_class_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;mRating&#39;</span><span class="p">:{},</span> <span class="s1">&#39;goodText&#39;</span><span class="p">:[],</span> <span class="s1">&#39;badText&#39;</span><span class="p">:[]}</span>
-    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;num_feedback&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;total&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;average&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;array&#39;</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="n">getModuleFeedback</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">goodTextTemp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">badTextTemp</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;array&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m1&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;m4c&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">goodTextTemp</span><span class="p">:</span>
-                <span class="n">goodTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m4c&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">goodTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m4c&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;m5c&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">badTextTemp</span><span class="p">:</span>
-                <span class="n">badTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m5c&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">badTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m5c&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="n">totalRating</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
-            <span class="n">counter</span> <span class="o">+=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;array&#39;</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">totalRating</span> <span class="o">+=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;array&#39;</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">counter</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;num_feedback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalRating</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;average&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalRating</span><span class="o">/</span><span class="n">counter</span>
-
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">goodTextTemp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">tempObj</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="n">value</span><span class="p">}</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;goodText&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempObj</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">badTextTemp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">tempObj</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="n">value</span><span class="p">}</span>
-            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;badText&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempObj</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/student/view-tag/&lt;tag_name&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">getTags</span><span class="p">(</span><span class="n">tag_name</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">tags</span><span class="p">[</span><span class="n">tag_name</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">tag_name</span><span class="p">])</span>
+
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/student/view-tag/count/&lt;tag_name&gt;&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">setCountTags</span><span class="p">(</span><span class="n">tag_name</span><span class="p">):</span>
     <span class="n">content</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
-    <span class="n">tags</span><span class="p">[</span><span class="n">tag_name</span><span class="p">][</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">tags</span><span class="p">[</span><span class="n">tag_name</span><span class="p">][</span><span class="s1">&#39;count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">tag_name</span>
+
 
 <span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/student/SEP/&lt;module_code&gt;&#39;</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">getSEPUni</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">SEP</span><span class="p">)):</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">SEP</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;NUS Module Code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">:</span>
-            <span class="n">curr</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">curr</span><span class="p">[</span><span class="s2">&quot;PU&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Partner University&quot;</span><span class="p">]</span>
-            <span class="n">curr</span><span class="p">[</span><span class="s2">&quot;MC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Partner University Module Code&quot;</span><span class="p">]</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr</span><span class="p">)</span>
-    <span class="n">sortedlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">elem</span><span class="p">:(</span><span class="n">elem</span><span class="p">[</span><span class="s1">&#39;PU&#39;</span><span class="p">],</span> <span class="n">elem</span><span class="p">[</span><span class="s1">&#39;MC&#39;</span><span class="p">]))</span>
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">sortedlist</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">get_faculty_tag_counts</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tags</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="s1">&#39;modules&#39;</span> <span class="ow">in</span> <span class="n">value</span> <span class="ow">and</span> <span class="n">module_code</span> <span class="ow">in</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;modules&#39;</span><span class="p">]:</span>
-            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;tag&#39;</span><span class="p">:</span> <span class="n">tag</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">]})</span>
-    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">key</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;count&#39;</span><span class="p">],</span> <span class="n">reverse</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span>
-
-<span class="nd">@backend</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="n">url_path</span><span class="o">+</span><span class="s1">&#39;/backend/faculty/student/&lt;token&gt;&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">get_student_info</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
-    <span class="n">subset</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="p">[</span><span class="n">program_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">token</span><span class="p">]</span><span class="c1">#.dropna(axis=1)</span>
-    <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="n">subset</span><span class="p">[</span><span class="s1">&#39;term&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">subset</span><span class="p">[</span><span class="s1">&#39;term&#39;</span><span class="p">])]</span>
-    <span class="c1"># subset.drop([&#39;token&#39;, &#39;term&#39;, &#39;faculty_code&#39;, &#39;academic_plan&#39;, &#39;academic_plan_type&#39;, &#39;academic_subplan1&#39;, &#39;academic_program&#39;, &#39;admit_term&#39;, &#39;degree&#39;, &#39;program_status&#39;, &#39;degree_checkout_status&#39;], axis=1, inplace=True)</span>
-    <span class="n">subset</span> <span class="o">=</span> <span class="n">subset</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">subset</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">])</span>
-    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;attendance&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;%&#39;</span>
-    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;webcast&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;%&#39;</span>
-
-    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">subset</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">var_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">column_descriptions</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-            <span class="c1"># Remove those columns we don&#39;t want</span>
-            <span class="k">continue</span>
-        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_name</span><span class="p">]):</span>
-            <span class="k">continue</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">column_descriptions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">column</span><span class="p">[</span><span class="s1">&#39;full_name&#39;</span><span class="p">],</span>
-            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">column</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">],</span> 
-            <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
-        <span class="p">}</span>
-        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-    
-    <span class="n">subset_modules</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="p">[</span><span class="s1">&#39;token&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">token</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">subset_modules</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="s1">&#39;academic_career&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">subset_modules</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">subset_modules</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;term&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">curr_modules</span> <span class="o">=</span> <span class="n">subset_modules</span><span class="p">[</span><span class="n">subset_modules</span><span class="p">[</span><span class="s1">&#39;term&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">subset_modules</span><span class="p">[</span><span class="s1">&#39;term&#39;</span><span class="p">])][[</span><span class="s1">&#39;module_code&#39;</span><span class="p">,</span> <span class="s1">&#39;course_title&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
-    <span class="n">past_modules</span> <span class="o">=</span> <span class="n">subset_modules</span><span class="p">[</span><span class="n">subset_modules</span><span class="p">[</span><span class="s1">&#39;term&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span><span class="n">subset_modules</span><span class="p">[</span><span class="s1">&#39;term&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s1">&#39;records&#39;</span><span class="p">)</span>
-
-    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">curr_modules</span><span class="p">:</span>
-        <span class="n">nusmods_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">module_descriptions</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-            <span class="n">nusmods_name</span> <span class="o">=</span> <span class="n">module_descriptions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mod</span><span class="p">[</span><span class="s1">&#39;module_code&#39;</span><span class="p">]][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
-        <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;nusmods_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nusmods_name</span>
-        
-    <span class="k">for</span> <span class="n">mod</span> <span class="ow">in</span> <span class="n">past_modules</span><span class="p">:</span>
-        <span class="n">nusmods_name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;module_code&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">module_descriptions</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-            <span class="n">nusmods_name</span> <span class="o">=</span> <span class="n">module_descriptions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mod</span><span class="p">[</span><span class="s1">&#39;module_code&#39;</span><span class="p">]][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span>
-        <span class="n">mod</span><span class="p">[</span><span class="s1">&#39;nusmods_name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nusmods_name</span>
-
-    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span>
-        <span class="s1">&#39;information&#39;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span> 
-        <span class="s1">&#39;curr_modules&#39;</span><span class="p">:</span> <span class="n">curr_modules</span><span class="p">,</span>
-        <span class="s1">&#39;past_modules&#39;</span><span class="p">:</span> <span class="n">past_modules</span>
-    <span class="p">})</span>
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">(</span><span class="n">student</span><span class="o">.</span><span class="n">getSEPUni</span><span class="p">(</span><span class="n">module_code</span><span class="p">))</span>
 </pre></div>
 
           </div>
-          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../index.html">Ultimods</a></h1>
-
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../server.html">Server</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../student.html">Student Portal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../faculty.html">Faculty Portal</a></li>
-</ul>
-
-<div class="relations">
+        <div class="sphinxsidebarwrapper"><div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
@@ -1110,8 +216,8 @@
       
       
       
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 
