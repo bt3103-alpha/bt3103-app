@@ -1,0 +1,523 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>data &#8212; Ultimods  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for data</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="k">import</span> <span class="n">StringIO</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">module_enrolment</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">program_enrolment</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">mockedup_data</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">main_mockup</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">student_attention</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">student_attention_cap</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">cap</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">module_descriptions</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">module_descriptions_DICT</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">newData</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">student_fb_module</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">student_fb_teaching</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">SEP</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">column_descriptions</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">module_names</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">fetchProgress</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">tags</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="n">grades</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;A+&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;A&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;A-&quot;</span><span class="p">:</span> <span class="mf">4.5</span><span class="p">,</span> <span class="s2">&quot;B+&quot;</span><span class="p">:</span> <span class="mf">4.0</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="mf">3.5</span><span class="p">,</span>
+          <span class="s2">&quot;B-&quot;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">&quot;C+&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="s2">&quot;D+&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;F&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+<div class="viewcode-block" id="fetchPrereqs"><a class="viewcode-back" href="../server.html#data.fetchPrereqs">[docs]</a><span class="k">def</span> <span class="nf">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fetch a list of prerequisites for a given module code. Uses nusmods&#39; API.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Prerequisities for a given module code, returns an empty list of module is not found</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;https://api.nusmods.com/2018-2019/modules/&quot;</span><span class="o">+</span><span class="n">module_code</span><span class="o">+</span><span class="s2">&quot;/index.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">prereqs</span> <span class="o">=</span> <span class="n">j</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Prerequisite&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[A-Z]{2,3}[0-9]</span><span class="si">{4}</span><span class="s1">[A-Z]?&#39;</span><span class="p">,</span> <span class="n">prereqs</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="fetchGoogleSheet"><a class="viewcode-back" href="../server.html#data.fetchGoogleSheet">[docs]</a><span class="k">def</span> <span class="nf">fetchGoogleSheet</span><span class="p">(</span><span class="n">url_num</span><span class="p">,</span> <span class="n">sheet_name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Query data from Google spreadsheet.</span>
+<span class="sd">    Data obtained from https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url_num: integer</span>
+<span class="sd">        Representing which &#39;part&#39; (1 or 2) the sheet belongs to</span>
+<span class="sd">    sheet_name: string</span>
+<span class="sd">        Name of sheet to pull data from</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas dataframe</span>
+<span class="sd">        Results from Google spreadsheet</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">url_num</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Part 1</span>
+        <span class="c1">## Prof copy</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;14dZQ5XLFG5-1NNGYTgclrTXlkEUiSWWiOCdkjNZaAfQ&quot;</span>
+        <span class="c1">## cloned copy</span>
+        <span class="c1">## url = &quot;1fODgXoBY44uq2B2KA-M-eWYv0LKOQ0To0etvAdHZhsc&quot;</span>
+    <span class="k">elif</span> <span class="n">url_num</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="c1"># Part 2</span>
+        <span class="c1">## Prof copy</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;1lFR0Og8mFUzJNZkzC1Lr9Z7KHaG_X8bV--VfV-FH64Y&quot;</span>
+        <span class="c1">## cloned copy</span>
+        <span class="c1">## url = &quot;1arssfIN-m6i0575a9R2FBnwWQmYOcfTAUcJ2q6wodJQ&quot;</span>
+    <span class="k">elif</span> <span class="n">url_num</span> <span class="o">==</span><span class="mi">3</span><span class="p">:</span>
+        <span class="c1"># Vienna&#39;s mock up for main page (including module code, num of stu, num of webcasts watch halfway, unviewed forum, tut attendance)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;16Sw9yRsyMrFZDXGKNQe3gG34Sj3Y_8jqOzjCXszJQB8&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Sam&#39;s mockup</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;15YQSuRO3TohlqFiF8v3oxFNpr9VoBxgOs6ihhUMCigU&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://docs.google.com/spreadsheets/d/&quot;</span> <span class="o">+</span>
+                     <span class="n">url</span><span class="o">+</span><span class="s2">&quot;/gviz/tq?tqx=out:csv&amp;sheet=&quot;</span><span class="o">+</span><span class="n">sheet_name</span><span class="p">)</span>
+    <span class="n">strio</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">strio</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="fetchFirebase"><a class="viewcode-back" href="../server.html#data.fetchFirebase">[docs]</a><span class="k">def</span> <span class="nf">fetchFirebase</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Query data from Firebase.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    url: string</span>
+<span class="sd">        Firebase URL</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas dataframe</span>
+<span class="sd">        Results from Firebase database</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_records</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">())</span></div>
+
+
+<span class="k">def</span> <span class="nf">fetchFirebaseJSON</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">(),</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">fetchFirebaseJSON_no</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+
+<span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">total_fetch</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">def</span> <span class="nf">update_fetch_progress</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">counter</span>
+    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">counter</span> <span class="o">/</span> <span class="n">total_fetch</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Progress: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">% d</span><span class="s2">one&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">fetch_module_enrolment</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">module_enrolment</span>
+    <span class="n">module_enrolment</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;module_enrolment&quot;</span><span class="p">)</span>
+    <span class="n">calculate_cap</span><span class="p">()</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_program_enrolment</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">program_enrolment</span>
+    <span class="n">program_enrolment</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;program_enrolment&#39;</span><span class="p">)</span>
+    <span class="n">program_enrolment</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">program_enrolment</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_student_fb_module</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">student_fb_module</span>
+    <span class="n">student_fb_module</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;student_feedback_module&#39;</span><span class="p">)</span>
+    <span class="n">student_fb_module</span> <span class="o">=</span> <span class="n">student_fb_module</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_student_fb_teaching</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">student_fb_teaching</span>
+    <span class="n">student_fb_teaching</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;student_feedback_teaching&#39;</span><span class="p">)</span>
+    <span class="n">student_fb_teaching</span> <span class="o">=</span> <span class="n">student_fb_teaching</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_main_mockup</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">main_mockup</span>
+    <span class="n">main_mockup</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;mockup_for_main&#39;</span><span class="p">)</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_student_attention</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">student_attention</span>
+    <span class="n">student_attention</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Sheet1&#39;</span><span class="p">)</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_SEP</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">SEP</span>
+    <span class="n">SEP</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;Sheet5&#39;</span> <span class="p">)</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_column_descriptions</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">column_descriptions</span>
+    <span class="n">column_descriptions</span> <span class="o">=</span> <span class="n">fetchGoogleSheet</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s1">&#39;catalog&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;var_name&#39;</span><span class="p">)</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_module_descriptions</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">module_descriptions</span>
+    <span class="n">module_descriptions</span> <span class="o">=</span> <span class="n">fetchFirebaseJSON</span><span class="p">(</span><span class="s2">&quot;https://bt3103-alpha-student.firebaseio.com/module_descriptions.json&quot;</span><span class="p">)</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">fetch_tags</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">tags</span>
+    <span class="n">tags</span> <span class="o">=</span> <span class="n">fetchFirebaseJSON_no</span><span class="p">(</span><span class="s2">&quot;https://bt3103-jasminw.firebaseio.com/tags.json&quot;</span><span class="p">)</span>
+    <span class="n">update_fetch_progress</span><span class="p">()</span>
+
+<div class="viewcode-block" id="fetchData"><a class="viewcode-back" href="../server.html#data.fetchData">[docs]</a><span class="k">def</span> <span class="nf">fetchData</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fetch and process all the data that we need. </span>
+
+<span class="sd">    Helper function that starts a thread for each data source to be pulled. </span>
+<span class="sd">    Is called when the server is first launched, and can be refreshed by </span>
+<span class="sd">    calling http://localhost:5000/bt3103-app/backend/fetch_data</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">global</span> <span class="n">total_fetch</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fetching data...&quot;</span><span class="p">)</span>
+
+    <span class="n">functions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">fetch_module_enrolment</span><span class="p">,</span> <span class="n">fetch_program_enrolment</span><span class="p">,</span>
+        <span class="n">fetch_student_fb_module</span><span class="p">,</span> <span class="n">fetch_student_fb_teaching</span><span class="p">,</span>
+        <span class="n">fetch_main_mockup</span><span class="p">,</span> <span class="n">fetch_student_attention</span><span class="p">,</span>
+        <span class="n">fetch_SEP</span><span class="p">,</span> <span class="n">fetch_column_descriptions</span><span class="p">,</span>
+        <span class="n">fetch_module_descriptions</span><span class="p">,</span> <span class="n">fetch_tags</span>
+    <span class="p">]</span>
+
+    <span class="n">total_fetch</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">functions</span><span class="p">)</span>
+
+    <span class="n">threads</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">functions</span><span class="p">:</span>
+        <span class="n">threads</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">func</span><span class="p">))</span>
+        <span class="n">threads</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">thread</span> <span class="ow">in</span> <span class="n">threads</span><span class="p">:</span>
+        <span class="n">thread</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Done fetching data&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="getScore"><a class="viewcode-back" href="../server.html#data.getScore">[docs]</a><span class="k">def</span> <span class="nf">getScore</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Maps letter grade to numeric score.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x: string</span>
+<span class="sd">        Letter grade</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Numeric grade of a grade, nan is grade is not found (eg. S/U)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A&#39;</span> <span class="ow">or</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A+&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">5</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;A-&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">4.5</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;B+&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">4</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">3.5</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;B-&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">3</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;C+&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">2.5</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;D+&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.5</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">x</span> <span class="o">==</span> <span class="s1">&#39;F&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span></div>
+
+<div class="viewcode-block" id="calculate_cap"><a class="viewcode-back" href="../server.html#data.calculate_cap">[docs]</a><span class="k">def</span> <span class="nf">calculate_cap</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Calculate CAP score for each student in the database after fetching module enrolment.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Calculate cap</span>
+    <span class="k">global</span> <span class="n">program_enrolment</span>
+
+    <span class="k">while</span> <span class="n">module_enrolment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">program_enrolment</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">student_attention</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Try again later</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">module_enrolment</span><span class="p">[[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">,</span> <span class="s1">&#39;final_grade&#39;</span><span class="p">,</span> <span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;grade&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;final_grade&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">getScore</span><span class="p">)</span>
+    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="mi">4</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;final_grade&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;grade&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span>
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;score&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">cap</span><span class="p">[</span><span class="s1">&#39;module_credits&#39;</span><span class="p">]</span>
+    <span class="n">cap</span> <span class="o">=</span> <span class="n">cap</span><span class="p">[[</span><span class="s1">&#39;CAP&#39;</span><span class="p">]]</span>
+
+    <span class="n">program_enrolment</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cap</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">student_attention</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="countsAsDict"><a class="viewcode-back" href="../server.html#data.countsAsDict">[docs]</a><span class="k">def</span> <span class="nf">countsAsDict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Takes in a column, does a value count, and returns a dict.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df: Pandas dataframe</span>
+<span class="sd">        Dataframe that contains the data to be counted</span>
+<span class="sd">    column_name: string</span>
+<span class="sd">        Name of the column to be counted</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary with keys &#39;labels&#39;, &#39;counts&#39;, and &#39;students&#39; with each value being a list.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; countsAsDict(df, column_name)</span>
+<span class="sd">    &gt;&gt;&gt; {&#39;labels&#39;: [&#39;A&#39;, &#39;B&#39;], &#39;counts&#39;: [2, 4], &#39;tokens&#39;: [&#39;Token1&#39;, &#39;Token2&#39;]}</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">]</span>
+    <span class="n">students</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">:</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
+        <span class="n">students</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">tokens</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">labels</span><span class="p">,</span> <span class="s1">&#39;counts&#39;</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span> <span class="s1">&#39;students&#39;</span><span class="p">:</span> <span class="n">students</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="countsAsLists"><a class="viewcode-back" href="../server.html#data.countsAsLists">[docs]</a><span class="k">def</span> <span class="nf">countsAsLists</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Takes in a column, does a value count, returns as nested lists.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df: Pandas dataframe</span>
+<span class="sd">        Dataframe that contains the data to be counted</span>
+<span class="sd">    column_name: string</span>
+<span class="sd">        Name of the column to be counted</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        A nested list where each sublist includes details of a label. Sublist consist of label name, count, and a list of students.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; countsAsLists(df, column_name)</span>
+<span class="sd">    &gt;&gt;&gt; [[&quot;A&quot;, 1, [&#39;Token1&#39;, &#39;Token2&#39;]], [&quot;B&quot;, 2, [&#39;Token3&#39;]]]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">tokens</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">][</span><span class="s1">&#39;token&#39;</span><span class="p">]</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">tokens</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="module_all_terms"><a class="viewcode-back" href="../server.html#data.module_all_terms">[docs]</a><span class="k">def</span> <span class="nf">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        All module enrolments for a given module code</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">module_enrolment</span><span class="p">[</span><span class="n">module_enrolment</span><span class="o">.</span><span class="n">module_code</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="module_current_term"><a class="viewcode-back" href="../server.html#data.module_current_term">[docs]</a><span class="k">def</span> <span class="nf">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Latest semester&#39;s module enrolments for a given module code</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
+<span class="c1">#    return module_subset</span>
+    <span class="k">return</span> <span class="n">module_subset</span><span class="p">[</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span> <span class="o">==</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="module_past_terms"><a class="viewcode-back" href="../server.html#data.module_past_terms">[docs]</a><span class="k">def</span> <span class="nf">module_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Previous semesters&#39; module enrolments for a given module code</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">module_subset</span><span class="p">[</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span><span class="n">module_subset</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="program_current_term"><a class="viewcode-back" href="../server.html#data.program_current_term">[docs]</a><span class="k">def</span> <span class="nf">program_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Program enrolment for students currently taking a particular module</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">module_current</span> <span class="o">=</span> <span class="n">module_current_term</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
+    <span class="c1"># program_current = program_enrolment[program_enrolment.term == max(</span>
+        <span class="c1"># program_enrolment.term)]</span>
+    <span class="n">program_current</span> <span class="o">=</span> <span class="n">module_current</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">program_enrolment</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">program_current</span></div>
+
+
+<div class="viewcode-block" id="program_past_terms"><a class="viewcode-back" href="../server.html#data.program_past_terms">[docs]</a><span class="k">def</span> <span class="nf">program_past_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Pandas series</span>
+<span class="sd">        Program enrolment for students who previously took the module</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">module_subset</span> <span class="o">=</span> <span class="n">module_all_terms</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
+    <span class="n">program_subset</span> <span class="o">=</span> <span class="n">program_enrolment</span><span class="p">[</span><span class="n">program_enrolment</span><span class="o">.</span><span class="n">term</span> <span class="o">!=</span> <span class="nb">max</span><span class="p">(</span>
+        <span class="n">program_enrolment</span><span class="o">.</span><span class="n">term</span><span class="p">)]</span>
+    <span class="n">program_subset</span> <span class="o">=</span> <span class="n">module_subset</span><span class="p">[[</span><span class="s1">&#39;token&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">program_subset</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;token&#39;</span><span class="p">),</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;token&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;inner&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">program_subset</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Ultimods</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server.html">Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../student.html">Student Portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faculty.html">Faculty Portal</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

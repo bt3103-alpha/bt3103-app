@@ -1,0 +1,230 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>student &#8212; Ultimods  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for student</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">data</span>
+
+<div class="viewcode-block" id="getPrereqs"><a class="viewcode-back" href="../server.html#student.getPrereqs">[docs]</a><span class="k">def</span> <span class="nf">getPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fetch prerequisites of a module</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A nested dictionary with keys ``name``, ``parent``, and ``children``. Value of ``children`` is a list.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">prereqs</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fetchPrereqs</span><span class="p">(</span><span class="n">module_code</span><span class="p">)</span>
+    <span class="c1"># name parent children</span>
+    <span class="n">final_list</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">module_code</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;children&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="k">for</span> <span class="n">prereq</span> <span class="ow">in</span> <span class="n">prereqs</span><span class="p">:</span>
+        <span class="n">toAdd</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="n">prereq</span><span class="p">,</span> <span class="s1">&#39;parent&#39;</span><span class="p">:</span> <span class="n">module_code</span><span class="p">}</span>
+        <span class="n">final_list</span><span class="p">[</span><span class="s1">&#39;children&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">toAdd</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">final_list</span></div>
+
+<div class="viewcode-block" id="getTeachingFeedback"><a class="viewcode-back" href="../server.html#student.getTeachingFeedback">[docs]</a><span class="k">def</span> <span class="nf">getTeachingFeedback</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fetch student reviews (teaching) of a professor</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary with keys ``data``, ``tAbility``, ``tTimely``, and ``tInterest``. Values of ``tAbility``, ``tTimely``, and ``tInterest`` are lists.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">subset_student_fb_teaching</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">student_fb_teaching</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">student_fb_teaching</span><span class="p">[</span><span class="s2">&quot;mod_class_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;tAbility&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tTimely&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;tInterest&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span>
+    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tAbility&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tTimely&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tInterest&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset_student_fb_teaching</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">subset_student_fb_teaching</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tAbility&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tTimely&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;tInterest&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;t3&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s1">&#39;tAbility&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">results</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="getModuleFeedback"><a class="viewcode-back" href="../server.html#student.getModuleFeedback">[docs]</a><span class="k">def</span> <span class="nf">getModuleFeedback</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fetch student reviews of a module</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        A dictionary with keys ``data``, ``mRating``, ``goodText``, and ``badText``. Values of ``mRating``, ``goodText``, and ``badText`` are lists.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">subset_student_fb_module</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">student_fb_module</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">student_fb_module</span><span class="p">[</span><span class="s2">&quot;mod_class_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;data&#39;</span><span class="p">:</span><span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;mRating&#39;</span><span class="p">:{},</span> <span class="s1">&#39;goodText&#39;</span><span class="p">:[],</span> <span class="s1">&#39;badText&#39;</span><span class="p">:[]}</span>
+    <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;num_feedback&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;total&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;average&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;array&#39;</span><span class="p">:[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]}</span>
+
+    <span class="k">if</span> <span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">goodTextTemp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">badTextTemp</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;array&#39;</span><span class="p">][</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m1&#39;</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;m4c&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">goodTextTemp</span><span class="p">:</span>
+                <span class="n">goodTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m4c&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">goodTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m4c&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;m5c&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">badTextTemp</span><span class="p">:</span>
+                <span class="n">badTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m5c&#39;</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">badTextTemp</span><span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;m5c&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">totalRating</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;array&#39;</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">totalRating</span> <span class="o">+=</span> <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;array&#39;</span><span class="p">][</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">counter</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;num_feedback&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_student_fb_module</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalRating</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;mRating&#39;</span><span class="p">][</span><span class="s1">&#39;average&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">totalRating</span><span class="o">/</span><span class="n">counter</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">goodTextTemp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tempObj</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="n">value</span><span class="p">}</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;goodText&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempObj</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">badTextTemp</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">tempObj</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span><span class="n">key</span><span class="p">,</span> <span class="s1">&#39;size&#39;</span><span class="p">:</span><span class="n">value</span><span class="p">}</span>
+            <span class="n">results</span><span class="p">[</span><span class="s1">&#39;badText&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tempObj</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">results</span></div>
+
+<div class="viewcode-block" id="getSEPUni"><a class="viewcode-back" href="../server.html#student.getSEPUni">[docs]</a><span class="k">def</span> <span class="nf">getSEPUni</span><span class="p">(</span><span class="n">module_code</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Fetch list of partner universities which can map particular module to</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    module_code: string</span>
+<span class="sd">        module code</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        A list of objects with name of partner university as key, and module code of mapped module as value.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">SEP</span><span class="p">)):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">SEP</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;NUS Module Code&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">module_code</span><span class="p">:</span>
+            <span class="n">curr</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">curr</span><span class="p">[</span><span class="s2">&quot;PU&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Partner University&quot;</span><span class="p">]</span>
+            <span class="n">curr</span><span class="p">[</span><span class="s2">&quot;MC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;Partner University Module Code&quot;</span><span class="p">]</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">curr</span><span class="p">)</span>
+    <span class="n">sortedlist</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">elem</span><span class="p">:(</span><span class="n">elem</span><span class="p">[</span><span class="s1">&#39;PU&#39;</span><span class="p">],</span> <span class="n">elem</span><span class="p">[</span><span class="s1">&#39;MC&#39;</span><span class="p">]))</span>
+    <span class="k">return</span> <span class="n">sortedlist</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">Ultimods</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../server.html">Server</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../student.html">Student Portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../faculty.html">Faculty Portal</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

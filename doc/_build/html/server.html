@@ -1,0 +1,769 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Server &#8212; Ultimods  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Student Portal" href="student.html" />
+    <link rel="prev" title="Getting Started" href="getting_started.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="server">
+<h1>Server<a class="headerlink" href="#server" title="Permalink to this headline">¶</a></h1>
+<p>The Flask code is split into five files:</p>
+<ol class="arabic simple">
+<li><a class="reference internal" href="#server-page"><span class="std std-ref">Server Entry Point (server.py)</span></a> – Entry point for the Flask app, handles serving the static files</li>
+<li><a class="reference internal" href="#backend-page"><span class="std std-ref">Backend (backend.py)</span></a> – Foundation for the backend endpoints</li>
+<li><a class="reference internal" href="#data-page"><span class="std std-ref">Data Downloading &amp; Processing (data.py)</span></a> – Handles the fetching of data from external sources, and processing them</li>
+<li><a class="reference internal" href="#student-page"><span class="std std-ref">Student Functions (student.py)</span></a> – Functions called by student endpoints</li>
+<li><a class="reference internal" href="#faculty-page"><span class="std std-ref">Faculty Functions (faculty.py)</span></a> – Functions called by faculty endpoints</li>
+</ol>
+<div class="section" id="server-entry-point-server-py">
+<span id="server-page"></span><h2>Server Entry Point (<code class="docutils literal notranslate"><span class="pre">server.py</span></code>)<a class="headerlink" href="#server-entry-point-server-py" title="Permalink to this headline">¶</a></h2>
+<p>The <em>server.py</em> file serves the static pages, and expects Vue (on the static pages)
+to poll the backend for information.</p>
+<span class="target" id="module-server"></span><dl class="function">
+<dt id="server.index">
+<code class="descclassname">server.</code><code class="descname">index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the welcome page</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.facultyIndex">
+<code class="descclassname">server.</code><code class="descname">facultyIndex</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#facultyIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.facultyIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the faculty portal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.studentIndex">
+<code class="descclassname">server.</code><code class="descname">studentIndex</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#studentIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.studentIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the student portal</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.helpIndex">
+<code class="descclassname">server.</code><code class="descname">helpIndex</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#helpIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.helpIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves the Sphinx documentation</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="server.add_header">
+<code class="descclassname">server.</code><code class="descname">add_header</code><span class="sig-paren">(</span><em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/server.html#add_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#server.add_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add headers to force the browser to not cache static files.
+To make it easier for development, can be safely removed
+in production.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="backend-backend-py">
+<span id="backend-page"></span><h2>Backend (<code class="docutils literal notranslate"><span class="pre">backend.py</span></code>)<a class="headerlink" href="#backend-backend-py" title="Permalink to this headline">¶</a></h2>
+<p>The <em>backend.py</em> file fetches the data needed (by calling <a class="reference internal" href="#data.fetchData" title="data.fetchData"><code class="xref py py-func docutils literal notranslate"><span class="pre">data.fetchData()</span></code></a>) and exposes the data to the
+frontend via REST endpoints.</p>
+<span class="target" id="module-backend"></span><dl class="function">
+<dt id="backend.fetchPrereqsEndpoint">
+<code class="descclassname">backend.</code><code class="descname">fetchPrereqsEndpoint</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchPrereqsEndpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchPrereqsEndpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to start fetching prerequisites for a module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.callFetchData">
+<code class="descclassname">backend.</code><code class="descname">callFetchData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#callFetchData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.callFetchData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to start fetching data</p>
+<p>Called when server is started, or when the refresh data button is pressed in Faculty side.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.fetchDataStatus">
+<code class="descclassname">backend.</code><code class="descname">fetchDataStatus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchDataStatus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchDataStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the current status of data fetching (as an integer from 0 to 100)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.fetchModuleDescription">
+<code class="descclassname">backend.</code><code class="descname">fetchModuleDescription</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#fetchModuleDescription"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.fetchModuleDescription" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch module details of a module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">JSON object containing title, description and tags dictionary of a module</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.mainOverview">
+<code class="descclassname">backend.</code><code class="descname">mainOverview</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#mainOverview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.mainOverview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all relevant details to display on main page for a given module_code</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">JSON object of module details. Contains number of students, unfinished webcast, unviewed forum posts, and tutorial attendance.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.moduleDemographics">
+<code class="descclassname">backend.</code><code class="descname">moduleDemographics</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#moduleDemographics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.moduleDemographics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch information for the module demographics tab</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.moduleEnrolment">
+<code class="descclassname">backend.</code><code class="descname">moduleEnrolment</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#moduleEnrolment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.moduleEnrolment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch information for the module enrolment tab</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.moduleAcademicsFac">
+<code class="descclassname">backend.</code><code class="descname">moduleAcademicsFac</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#moduleAcademicsFac"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.moduleAcademicsFac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch information for the module academics tab</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.get_student_info">
+<code class="descclassname">backend.</code><code class="descname">get_student_info</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#get_student_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.get_student_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch all information of a particular student</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getPrereqs">
+<code class="descclassname">backend.</code><code class="descname">getPrereqs</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getPrereqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getPrereqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch prerequisites of a module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getTeachingFeedback">
+<code class="descclassname">backend.</code><code class="descname">getTeachingFeedback</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getTeachingFeedback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getTeachingFeedback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch students’ review of a professor</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getModuleFeedback">
+<code class="descclassname">backend.</code><code class="descname">getModuleFeedback</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getModuleFeedback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getModuleFeedback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Endpoint to fetch students’ review of a module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getTags">
+<code class="descclassname">backend.</code><code class="descname">getTags</code><span class="sig-paren">(</span><em>tag_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getTags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch information of a tag - number of clicks, modules with same tag, etc</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.setCountTags">
+<code class="descclassname">backend.</code><code class="descname">setCountTags</code><span class="sig-paren">(</span><em>tag_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#setCountTags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.setCountTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update local tag dictionary on number of times a specific tag is clicked</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tag_name</strong> (<em>string</em>) – tag name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">name of tag whose count is updated</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="backend.getSEPUni">
+<code class="descclassname">backend.</code><code class="descname">getSEPUni</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/backend.html#getSEPUni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#backend.getSEPUni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch list of partner universities and their respective modules which can be mapped to this module</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-data">
+<span id="data-downloading-processing-data-py"></span><span id="data-page"></span><h2>Data Downloading &amp; Processing (<code class="docutils literal notranslate"><span class="pre">data.py</span></code>)<a class="headerlink" href="#module-data" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="data.fetchPrereqs">
+<code class="descclassname">data.</code><code class="descname">fetchPrereqs</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchPrereqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchPrereqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch a list of prerequisites for a given module code. Uses nusmods’ API.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Prerequisities for a given module code, returns an empty list of module is not found</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.fetchGoogleSheet">
+<code class="descclassname">data.</code><code class="descname">fetchGoogleSheet</code><span class="sig-paren">(</span><em>url_num</em>, <em>sheet_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchGoogleSheet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchGoogleSheet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query data from Google spreadsheet.
+Data obtained from <a class="reference external" href="https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/">https://docs.google.com/document/d/1lWEWGZBM1sSIAHUDIcIhfo9MJQUjao3v52Qp5VRyEZM/</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>url_num</strong> (<em>integer</em>) – Representing which ‘part’ (1 or 2) the sheet belongs to</li>
+<li><strong>sheet_name</strong> (<em>string</em>) – Name of sheet to pull data from</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Results from Google spreadsheet</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Pandas dataframe</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.fetchFirebase">
+<code class="descclassname">data.</code><code class="descname">fetchFirebase</code><span class="sig-paren">(</span><em>url</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchFirebase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchFirebase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Query data from Firebase.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>url</strong> (<em>string</em>) – Firebase URL</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Results from Firebase database</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas dataframe</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.fetchData">
+<code class="descclassname">data.</code><code class="descname">fetchData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#fetchData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.fetchData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch and process all the data that we need.</p>
+<p>Helper function that starts a thread for each data source to be pulled.
+Is called when the server is first launched, and can be refreshed by
+calling <a class="reference external" href="http://localhost:5000/bt3103-app/backend/fetch_data">http://localhost:5000/bt3103-app/backend/fetch_data</a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.getScore">
+<code class="descclassname">data.</code><code class="descname">getScore</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#getScore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.getScore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps letter grade to numeric score.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>x</strong> (<em>string</em>) – Letter grade</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Numeric grade of a grade, nan is grade is not found (eg. S/U)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.calculate_cap">
+<code class="descclassname">data.</code><code class="descname">calculate_cap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#calculate_cap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.calculate_cap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate CAP score for each student in the database after fetching module enrolment.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.countsAsDict">
+<code class="descclassname">data.</code><code class="descname">countsAsDict</code><span class="sig-paren">(</span><em>df</em>, <em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#countsAsDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.countsAsDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a column, does a value count, and returns a dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>Pandas dataframe</em>) – Dataframe that contains the data to be counted</li>
+<li><strong>column_name</strong> (<em>string</em>) – Name of the column to be counted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary with keys ‘labels’, ‘counts’, and ‘students’ with each value being a list.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">countsAsDict</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">{</span><span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;B&#39;</span><span class="p">],</span> <span class="s1">&#39;counts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="s1">&#39;tokens&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Token1&#39;</span><span class="p">,</span> <span class="s1">&#39;Token2&#39;</span><span class="p">]}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.countsAsLists">
+<code class="descclassname">data.</code><code class="descname">countsAsLists</code><span class="sig-paren">(</span><em>df</em>, <em>column_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#countsAsLists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.countsAsLists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes in a column, does a value count, returns as nested lists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> (<em>Pandas dataframe</em>) – Dataframe that contains the data to be counted</li>
+<li><strong>column_name</strong> (<em>string</em>) – Name of the column to be counted</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A nested list where each sublist includes details of a label. Sublist consist of label name, count, and a list of students.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Pandas series</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">countsAsLists</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">column_name</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[[</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Token1&#39;</span><span class="p">,</span> <span class="s1">&#39;Token2&#39;</span><span class="p">]],</span> <span class="p">[</span><span class="s2">&quot;B&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Token3&#39;</span><span class="p">]]]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.module_all_terms">
+<code class="descclassname">data.</code><code class="descname">module_all_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#module_all_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.module_all_terms" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">All module enrolments for a given module code</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.module_current_term">
+<code class="descclassname">data.</code><code class="descname">module_current_term</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#module_current_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.module_current_term" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Latest semester’s module enrolments for a given module code</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.module_past_terms">
+<code class="descclassname">data.</code><code class="descname">module_past_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#module_past_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.module_past_terms" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Previous semesters’ module enrolments for a given module code</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.program_current_term">
+<code class="descclassname">data.</code><code class="descname">program_current_term</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#program_current_term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.program_current_term" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Program enrolment for students currently taking a particular module</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="data.program_past_terms">
+<code class="descclassname">data.</code><code class="descname">program_past_terms</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/data.html#program_past_terms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.program_past_terms" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Program enrolment for students who previously took the module</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Pandas series</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-student">
+<span id="student-functions-student-py"></span><span id="student-page"></span><h2>Student Functions (<code class="docutils literal notranslate"><span class="pre">student.py</span></code>)<a class="headerlink" href="#module-student" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="student.getPrereqs">
+<code class="descclassname">student.</code><code class="descname">getPrereqs</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/student.html#getPrereqs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#student.getPrereqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch prerequisites of a module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A nested dictionary with keys <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">parent</span></code>, and <code class="docutils literal notranslate"><span class="pre">children</span></code>. Value of <code class="docutils literal notranslate"><span class="pre">children</span></code> is a list.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="student.getTeachingFeedback">
+<code class="descclassname">student.</code><code class="descname">getTeachingFeedback</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/student.html#getTeachingFeedback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#student.getTeachingFeedback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch student reviews (teaching) of a professor</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with keys <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">tAbility</span></code>, <code class="docutils literal notranslate"><span class="pre">tTimely</span></code>, and <code class="docutils literal notranslate"><span class="pre">tInterest</span></code>. Values of <code class="docutils literal notranslate"><span class="pre">tAbility</span></code>, <code class="docutils literal notranslate"><span class="pre">tTimely</span></code>, and <code class="docutils literal notranslate"><span class="pre">tInterest</span></code> are lists.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="student.getModuleFeedback">
+<code class="descclassname">student.</code><code class="descname">getModuleFeedback</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/student.html#getModuleFeedback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#student.getModuleFeedback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch student reviews of a module</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with keys <code class="docutils literal notranslate"><span class="pre">data</span></code>, <code class="docutils literal notranslate"><span class="pre">mRating</span></code>, <code class="docutils literal notranslate"><span class="pre">goodText</span></code>, and <code class="docutils literal notranslate"><span class="pre">badText</span></code>. Values of <code class="docutils literal notranslate"><span class="pre">mRating</span></code>, <code class="docutils literal notranslate"><span class="pre">goodText</span></code>, and <code class="docutils literal notranslate"><span class="pre">badText</span></code> are lists.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="student.getSEPUni">
+<code class="descclassname">student.</code><code class="descname">getSEPUni</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/student.html#getSEPUni"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#student.getSEPUni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch list of partner universities which can map particular module to</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of objects with name of partner university as key, and module code of mapped module as value.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-faculty">
+<span id="faculty-functions-faculty-py"></span><span id="faculty-page"></span><h2>Faculty Functions (<code class="docutils literal notranslate"><span class="pre">faculty.py</span></code>)<a class="headerlink" href="#module-faculty" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="faculty.getModuleGrades">
+<code class="descclassname">faculty.</code><code class="descname">getModuleGrades</code><span class="sig-paren">(</span><em>module_code=None</em>, <em>program_subset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#getModuleGrades"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.getModuleGrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter grades by module_code and/or a list of tokens</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>module_code</strong> (<em>string</em><em>, </em><em>optional</em>) – module code</li>
+<li><strong>program_subset</strong> (<em>Pandas DataFrame</em><em>, </em><em>optional</em>) – Subset of program enrolment dataframe</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A dictionary of keys <code class="docutils literal notranslate"><span class="pre">counts</span></code> and <code class="docutils literal notranslate"><span class="pre">students</span></code>. Depending on input arguments, dictionary consists of grades with this module code and/ or grades belonging to students in the program subset.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.get_faculty_tag_counts">
+<code class="descclassname">faculty.</code><code class="descname">get_faculty_tag_counts</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#get_faculty_tag_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.get_faculty_tag_counts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch list of tags and tags count for the module.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">List of objects with <code class="docutils literal notranslate"><span class="pre">tag</span> <span class="pre">name</span></code> as key and number of clicks (<code class="docutils literal notranslate"><span class="pre">count</span></code>) as value. List is sorted alphabetically by tag name.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.demographics">
+<code class="descclassname">faculty.</code><code class="descname">demographics</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#demographics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.demographics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all demographic data to be displayed for a given module code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of keys <code class="docutils literal notranslate"><span class="pre">degrees</span></code>, <code class="docutils literal notranslate"><span class="pre">academic_career</span></code>, <code class="docutils literal notranslate"><span class="pre">faculty</span></code>, <code class="docutils literal notranslate"><span class="pre">academic_load</span></code> and <code class="docutils literal notranslate"><span class="pre">years</span></code>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.getPrereqGrades">
+<code class="descclassname">faculty.</code><code class="descname">getPrereqGrades</code><span class="sig-paren">(</span><em>token</em>, <em>prereqs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#getPrereqGrades"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.getPrereqGrades" title="Permalink to this definition">¶</a></dt>
+<dd><p>For each student, check which prerequisites have been taken, and how the student fared.
+Used in <code class="docutils literal notranslate"><span class="pre">enrolment</span></code> function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>token</strong> (<em>string</em>) – student token number</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Concatenation of current module’s prerequisites’ module code and respective letter grade student has received.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.enrolment">
+<code class="descclassname">faculty.</code><code class="descname">enrolment</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#enrolment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.enrolment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all student enrolment data to be displayed for a given module code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary of keys <code class="docutils literal notranslate"><span class="pre">attendance</span></code>, <code class="docutils literal notranslate"><span class="pre">webcast</span></code>, <code class="docutils literal notranslate"><span class="pre">CAP</span></code>, and <code class="docutils literal notranslate"><span class="pre">prereqs</span></code>.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.calculate_influence_scores">
+<code class="descclassname">faculty.</code><code class="descname">calculate_influence_scores</code><span class="sig-paren">(</span><em>module_past</em>, <em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#calculate_influence_scores"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.calculate_influence_scores" title="Permalink to this definition">¶</a></dt>
+<dd><p>Statistical analysis part 1.
+Perform statistical analysis on students based on their results of the modules they have taken.
+Specifically, the accummulated difference of their final marks and the modules’ average final marks.
+Used in <code class="docutils literal notranslate"><span class="pre">academics</span></code> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.identify_potential_students">
+<code class="descclassname">faculty.</code><code class="descname">identify_potential_students</code><span class="sig-paren">(</span><em>module_current</em>, <em>module_influence_scores</em>, <em>all_bool</em>, <em>fac_set=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#identify_potential_students"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.identify_potential_students" title="Permalink to this definition">¶</a></dt>
+<dd><p>Statistical analysis part 2.
+Identify students who are doing above and below average for module. Student are grouped by their home faculties.
+Used in <code class="docutils literal notranslate"><span class="pre">academics</span></code> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.calculate_grade_distribution">
+<code class="descclassname">faculty.</code><code class="descname">calculate_grade_distribution</code><span class="sig-paren">(</span><em>set</em>, <em>results</em>, <em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#calculate_grade_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.calculate_grade_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the grade distribution of current students.
+Used in <code class="docutils literal notranslate"><span class="pre">academics</span></code> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.modules_per_student">
+<code class="descclassname">faculty.</code><code class="descname">modules_per_student</code><span class="sig-paren">(</span><em>fac_set</em>, <em>results</em>, <em>key</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#modules_per_student"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.modules_per_student" title="Permalink to this definition">¶</a></dt>
+<dd><p>Count number of modules that each student is taking this semester.
+Used in <code class="docutils literal notranslate"><span class="pre">academics</span></code> function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.academics">
+<code class="descclassname">faculty.</code><code class="descname">academics</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#academics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.academics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all academic data to be displayed for a given module code.
+Includes option/ dictionary to filter information by faculties.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>module_code</strong> (<em>string</em>) – module code</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faculty.student_info">
+<code class="descclassname">faculty.</code><code class="descname">student_info</code><span class="sig-paren">(</span><em>token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/faculty.html#student_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#faculty.student_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch all information about a student.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>token</strong> (<em>string</em>) – student token number</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary with keys <code class="docutils literal notranslate"><span class="pre">information</span></code>, <code class="docutils literal notranslate"><span class="pre">curr_modules</span></code>, and <code class="docutils literal notranslate"><span class="pre">past_modules</span></code>. Values of each key is a Pandas series/ dataframe.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Ultimods</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#server-entry-point-server-py">Server Entry Point (<code class="docutils literal notranslate"><span class="pre">server.py</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-backend-py">Backend (<code class="docutils literal notranslate"><span class="pre">backend.py</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-data">Data Downloading &amp; Processing (<code class="docutils literal notranslate"><span class="pre">data.py</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-student">Student Functions (<code class="docutils literal notranslate"><span class="pre">student.py</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-faculty">Faculty Functions (<code class="docutils literal notranslate"><span class="pre">faculty.py</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="student.html">Student Portal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="faculty.html">Faculty Portal</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="getting_started.html" title="previous chapter">Getting Started</a></li>
+      <li>Next: <a href="student.html" title="next chapter">Student Portal</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/server.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

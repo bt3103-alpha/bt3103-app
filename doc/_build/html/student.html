@@ -1,0 +1,369 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Student Portal &#8212; Ultimods  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Faculty Portal" href="faculty.html" />
+    <link rel="prev" title="Server" href="server.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="student-portal">
+<h1>Student Portal<a class="headerlink" href="#student-portal" title="Permalink to this headline">¶</a></h1>
+<p>The student portal is made up of four HTML pages:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#home-page"><span class="std std-ref">Home Page</span></a> – 4-Year Module Plan</li>
+<li><a class="reference internal" href="#view-module-page"><span class="std std-ref">View Module Page</span></a> – Module Information</li>
+<li><a class="reference internal" href="#module-by-tags-page"><span class="std std-ref">Module by Tags Page</span></a> – Search for Modules by Tags</li>
+<li><a class="reference internal" href="#graduation-progress-page"><span class="std std-ref">Graduation Progress Page</span></a> – Track the modules that an individual has cleared in relation to his graduation requirements</li>
+</ul>
+<div class="section" id="home-page">
+<h2>Home Page<a class="headerlink" href="#home-page" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="script.searchModules">
+<code class="descclassname">script.</code><code class="descname">searchModules</code><span class="sig-paren">(</span><em>search_id</em><span class="sig-paren">)</span><a class="headerlink" href="#script.searchModules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches for all modules on the page and links them to their respective view-module pages</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.sumMCs">
+<code class="descclassname">script.methods.</code><code class="descname">sumMCs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.sumMCs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the MC for each module per semester and sums it</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.changeGrade">
+<code class="descclassname">script.methods.</code><code class="descname">changeGrade</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.changeGrade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lets the user input the grade for each module</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.calcCAP">
+<code class="descclassname">script.methods.</code><code class="descname">calcCAP</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.calcCAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates cap of the individual, given the user’s input grades and total number of graded modules</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.resetInfo">
+<code class="descclassname">script.methods.</code><code class="descname">resetInfo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.resetInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the schedule to the default</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.syncModules">
+<code class="descclassname">script.methods.</code><code class="descname">syncModules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.syncModules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Syncs the timetable with the latest timetable on firebase</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.selectElective">
+<code class="descclassname">script.methods.</code><code class="descname">selectElective</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.selectElective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds module into timetable when selected on the recommended list</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.remove">
+<code class="descclassname">script.methods.</code><code class="descname">remove</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes module into timetable when deleted</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.addRecommendation">
+<code class="descclassname">script.methods.</code><code class="descname">addRecommendation</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.addRecommendation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds module into recommendation list</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="script.methods.swapGeneralMod">
+<code class="descclassname">script.methods.</code><code class="descname">swapGeneralMod</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#script.methods.swapGeneralMod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces general module with selected module when clicked
+Removes the selected module from suggestion list
+Calls syncModules</p>
+</dd></dl>
+
+</div>
+<div class="section" id="view-module-page">
+<h2>View Module Page<a class="headerlink" href="#view-module-page" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="search.search">
+<code class="descclassname">search.</code><code class="descname">search</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#search.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Looks for tags in the nusmods module list that matches the input module code by user</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>param</strong> (<em>string</em>) – input text that was searched</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-module.getModuleInfo">
+<code class="descclassname">view-module.</code><code class="descname">getModuleInfo</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="headerlink" href="#view-module.getModuleInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by View Module Tab, to get module description.</p>
+<p>Pulls data from the /backend/module_description/ endpoint.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-module.getPrereqs">
+<code class="descclassname">view-module.</code><code class="descname">getPrereqs</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="headerlink" href="#view-module.getPrereqs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by view module tab, to get pre-requistes of each module, as documented in nusmods API.</p>
+<p>Pulls data from the /backend/student/view-module/ endpoint.</p>
+<p>Calls <a class="reference internal" href="#view-module.treeStuff" title="view-module.treeStuff"><code class="xref js js-func docutils literal notranslate"><span class="pre">treeStuff()</span></code></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-module.getSEPUni">
+<code class="descclassname">view-module.</code><code class="descname">getSEPUni</code><span class="sig-paren">(</span><em>module_code</em><span class="sig-paren">)</span><a class="headerlink" href="#view-module.getSEPUni" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by view module tab, to get the partner university for each module.</p>
+<p>Pulls data from the /backend/student/SEP/ endpoint.</p>
+<p>Calls <code class="xref js js-func docutils literal notranslate"><span class="pre">searchUni()</span></code></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-module.searchModules">
+<code class="descclassname">view-module.</code><code class="descname">searchModules</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#view-module.searchModules" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loaded by view module tab, to get the partner university for each module.</p>
+<p>Pulls data from the /backend/student/SEP/ endpoint.</p>
+</dd></dl>
+
+<div class="section" id="charts-and-diagrams">
+<h3>Charts and Diagrams<a class="headerlink" href="#charts-and-diagrams" title="Permalink to this headline">¶</a></h3>
+<p>These functions are used to display charts &amp; diagrams
+in the View Module page:</p>
+<dl class="function">
+<dt id="view-module.treeStuff">
+<code class="descclassname">view-module.</code><code class="descname">treeStuff</code><span class="sig-paren">(</span><em>treeData</em><span class="sig-paren">)</span><a class="headerlink" href="#view-module.treeStuff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a tree at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>treeData</strong> (<em>dictionary</em>) – with key value pair as name: module code, parent: post-requisite, and children: list of pre-requistes</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-module.wordcloud">
+<code class="descclassname">view-module.</code><code class="descname">wordcloud</code><span class="sig-paren">(</span><em>listword</em>, <em>id</em>, <em>colorRange</em><span class="sig-paren">)</span><a class="headerlink" href="#view-module.wordcloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a wordcloud at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>listword</strong> (<em>list</em>) – List of words in the wordcloud</li>
+<li><strong>id</strong> (<em>string</em>) – HTML id of div to place chart in</li>
+<li><strong>colorRange</strong> (<em>list</em>) – List of colours in Hex Code</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-module.barReviewChart">
+<code class="descclassname">view-module.</code><code class="descname">barReviewChart</code><span class="sig-paren">(</span><em>id</em>, <em>labels</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#view-module.barReviewChart" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a bar Review Chart chart at a given <code class="docutils literal notranslate"><span class="pre">div</span></code></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>id</strong> (<em>string</em>) – HTML id of div to place chart in</li>
+<li><strong>labels</strong> (<em>list</em>) – List of labels</li>
+<li><strong>data</strong> (<em>list</em>) – Values</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-by-tags-page">
+<h2>Module by Tags Page<a class="headerlink" href="#module-by-tags-page" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="search-tag.searchtagjs">
+<code class="descclassname">search-tag.</code><code class="descname">searchtagjs</code><span class="sig-paren">(</span><em>param</em><span class="sig-paren">)</span><a class="headerlink" href="#search-tag.searchtagjs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Looks for tags in the firebase that matches the input text</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first simple">
+<li><strong>param</strong> (<em>string</em>) – input text that was searched</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>list</strong> – list of tags that matches or contain the input text</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-tag.searchTags">
+<code class="descclassname">view-tag.</code><code class="descname">searchTags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#view-tag.searchTags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Looks for tag that was selected by user and links user to the view-tag page with the corresponding tag</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-tag.searchMod">
+<code class="descclassname">view-tag.</code><code class="descname">searchMod</code><span class="sig-paren">(</span><em>results</em><span class="sig-paren">)</span><a class="headerlink" href="#view-tag.searchMod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the modules that have the corresponding tag, and links it to the corresponding view-module page</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="view-tag.methods.increment">
+<code class="descclassname">view-tag.methods.</code><code class="descname">increment</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#view-tag.methods.increment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Keep track of the number of times the tag was clicked in a local dictionary.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="graduation-progress-page">
+<h2>Graduation Progress Page<a class="headerlink" href="#graduation-progress-page" title="Permalink to this headline">¶</a></h2>
+<p>The Graduation Progress Page syncs with the <a class="reference internal" href="#home-page"><span class="std std-ref">Home Page</span></a> to
+automatically update the student’s progress.</p>
+<dl class="class">
+<dt id="grad.Requirement">
+<em class="property">class </em><code class="descclassname">grad.</code><code class="descname">Requirement</code><span class="sig-paren">(</span><em>details</em>, <em>req_num</em>, <em>field</em>, <em>subset</em>, <em>ofWhichs</em><span class="sig-paren">)</span><a class="headerlink" href="#grad.Requirement" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Arguments:</th><td class="field-body"><ul class="first last simple">
+<li><strong>details</strong> (<em>list</em>) – List of requirements to be met</li>
+<li><strong>req_num</strong> (<em>integer</em>) – Number of the requirements that need to be met. Default: 1</li>
+<li><strong>field</strong> (<em>string</em>) – If applicable, what field to check for requirements (e.g. name, level). Default: name</li>
+<li><strong>subset</strong> (<em>list</em>) – List of module names which have to fulfill the requirements</li>
+<li><strong>ofWhichs</strong> (<em>list</em>) – List of further requirements that those who pass the first this requirement must fulfill</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="grad.displayRequirements">
+<code class="descclassname">grad.</code><code class="descname">displayRequirements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#grad.displayRequirements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to display all requirements in a table</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Ultimods</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="server.html">Server</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Student Portal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#home-page">Home Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#view-module-page">View Module Page</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#charts-and-diagrams">Charts and Diagrams</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-by-tags-page">Module by Tags Page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#graduation-progress-page">Graduation Progress Page</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faculty.html">Faculty Portal</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="server.html" title="previous chapter">Server</a></li>
+      <li>Next: <a href="faculty.html" title="next chapter">Faculty Portal</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      
+      
+      
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.9</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/student.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
