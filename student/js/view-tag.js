@@ -1,6 +1,6 @@
-    /**
-     * Looks for tag that was selected by user and links user to the view-tag page with the corresponding tag
-     */
+/**
+ * Looks for tag that was selected by user and links user to the view-tag page with the corresponding tag
+ */
 function searchTags() {
     let results = searchtagjs(document.getElementById("tag_search").value);
     let resultsDiv = document.getElementById("tag_search_results");
@@ -14,7 +14,7 @@ function searchTags() {
 }
 
 /**
- * 
+ * Find the modules that have the corresponding tag, and links it to the corresponding view-module page
  */
 function searchMod(results){
   let resultsDiv = document.getElementById("mod_search_results");
@@ -125,6 +125,9 @@ window.onload = function () {
             }
         },
         methods: {
+            /**
+             * Keep track of the number of times the tag was clicked in a local dictionary.
+            */
           increment: function(tag_name, vuethis) {
             vuethis.tag_count++;
             tags_ref.child(tag_name).child('count').set(
