@@ -1,3 +1,8 @@
+/**
+ * Loaded by View Module Tab, to get module description. 
+ * 
+ * Pulls data from the /backend/module_description/ endpoint.
+ */
 async function getModuleInfo(module_code) {
     return fetch('/bt3103-app/backend/module_description/' + module_code)
         .then((resp) => {
@@ -5,6 +10,11 @@ async function getModuleInfo(module_code) {
         })
 }
 
+/**
+ * Loaded by View Module Tab, to get pre-requistes of each module, as documented in nusmods API. 
+ * 
+ * Pulls data from the /backend/student/view-module/ endpoint.
+ */
 async function getPrereqs(module_code) {
     return fetch('/bt3103-app/backend/student/view-module/' + module_code)
         .then((resp) => {
@@ -15,6 +25,11 @@ async function getPrereqs(module_code) {
         })
 }
 
+/**
+ * Loaded by View Module Tab, to get the tags of each module. 
+ * 
+ * Pulls data from the /backend/module_description/ endpoint.
+ */
 async function getTags(module_code) {
     return fetch('/bt3103-app/backend/module_description/' + module_code)
         .then((resp) => {
@@ -22,6 +37,11 @@ async function getTags(module_code) {
         })
 }
 
+/**
+ * Loaded by View Module Tab, to get the partner university for each module. 
+ * 
+ * Pulls data from the /backend/student/SEP/ endpoint.
+ */
 async function getSEPUni(module_code) {
     return fetch('/bt3103-app/backend/student/SEP/' + module_code)
         .then((resp) => {
@@ -32,6 +52,11 @@ async function getSEPUni(module_code) {
         })
 }
 
+/**
+ * Loaded by View Module Tab, to get the partner university for each module. 
+ * 
+ * Pulls data from the /backend/student/SEP/ endpoint.
+ */
 function searchModules() {
     let results = search(document.getElementById("module_search").value);
     let resultsDiv = document.getElementById("search_results");
@@ -150,6 +175,10 @@ function roundHalf(num) {
     return Math.round(num * 2) / 2;
 }
 
+/**
+ * Creates a tree at a given ``div``
+ * @param {dictionary} treeData with key value pair as name: module code, parent: post-requisite, and children: list of pre-requistes
+ */
 function treeStuff(treeData) {
     var margin = { top: 0, right: 80, bottom: 0, left: 80 },
         width = 500 - margin.right - margin.left,
@@ -298,8 +327,12 @@ function checkSize(listword) {
     }
 }
 
-
-// student feeback wordcloud
+/**
+ * Creates a wordcloud at a given ``div``
+ * @param {list} listword List of words in the wordcloud
+ * @param {list} id HTML id of div to place chart in
+ * @param {list} colorRange  List of colours in Hex Code
+ */
 function wordcloud(listword, id, colorRange) {
     var width = 300;
     var height = 200;
@@ -362,6 +395,12 @@ function wordcloud(listword, id, colorRange) {
     svg.setAttribute("viewBox", viewBox);
 }
 
+/**
+ * Creates a donut chart at a given ``div``
+ * @param {list} id HTML id of div to place chart in
+ * @param {list} labels List of labels
+ * @param {list} data  Values
+ */
 function donutChart(id, labels = [], dat_a) {
     return new Chart(document.getElementById(id), {
         type: "bar",
