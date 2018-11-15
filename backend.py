@@ -122,7 +122,7 @@ def mainOverview(module_code):
 @backend.route(url_path+'/backend/faculty/demographics/<module_code>')
 def moduleDemographics(module_code):
     '''
-    Fetch information for the module demographics tab
+    Endpoint to fetch information for the module demographics tab
     '''
     return jsonify(faculty.demographics(module_code))
 
@@ -130,7 +130,7 @@ def moduleDemographics(module_code):
 @backend.route(url_path+'/backend/faculty/enrolment/<module_code>')
 def moduleEnrolment(module_code):
     '''
-    Fetch information for the module enrolment tab
+    Endpoint to fetch information for the module enrolment tab
     '''
     return jsonify(faculty.enrolment(module_code))
 
@@ -138,7 +138,7 @@ def moduleEnrolment(module_code):
 @backend.route(url_path+'/backend/faculty/academics/byfac/<module_code>')
 def moduleAcademicsFac(module_code):
     '''
-    Fetch information for the module academics tab
+    Endpoint to fetch information for the module academics tab
     '''
     return jsonify(faculty.academics(module_code))
 
@@ -146,7 +146,7 @@ def moduleAcademicsFac(module_code):
 @backend.route(url_path+'/backend/faculty/student/<token>')
 def get_student_info(token):
     '''
-    Fetch all information of a particular student
+    Endpoint to fetch all information of a particular student
     '''
     return jsonify(faculty.student_info(token))
 
@@ -156,7 +156,7 @@ def get_student_info(token):
 @backend.route(url_path+'/backend/student/view-module/<module_code>')
 def getPrereqs(module_code):
     '''
-    Fetch prerequisites of a module
+    Endpoint to fetch prerequisites of a module
     '''
     return jsonify(student.getPrereqs(module_code))
 
@@ -164,7 +164,7 @@ def getPrereqs(module_code):
 @backend.route(url_path+'/backend/student/view-module/feedbackT/<module_code>')
 def getTeachingFeedback(module_code):
     '''
-    Fetch students' review of a professor
+    Endpoint to fetch students' review of a professor
     '''
     return jsonify(student.getTeachingFeedback(module_code))
 
@@ -172,7 +172,7 @@ def getTeachingFeedback(module_code):
 @backend.route(url_path+'/backend/student/view-module/feedbackM/<module_code>')
 def getModuleFeedback(module_code):
     '''
-    Fetch students' review of a module
+    Endpoint to fetch students' review of a module
     '''
     return jsonify(student.getModuleFeedback(module_code))
 
